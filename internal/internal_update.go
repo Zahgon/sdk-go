@@ -1,17 +1,12 @@
 package internal
 
 import (
-	"errors"
-	"fmt"
-	"reflect"
-
 	commonpb "go.temporal.io/api/common/v1"
 	enumspb "go.temporal.io/api/enums/v1"
 	historypb "go.temporal.io/api/history/v1"
 	protocolpb "go.temporal.io/api/protocol/v1"
 	updatepb "go.temporal.io/api/update/v1"
 	"go.temporal.io/sdk/converter"
-	"go.temporal.io/sdk/internal/protocol"
 )
 
 type updateState string
@@ -114,123 +109,44 @@ func newUpdateProtocol(
 	scheduleUpdate func(name string, id string, args *commonpb.Payloads, header *commonpb.Header, callbacks UpdateCallbacks),
 	env updateEnv,
 ) *updateProtocol {
-	return &updateProtocol{
-		protoInstanceID:  protoInstanceID,
-		env:              env,
-		scheduleUpdate:   scheduleUpdate,
-		state:            updateStateNew,
-		dataConverter:    env.GetDataConverter(),
-		failureConverter: env.GetFailureConverter(),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (up *updateProtocol) requireState(action string, valid ...updateState) {
-	for _, validState := range valid {
-		if up.state == validState {
-			return
-		}
-	}
-	panicIllegalState(fmt.Sprintf("[TMPRL1100] invalid action %q in update protocol %+v", action, up))
+	_ = "STUB: not implemented"
+	return
 }
 
 func (up *updateProtocol) HandleMessage(msg *protocolpb.Message) error {
-	var request updatepb.Request
-	if err := msg.Body.UnmarshalTo(&request); err != nil {
-		return err
-	}
-	up.initialRequest = &request
-	up.requireState("update request", updateStateNew)
-	up.requestMsgID = msg.GetId()
-	up.requestSeqID = msg.GetEventId()
-	input := up.initialRequest.GetInput()
-	up.scheduleUpdate(input.GetName(), up.initialRequest.GetMeta().GetUpdateId(), input.GetArgs(), input.GetHeader(), up)
-	up.state = updateStateRequestInitiated
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // Accept is called for an update after it has passed validation and
 // before execution has started.
-func (up *updateProtocol) Accept() {
-	up.requireState("accept", updateStateRequestInitiated)
-	up.env.Send(&protocolpb.Message{
-		Id:                 up.protoInstanceID + "/accept",
-		ProtocolInstanceId: up.protoInstanceID,
-		Body: protocol.MustMarshalAny(&updatepb.Acceptance{
-			AcceptedRequestMessageId:         up.requestMsgID,
-			AcceptedRequestSequencingEventId: up.requestSeqID,
-			AcceptedRequest:                  up.initialRequest,
-		}),
-	}, withExpectedEventPredicate(up.checkAcceptedEvent))
-	// Stop holding a reference to the initial request to allow it to be GCed
-	up.initialRequest = nil
-	up.state = updateStateAccepted
-}
+func (up *updateProtocol) Accept() { _ = "STUB: not implemented"; return }
+
+// Stop holding a reference to the initial request to allow it to be GCed
 
 // Reject is called for an update if validation fails.
-func (up *updateProtocol) Reject(err error) {
-	up.requireState("reject", updateStateNew, updateStateRequestInitiated)
-	up.env.Send(&protocolpb.Message{
-		Id:                 up.protoInstanceID + "/reject",
-		ProtocolInstanceId: up.protoInstanceID,
-		Body: protocol.MustMarshalAny(&updatepb.Rejection{
-			RejectedRequestMessageId:         up.requestMsgID,
-			RejectedRequestSequencingEventId: up.requestSeqID,
-			RejectedRequest:                  up.initialRequest,
-			Failure:                          up.failureConverter.ErrorToFailure(err),
-		}),
-	})
-	up.state = updateStateCompleted
-}
+func (up *updateProtocol) Reject(err error) { _ = "STUB: not implemented"; return }
 
 // Complete is called for an update with the result of executing the
 // update function.
 func (up *updateProtocol) Complete(success interface{}, outcomeErr error) {
-	up.requireState("complete", updateStateAccepted)
-	outcome := &updatepb.Outcome{}
-	if outcomeErr != nil {
-		outcome.Value = &updatepb.Outcome_Failure{
-			Failure: up.failureConverter.ErrorToFailure(outcomeErr),
-		}
-	} else {
-		dc := up.dataConverter
-		success, err := dc.ToPayloads(success)
-		if err != nil {
-			panic(err)
-		}
-		outcome.Value = &updatepb.Outcome_Success{
-			Success: success,
-		}
-	}
-	up.env.Send(&protocolpb.Message{
-		Id:                 up.protoInstanceID + "/complete",
-		ProtocolInstanceId: up.protoInstanceID,
-		Body: protocol.MustMarshalAny(&updatepb.Response{
-			Meta: &updatepb.Meta{
-				UpdateId: up.protoInstanceID,
-				Identity: up.clientIdentity,
-			},
-			Outcome: outcome,
-		}),
-	}, withExpectedEventPredicate(up.checkCompletedEvent))
-	up.state = updateStateCompleted
+	_ = "STUB: not implemented"
+	return
 }
 
 func (up *updateProtocol) checkCompletedEvent(e *historypb.HistoryEvent) bool {
-	attrs := e.GetWorkflowExecutionUpdateCompletedEventAttributes()
-	if attrs == nil {
-		return false
-	}
-	return attrs.Meta.GetUpdateId() == up.protoInstanceID
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (up *updateProtocol) checkAcceptedEvent(e *historypb.HistoryEvent) bool {
-	attrs := e.GetWorkflowExecutionUpdateAcceptedEventAttributes()
-	if attrs == nil {
-		return false
-	}
-	return attrs.GetProtocolInstanceId() == up.protoInstanceID &&
-		attrs.AcceptedRequestMessageId == up.requestMsgID &&
-		attrs.AcceptedRequestSequencingEventId == up.requestSeqID
+	_ = "STUB: not implemented"
+	return false
 }
 
 // defaultHandler receives the initial invocation of an update during WFT
@@ -249,90 +165,19 @@ func defaultUpdateHandler(
 	callbacks UpdateCallbacks,
 	scheduler UpdateScheduler,
 ) {
-	env := getWorkflowEnvironment(rootCtx)
-	ctx, err := workflowContextWithHeaderPropagated(rootCtx, header, env.GetContextPropagators())
-	if err != nil {
-		callbacks.Reject(err)
-		return
-	}
-	eo := getWorkflowEnvOptions(ctx)
-	priorityUpdateHandling := env.TryUse(SDKPriorityUpdateHandling)
-
-	updateRunner := func(ctx Context) {
-		updateInfo := UpdateInfo{
-			ID:   id,
-			Name: name,
-		}
-		ctx = WithValue(ctx, updateInfoContextKey, &updateInfo)
-
-		eo := getWorkflowEnvOptions(ctx)
-		if len(eo.updateHandlers) == 0 && !priorityUpdateHandling {
-			scheduler.Yield(ctx, "yielding for initial handler registration")
-		}
-		handler, ok := eo.updateHandlers[name]
-		if !ok {
-			keys := make([]string, 0, len(eo.updateHandlers))
-			for k := range eo.updateHandlers {
-				keys = append(keys, k)
-			}
-			callbacks.Reject(fmt.Errorf("unknown update %v. KnownUpdates=%v", name, keys))
-			return
-		}
-
-		if up, ok := callbacks.(*updateProtocol); ok {
-			up.dataConverter = handler.dataConverter
-			up.failureConverter = handler.failureConverter
-		}
-
-		args, err := decodeArgsToRawValues(
-			handler.dataConverter,
-			reflect.TypeOf(handler.fn),
-			serializedArgs,
-		)
-		if err != nil {
-			callbacks.Reject(fmt.Errorf("unable to decode the input for update %q: %w", name, err))
-			return
-		}
-		input := UpdateInput{Name: name, Args: args}
-		eo.runningUpdatesHandles[id] = updateInfo
-		defer func() {
-			delete(eo.runningUpdatesHandles, id)
-		}()
-
-		envInterceptor := getWorkflowEnvironmentInterceptor(ctx)
-		if !IsReplaying(ctx) {
-			// we don't execute update validation during replay so that
-			// validation routines can change across versions
-			err = func() error {
-				defer getState(ctx).dispatcher.setIsReadOnly(false)
-				getState(ctx).dispatcher.setIsReadOnly(true)
-				return envInterceptor.inboundInterceptor.ValidateUpdate(ctx, &input)
-			}()
-			if err != nil {
-				callbacks.Reject(err)
-				return
-			}
-		}
-		callbacks.Accept()
-		success, err := envInterceptor.inboundInterceptor.ExecuteUpdate(ctx, &input)
-		callbacks.Complete(success, err)
-	}
-
-	// If we suspect that handler registration has not occurred (e.g.
-	// because this update is part of the first workflow task and is being
-	// delivered before the workflow function itself has run and had a
-	// chance to register update handlers) then we queue updates
-	// to allow handler registration to occur. When a handler is registered the
-	// updates will be scheduled and ran.
-	if len(eo.updateHandlers) == 0 && priorityUpdateHandling {
-		env.QueueUpdate(name, func() {
-			scheduler.Spawn(ctx, name, priorityUpdateHandling, updateRunner)
-		})
-	} else {
-		scheduler.Spawn(ctx, name, priorityUpdateHandling, updateRunner)
-	}
-
+	_ = "STUB: not implemented"
+	return
 }
+
+// we don't execute update validation during replay so that
+// validation routines can change across versions
+
+// If we suspect that handler registration has not occurred (e.g.
+// because this update is part of the first workflow task and is being
+// delivered before the workflow function itself has run and had a
+// chance to register update handlers) then we queue updates
+// to allow handler registration to occur. When a handler is registered the
+// updates will be scheduled and ran.
 
 // newUpdateHandler instantiates a new updateHandler if the supplied handler and
 // opts.Validator functions pass validation of their respective interfaces and
@@ -343,82 +188,35 @@ func newUpdateHandler(
 	handler interface{},
 	opts UpdateHandlerOptions,
 ) (*updateHandler, error) {
-	if err := validateUpdateHandlerFn(handler); err != nil {
-		return nil, err
-	}
-	var validateFn interface{} = func(...interface{}) error { return nil }
-	if opts.Validator != nil {
-		if err := validateValidatorFn(opts.Validator); err != nil {
-			return nil, err
-		}
-		if err := validateEquivalentParams(handler, opts.Validator); err != nil {
-			return nil, err
-		}
-		validateFn = opts.Validator
-	}
-	return &updateHandler{
-		fn:               handler,
-		validateFn:       validateFn,
-		name:             updateName,
-		unfinishedPolicy: opts.UnfinishedPolicy,
-		description:      opts.Description,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // validate invokes the update's validation function.
 func (h *updateHandler) validate(ctx Context, input []interface{}) (err error) {
-	defer func() {
-		if p := recover(); p != nil {
-			if p == panicIllegalAccessCoroutineState {
-				// Don't handle the panic since this error means the workflow state is
-				// likely corrupted and should be discarded.
-				panic(p)
-			}
-			st := getStackTraceRaw("update validator [panic]:", 7, 0)
-			err = newPanicError(fmt.Sprintf("update validator panic: %v", p), st)
-		}
-	}()
-	_, err = executeFunctionWithWorkflowContext(ctx, h.validateFn, input)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Don't handle the panic since this error means the workflow state is
+// likely corrupted and should be discarded.
 
 // execute executes the update itself.
 func (h *updateHandler) execute(ctx Context, input []interface{}) (result interface{}, err error) {
-	return executeFunctionWithWorkflowContext(ctx, h.fn, input)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // HasCompleted allows the completion status of the update protocol to be
 // observed externally.
-func (up *updateProtocol) HasCompleted() bool {
-	return up.state == updateStateCompleted
-}
+func (up *updateProtocol) HasCompleted() bool { _ = "STUB: not implemented"; return false }
 
 // validateValidatorFn validates that the supplied interface
 //
 // 1. is a function
 // 2. has exactly one return parameter
 // 3. the one return parameter is of type `error`
-func validateValidatorFn(fn interface{}) error {
-	fnType := reflect.TypeOf(fn)
-	if fnType.Kind() != reflect.Func {
-		return fmt.Errorf("validator must be function but was %s", fnType.Kind())
-	}
-
-	if fnType.NumOut() != 1 {
-		return fmt.Errorf(
-			"validator must return exactly 1 value (an error), but found %d return values",
-			fnType.NumOut(),
-		)
-	}
-
-	if !isError(fnType.Out(0)) {
-		return fmt.Errorf(
-			"return value of validator must be error but found %v",
-			fnType.Out(fnType.NumOut()-1).Kind(),
-		)
-	}
-	return nil
-}
+func validateValidatorFn(fn interface{}) error { _ = "STUB: not implemented"; return nil }
 
 // validateUpdateHandlerFn validates that the supplied interface
 //
@@ -426,58 +224,9 @@ func validateValidatorFn(fn interface{}) error {
 // 2. has at least one parameter, the first of which is of type `workflow.Context`
 // 3. has one or two return parameters, the last of which is of type `error`
 // 4. if there are two return parameters, the first is a serializable type
-func validateUpdateHandlerFn(fn interface{}) error {
-	fnType := reflect.TypeOf(fn)
-	if fnType.Kind() != reflect.Func {
-		return fmt.Errorf("handler must be function but was %s", fnType.Kind())
-	}
-	if fnType.NumIn() == 0 {
-		return errors.New("first parameter of handler must be a workflow.Context")
-	} else if !isWorkflowContext(fnType.In(0)) {
-		return fmt.Errorf(
-			"first parameter of handler must be a workflow.Context but found %v",
-			fnType.In(0).Kind(),
-		)
-	}
-	switch fnType.NumOut() {
-	case 1:
-		if !isError(fnType.Out(0)) {
-			return fmt.Errorf(
-				"last return value of handler must be error but found %v",
-				fnType.Out(0).Kind(),
-			)
-		}
-	case 2:
-		if !isValidResultType(fnType.Out(0)) {
-			return fmt.Errorf(
-				"first return value of handler must be serializable but found: %v",
-				fnType.Out(0).Kind(),
-			)
-		}
-		if !isError(fnType.Out(1)) {
-			return fmt.Errorf(
-				"last return value of handler must be error but found %v",
-				fnType.Out(1).Kind(),
-			)
-		}
-	default:
-		return errors.New("update handler return signature must be a single " +
-			"error or a serializable result and error (i.e. (ResultType, error))")
-	}
-	return nil
-}
+func validateUpdateHandlerFn(fn interface{}) error { _ = "STUB: not implemented"; return nil }
 
 func updateLifeCycleStageToProto(l WorkflowUpdateStage) enumspb.UpdateWorkflowExecutionLifecycleStage {
-	switch l {
-	case WorkflowUpdateStageUnspecified:
-		return enumspb.UPDATE_WORKFLOW_EXECUTION_LIFECYCLE_STAGE_UNSPECIFIED
-	case WorkflowUpdateStageAdmitted:
-		return enumspb.UPDATE_WORKFLOW_EXECUTION_LIFECYCLE_STAGE_ADMITTED
-	case WorkflowUpdateStageAccepted:
-		return enumspb.UPDATE_WORKFLOW_EXECUTION_LIFECYCLE_STAGE_ACCEPTED
-	case WorkflowUpdateStageCompleted:
-		return enumspb.UPDATE_WORKFLOW_EXECUTION_LIFECYCLE_STAGE_COMPLETED
-	default:
-		panic("unknown update lifecycle stage")
-	}
+	_ = "STUB: not implemented"
+	return *new(enumspb.UpdateWorkflowExecutionLifecycleStage)
 }

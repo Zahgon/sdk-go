@@ -2,7 +2,6 @@ package internal
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"sync/atomic"
 
@@ -130,16 +129,7 @@ type SlotSupplier interface {
 	MaxSlots() int
 }
 
-func getSlotSupplierKind(s SlotSupplier) string {
-	switch s.(type) {
-	case *FixedSizeSlotSupplier:
-		return "Fixed"
-	case *ResourceBasedSlotSupplier:
-		return "ResourceBased"
-	default:
-		return "Custom"
-	}
-}
+func getSlotSupplierKind(s SlotSupplier) string { _ = "STUB: not implemented"; return "" }
 
 // CompositeTuner allows you to build a tuner from multiple slot suppliers.
 type CompositeTuner struct {
@@ -151,19 +141,28 @@ type CompositeTuner struct {
 }
 
 func (c *CompositeTuner) GetWorkflowTaskSlotSupplier() SlotSupplier {
-	return c.workflowSlotSupplier
+	_ = "STUB: not implemented"
+	return *new(SlotSupplier)
 }
+
 func (c *CompositeTuner) GetActivityTaskSlotSupplier() SlotSupplier {
-	return c.activitySlotSupplier
+	_ = "STUB: not implemented"
+	return *new(SlotSupplier)
 }
+
 func (c *CompositeTuner) GetLocalActivitySlotSupplier() SlotSupplier {
-	return c.localActivitySlotSupplier
+	_ = "STUB: not implemented"
+	return *new(SlotSupplier)
 }
+
 func (c *CompositeTuner) GetNexusSlotSupplier() SlotSupplier {
-	return c.nexusSlotSupplier
+	_ = "STUB: not implemented"
+	return *new(SlotSupplier)
 }
+
 func (c *CompositeTuner) GetSessionActivitySlotSupplier() SlotSupplier {
-	return c.sessionActivitySlotSupplier
+	_ = "STUB: not implemented"
+	return *new(SlotSupplier)
 }
 
 // CompositeTunerOptions are the options used by NewCompositeTuner.
@@ -185,13 +184,8 @@ type CompositeTunerOptions struct {
 // NewCompositeTuner creates a WorkerTuner that uses a combination of slot suppliers.
 // Exposed as: [go.temporal.io/sdk/worker.NewCompositeTuner]
 func NewCompositeTuner(options CompositeTunerOptions) (WorkerTuner, error) {
-	return &CompositeTuner{
-		workflowSlotSupplier:        options.WorkflowSlotSupplier,
-		activitySlotSupplier:        options.ActivitySlotSupplier,
-		localActivitySlotSupplier:   options.LocalActivitySlotSupplier,
-		nexusSlotSupplier:           options.NexusSlotSupplier,
-		sessionActivitySlotSupplier: options.SessionActivitySlotSupplier,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(WorkerTuner), nil
 }
 
 // FixedSizeTunerOptions are the options used by NewFixedSizeTuner.
@@ -212,45 +206,8 @@ type FixedSizeTunerOptions struct {
 //
 // Exposed as: [go.temporal.io/sdk/worker.NewFixedSizeTuner]
 func NewFixedSizeTuner(options FixedSizeTunerOptions) (WorkerTuner, error) {
-	if options.NumWorkflowSlots <= 0 {
-		options.NumWorkflowSlots = defaultMaxConcurrentTaskExecutionSize
-	}
-	if options.NumActivitySlots <= 0 {
-		options.NumActivitySlots = defaultMaxConcurrentActivityExecutionSize
-	}
-	if options.NumLocalActivitySlots <= 0 {
-		options.NumLocalActivitySlots = defaultMaxConcurrentLocalActivityExecutionSize
-	}
-	if options.NumNexusSlots <= 0 {
-		options.NumNexusSlots = defaultMaxConcurrentTaskExecutionSize
-	}
-	wfSS, err := NewFixedSizeSlotSupplier(options.NumWorkflowSlots)
-	if err != nil {
-		return nil, err
-	}
-	actSS, err := NewFixedSizeSlotSupplier(options.NumActivitySlots)
-	if err != nil {
-		return nil, err
-	}
-	laSS, err := NewFixedSizeSlotSupplier(options.NumLocalActivitySlots)
-	if err != nil {
-		return nil, err
-	}
-	nexusSS, err := NewFixedSizeSlotSupplier(options.NumNexusSlots)
-	if err != nil {
-		return nil, err
-	}
-	sessSS, err := NewFixedSizeSlotSupplier(options.NumActivitySlots)
-	if err != nil {
-		return nil, err
-	}
-	return &CompositeTuner{
-		workflowSlotSupplier:        wfSS,
-		activitySlotSupplier:        actSS,
-		localActivitySlotSupplier:   laSS,
-		nexusSlotSupplier:           nexusSS,
-		sessionActivitySlotSupplier: sessSS,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(WorkerTuner), nil
 }
 
 // FixedSizeSlotSupplier is a slot supplier that will only ever issue at most a fixed number of
@@ -264,37 +221,25 @@ type FixedSizeSlotSupplier struct {
 //
 // Exposed as: [go.temporal.io/sdk/worker.NewFixedSizeSlotSupplier]
 func NewFixedSizeSlotSupplier(numSlots int) (*FixedSizeSlotSupplier, error) {
-	if numSlots <= 0 {
-		return nil, fmt.Errorf("NumSlots must be positive")
-	}
-	return &FixedSizeSlotSupplier{
-		numSlots: numSlots,
-		sem:      semaphore.NewWeighted(int64(numSlots)),
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (f *FixedSizeSlotSupplier) ReserveSlot(ctx context.Context, _ SlotReservationInfo) (
 	*SlotPermit, error) {
-	err := f.sem.Acquire(ctx, 1)
-	if err != nil {
-		return nil, fmt.Errorf("failed to acquire slot: %w", err)
-	}
-
-	return &SlotPermit{}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
 func (f *FixedSizeSlotSupplier) TryReserveSlot(SlotReservationInfo) *SlotPermit {
-	if f.sem.TryAcquire(1) {
-		return &SlotPermit{}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
-func (f *FixedSizeSlotSupplier) MarkSlotUsed(SlotMarkUsedInfo) {}
-func (f *FixedSizeSlotSupplier) ReleaseSlot(SlotReleaseInfo) {
-	f.sem.Release(1)
-}
-func (f *FixedSizeSlotSupplier) MaxSlots() int {
-	return f.numSlots
-}
+
+func (f *FixedSizeSlotSupplier) MarkSlotUsed(SlotMarkUsedInfo) { _ = "STUB: not implemented"; return }
+func (f *FixedSizeSlotSupplier) ReleaseSlot(SlotReleaseInfo)   { _ = "STUB: not implemented"; return }
+
+func (f *FixedSizeSlotSupplier) MaxSlots() int { _ = "STUB: not implemented"; return 0 }
 
 type slotReservationData struct {
 	taskQueue string
@@ -309,28 +254,22 @@ type slotReserveInfoImpl struct {
 	metrics        metrics.Handler
 }
 
-func (s slotReserveInfoImpl) TaskQueue() string {
-	return s.taskQueue
-}
+func (s slotReserveInfoImpl) TaskQueue() string { _ = "STUB: not implemented"; return "" }
 
-func (s slotReserveInfoImpl) WorkerBuildId() string {
-	return s.workerBuildId
-}
+func (s slotReserveInfoImpl) WorkerBuildId() string { _ = "STUB: not implemented"; return "" }
 
-func (s slotReserveInfoImpl) WorkerIdentity() string {
-	return s.workerIdentity
-}
+func (s slotReserveInfoImpl) WorkerIdentity() string { _ = "STUB: not implemented"; return "" }
 
-func (s slotReserveInfoImpl) NumIssuedSlots() int {
-	return int(s.issuedSlots.Load())
-}
+func (s slotReserveInfoImpl) NumIssuedSlots() int { _ = "STUB: not implemented"; return 0 }
 
 func (s slotReserveInfoImpl) Logger() log.Logger {
-	return s.logger
+	_ = "STUB: not implemented"
+	return *new(log.Logger)
 }
 
 func (s slotReserveInfoImpl) MetricsHandler() metrics.Handler {
-	return s.metrics
+	_ = "STUB: not implemented"
+	return *new(metrics.Handler)
 }
 
 type slotMarkUsedContextImpl struct {
@@ -339,16 +278,16 @@ type slotMarkUsedContextImpl struct {
 	metrics metrics.Handler
 }
 
-func (s slotMarkUsedContextImpl) Permit() *SlotPermit {
-	return s.permit
-}
+func (s slotMarkUsedContextImpl) Permit() *SlotPermit { _ = "STUB: not implemented"; return nil }
 
 func (s slotMarkUsedContextImpl) Logger() log.Logger {
-	return s.logger
+	_ = "STUB: not implemented"
+	return *new(log.Logger)
 }
 
 func (s slotMarkUsedContextImpl) MetricsHandler() metrics.Handler {
-	return s.metrics
+	_ = "STUB: not implemented"
+	return *new(metrics.Handler)
 }
 
 type slotReleaseContextImpl struct {
@@ -358,20 +297,21 @@ type slotReleaseContextImpl struct {
 	metrics metrics.Handler
 }
 
-func (s slotReleaseContextImpl) Permit() *SlotPermit {
-	return s.permit
-}
+func (s slotReleaseContextImpl) Permit() *SlotPermit { _ = "STUB: not implemented"; return nil }
 
 func (s slotReleaseContextImpl) Reason() SlotReleaseReason {
-	return s.reason
+	_ = "STUB: not implemented"
+	return *new(SlotReleaseReason)
 }
 
 func (s slotReleaseContextImpl) Logger() log.Logger {
-	return s.logger
+	_ = "STUB: not implemented"
+	return *new(log.Logger)
 }
 
 func (s slotReleaseContextImpl) MetricsHandler() metrics.Handler {
-	return s.metrics
+	_ = "STUB: not implemented"
+	return *new(metrics.Handler)
 }
 
 type trackingSlotSupplier struct {
@@ -397,109 +337,30 @@ type trackingSlotSupplierOptions struct {
 }
 
 func newTrackingSlotSupplier(inner SlotSupplier, options trackingSlotSupplierOptions) *trackingSlotSupplier {
-	tss := &trackingSlotSupplier{
-		inner:                   inner,
-		logger:                  options.logger,
-		metrics:                 options.metricsHandler,
-		workerBuildId:           options.workerBuildId,
-		workerIdentity:          options.workerIdentity,
-		usedSlots:               make(map[*SlotPermit]struct{}),
-		taskSlotsAvailableGauge: options.metricsHandler.Gauge(metrics.WorkerTaskSlotsAvailable),
-		taskSlotsUsedGauge:      options.metricsHandler.Gauge(metrics.WorkerTaskSlotsUsed),
-	}
-	return tss
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (t *trackingSlotSupplier) ReserveSlot(
 	ctx context.Context,
 	data *slotReservationData,
 ) (*SlotPermit, error) {
-	permit, err := t.inner.ReserveSlot(ctx, slotReserveInfoImpl{
-		taskQueue:      data.taskQueue,
-		workerBuildId:  t.workerBuildId,
-		workerIdentity: t.workerIdentity,
-		issuedSlots:    &t.issuedSlotsAtomic,
-		logger:         t.logger,
-		metrics:        t.metrics,
-	})
-	if err != nil {
-		return nil, err
-	}
-	if permit == nil {
-		return nil, fmt.Errorf("slot supplier returned nil permit")
-	}
-	t.issuedSlotsAtomic.Add(1)
-	t.slotsMutex.Lock()
-	usedSlots := len(t.usedSlots)
-	t.slotsMutex.Unlock()
-	t.publishMetrics(usedSlots)
-	return permit, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (t *trackingSlotSupplier) TryReserveSlot(data *slotReservationData) *SlotPermit {
-	permit := t.inner.TryReserveSlot(slotReserveInfoImpl{
-		taskQueue:      data.taskQueue,
-		workerBuildId:  t.workerBuildId,
-		workerIdentity: t.workerIdentity,
-		issuedSlots:    &t.issuedSlotsAtomic,
-		logger:         t.logger,
-		metrics:        t.metrics,
-	})
-	if permit != nil {
-		t.issuedSlotsAtomic.Add(1)
-		t.slotsMutex.Lock()
-		usedSlots := len(t.usedSlots)
-		t.slotsMutex.Unlock()
-		t.publishMetrics(usedSlots)
-	}
-	return permit
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (t *trackingSlotSupplier) MarkSlotUsed(permit *SlotPermit) {
-	if permit == nil {
-		panic("Cannot mark nil permit as used")
-	}
-	t.slotsMutex.Lock()
-	t.usedSlots[permit] = struct{}{}
-	usedSlots := len(t.usedSlots)
-	t.slotsMutex.Unlock()
-	t.inner.MarkSlotUsed(&slotMarkUsedContextImpl{
-		permit:  permit,
-		logger:  t.logger,
-		metrics: t.metrics,
-	})
-	t.publishMetrics(usedSlots)
-}
+func (t *trackingSlotSupplier) MarkSlotUsed(permit *SlotPermit) { _ = "STUB: not implemented"; return }
 
 func (t *trackingSlotSupplier) ReleaseSlot(permit *SlotPermit, reason SlotReleaseReason) {
-	if permit == nil {
-		panic("Cannot release with nil permit")
-	}
-	t.slotsMutex.Lock()
-	delete(t.usedSlots, permit)
-	usedSlots := len(t.usedSlots)
-	t.slotsMutex.Unlock()
-	t.inner.ReleaseSlot(&slotReleaseContextImpl{
-		permit:  permit,
-		reason:  reason,
-		logger:  t.logger,
-		metrics: t.metrics,
-	})
-	t.issuedSlotsAtomic.Add(-1)
-	if permit.extraReleaseCallback != nil {
-		permit.extraReleaseCallback()
-	}
-
-	t.publishMetrics(usedSlots)
+	_ = "STUB: not implemented"
+	return
 }
 
-func (t *trackingSlotSupplier) publishMetrics(usedSlots int) {
-	if t.inner.MaxSlots() != 0 {
-		t.taskSlotsAvailableGauge.Update(float64(t.inner.MaxSlots() - usedSlots))
-	}
-	t.taskSlotsUsedGauge.Update(float64(usedSlots))
-}
+func (t *trackingSlotSupplier) publishMetrics(usedSlots int) { _ = "STUB: not implemented"; return }
 
-func (t *trackingSlotSupplier) GetSlotSupplierKind() string {
-	return getSlotSupplierKind(t.inner)
-}
+func (t *trackingSlotSupplier) GetSlotSupplierKind() string { _ = "STUB: not implemented"; return "" }

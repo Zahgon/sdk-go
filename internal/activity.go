@@ -2,7 +2,6 @@ package internal
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	commonpb "go.temporal.io/api/common/v1"
@@ -204,31 +203,25 @@ type (
 )
 
 // IsWorkflowActivity returns true if this activity was started by a workflow.
-func (i *ActivityInfo) IsWorkflowActivity() bool {
-	return i.WorkflowExecution.ID != ""
-}
+func (i *ActivityInfo) IsWorkflowActivity() bool { _ = "STUB: not implemented"; return false }
 
 // GetActivityInfo returns information about the currently executing activity.
 //
 // Exposed as: [go.temporal.io/sdk/activity.GetInfo]
 func GetActivityInfo(ctx context.Context) ActivityInfo {
-	return getActivityOutboundInterceptor(ctx).GetInfo(ctx)
+	_ = "STUB: not implemented"
+	return *new(ActivityInfo)
 }
 
 // HasHeartbeatDetails checks if there are heartbeat details from last attempt.
 //
 // Exposed as: [go.temporal.io/sdk/activity.HasHeartbeatDetails]
-func HasHeartbeatDetails(ctx context.Context) bool {
-	return getActivityOutboundInterceptor(ctx).HasHeartbeatDetails(ctx)
-}
+func HasHeartbeatDetails(ctx context.Context) bool { _ = "STUB: not implemented"; return false }
 
 // IsActivity checks if the context is an activity context from a normal or local activity.
 //
 // Exposed as: [go.temporal.io/sdk/activity.IsActivity]
-func IsActivity(ctx context.Context) bool {
-	a := ctx.Value(activityInterceptorContextKey)
-	return a != nil
-}
+func IsActivity(ctx context.Context) bool { _ = "STUB: not implemented"; return false }
 
 // GetHeartbeatDetails extracts heartbeat details from the last failed attempt. This is used in combination with the retry policy.
 // An activity could be scheduled with an optional retry policy on ActivityOptions. If the activity failed, then server
@@ -241,21 +234,24 @@ func IsActivity(ctx context.Context) bool {
 //
 // Exposed as: [go.temporal.io/sdk/activity.GetHeartbeatDetails]
 func GetHeartbeatDetails(ctx context.Context, d ...interface{}) error {
-	return getActivityOutboundInterceptor(ctx).GetHeartbeatDetails(ctx, d...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetActivityLogger returns a logger that can be used in the activity.
 //
 // Exposed as: [go.temporal.io/sdk/activity.GetLogger]
 func GetActivityLogger(ctx context.Context) log.Logger {
-	return getActivityOutboundInterceptor(ctx).GetLogger(ctx)
+	_ = "STUB: not implemented"
+	return *new(log.Logger)
 }
 
 // GetActivityMetricsHandler returns a metrics handler that can be used in the activity.
 //
 // Exposed as: [go.temporal.io/sdk/activity.GetMetricsHandler]
 func GetActivityMetricsHandler(ctx context.Context) metrics.Handler {
-	return getActivityOutboundInterceptor(ctx).GetMetricsHandler(ctx)
+	_ = "STUB: not implemented"
+	return *new(metrics.Handler)
 }
 
 // GetWorkerStopChannel returns a read-only channel. The closure of this channel indicates the activity worker is stopping.
@@ -265,7 +261,8 @@ func GetActivityMetricsHandler(ctx context.Context) metrics.Handler {
 //
 // Exposed as: [go.temporal.io/sdk/activity.GetWorkerStopChannel]
 func GetWorkerStopChannel(ctx context.Context) <-chan struct{} {
-	return getActivityOutboundInterceptor(ctx).GetWorkerStopChannel(ctx)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RecordActivityHeartbeat sends a heartbeat for the currently executing activity.
@@ -279,16 +276,15 @@ func GetWorkerStopChannel(ctx context.Context) <-chan struct{} {
 //
 // Exposed as: [go.temporal.io/sdk/activity.RecordHeartbeat]
 func RecordActivityHeartbeat(ctx context.Context, details ...interface{}) {
-	getActivityOutboundInterceptor(ctx).RecordHeartbeat(ctx, details...)
+	_ = "STUB: not implemented"
+	return
 }
 
 // GetClient returns a client that can be used to interact with the Temporal
 // service from an activity.
 //
 // Exposed as: [go.temporal.io/sdk/activity.GetClient]
-func GetClient(ctx context.Context) Client {
-	return getActivityOutboundInterceptor(ctx).GetClient(ctx)
-}
+func GetClient(ctx context.Context) Client { _ = "STUB: not implemented"; return *new(Client) }
 
 // ServiceInvoker abstracts calls to the Temporal service from an activity implementation.
 // Implement to unit test activities.
@@ -314,74 +310,8 @@ func WithActivityTask(
 	interceptors []WorkerInterceptor,
 	client *WorkflowClient,
 ) (context.Context, error) {
-	scheduled := task.GetScheduledTime().AsTime()
-	started := task.GetStartedTime().AsTime()
-	scheduleToCloseTimeout := task.GetScheduleToCloseTimeout().AsDuration()
-	startToCloseTimeout := task.GetStartToCloseTimeout().AsDuration()
-	heartbeatTimeout := task.GetHeartbeatTimeout().AsDuration()
-	deadline := calculateActivityDeadline(scheduled, scheduleToCloseTimeout, startToCloseTimeout)
-
-	actCtx := converter.ActivitySerializationContext{
-		Namespace:    task.WorkflowNamespace,
-		WorkflowID:   task.WorkflowExecution.GetWorkflowId(),
-		WorkflowType: task.WorkflowType.GetName(),
-		ActivityType: task.ActivityType.GetName(),
-		TaskQueue:    taskQueue,
-		IsLocal:      false,
-	}
-	dataConverter = converter.WithDataConverterSerializationContext(dataConverter, actCtx)
-
-	env := &activityEnvironment{
-		taskToken:              task.TaskToken,
-		serviceInvoker:         invoker,
-		activityType:           ActivityType{Name: task.ActivityType.GetName()},
-		activityID:             task.ActivityId,
-		metricsHandler:         metricsHandler,
-		deadline:               deadline,
-		heartbeatTimeout:       heartbeatTimeout,
-		scheduleToCloseTimeout: scheduleToCloseTimeout,
-		startToCloseTimeout:    startToCloseTimeout,
-		scheduledTime:          scheduled,
-		startedTime:            started,
-		taskQueue:              taskQueue,
-		dataConverter:          dataConverter,
-		attempt:                task.GetAttempt(),
-		priority:               task.GetPriority(),
-		heartbeatDetails:       task.HeartbeatDetails,
-		namespace:              task.WorkflowNamespace,
-		retryPolicy:            convertFromPBRetryPolicy(task.RetryPolicy),
-		workerStopChannel:      workerStopChannel,
-		contextPropagators:     contextPropagators,
-		client:                 client,
-	}
-
-	if task.WorkflowExecution.GetWorkflowId() == "" {
-		env.activityRunID = task.ActivityRunId
-		env.logger = log.With(logger,
-			tagActivityID, task.ActivityId,
-			tagActivityRunID, task.ActivityRunId,
-			tagActivityType, task.ActivityType.GetName(),
-			tagAttempt, task.Attempt,
-		)
-	} else {
-		env.workflowExecution = WorkflowExecution{
-			ID:    task.WorkflowExecution.GetWorkflowId(),
-			RunID: task.WorkflowExecution.GetRunId(),
-		}
-		env.workflowType = &WorkflowType{
-			Name: task.WorkflowType.GetName(),
-		}
-		env.logger = log.With(logger,
-			tagActivityID, task.ActivityId,
-			tagActivityType, task.ActivityType.GetName(),
-			tagAttempt, task.Attempt,
-			tagWorkflowType, task.WorkflowType.GetName(),
-			tagWorkflowID, task.WorkflowExecution.GetWorkflowId(),
-			tagRunID, task.WorkflowExecution.GetRunId(),
-		)
-	}
-
-	return newActivityContext(ctx, interceptors, env)
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil
 }
 
 // WithLocalActivityTask adds local activity specific information into context.
@@ -395,94 +325,29 @@ func WithLocalActivityTask(
 	client *WorkflowClient,
 	workerStopChannel <-chan struct{},
 ) (context.Context, error) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	workflowTypeLocal := task.params.WorkflowInfo.WorkflowType
-	workflowType := task.params.WorkflowInfo.WorkflowType.Name
-	activityType := task.params.ActivityType
-	logger = log.With(logger,
-		tagActivityID, task.activityID,
-		tagActivityType, activityType,
-		tagAttempt, task.attempt,
-		tagWorkflowType, workflowType,
-		tagWorkflowID, task.params.WorkflowInfo.WorkflowExecution.ID,
-		tagRunID, task.params.WorkflowInfo.WorkflowExecution.RunID,
-	)
-	startedTime := time.Now()
-	scheduleToCloseTimeout := task.params.ScheduleToCloseTimeout
-	startToCloseTimeout := task.params.StartToCloseTimeout
-
-	if startToCloseTimeout == 0 {
-		startToCloseTimeout = scheduleToCloseTimeout
-	}
-	if scheduleToCloseTimeout == 0 {
-		scheduleToCloseTimeout = startToCloseTimeout
-	}
-	deadline := calculateActivityDeadline(task.scheduledTime, scheduleToCloseTimeout, startToCloseTimeout)
-	if task.attempt > 1 && !task.expireTime.IsZero() && task.expireTime.Before(deadline) {
-		// this is attempt and expire time is before SCHEDULE_TO_CLOSE timeout
-		deadline = task.expireTime
-	}
-	return newActivityContext(ctx, interceptors, &activityEnvironment{
-		workflowType:           &workflowTypeLocal,
-		namespace:              task.params.WorkflowInfo.Namespace,
-		taskQueue:              task.params.WorkflowInfo.TaskQueueName,
-		activityType:           ActivityType{Name: activityType},
-		activityID:             fmt.Sprintf("%v", task.activityID),
-		workflowExecution:      task.params.WorkflowInfo.WorkflowExecution,
-		logger:                 logger,
-		metricsHandler:         metricsHandler,
-		scheduleToCloseTimeout: scheduleToCloseTimeout,
-		startToCloseTimeout:    startToCloseTimeout,
-		isLocalActivity:        true,
-		deadline:               deadline,
-		scheduledTime:          task.scheduledTime,
-		startedTime:            startedTime,
-		dataConverter:          dataConverter,
-		attempt:                task.attempt,
-		retryPolicy:            task.retryPolicy,
-		client:                 client,
-		workerStopChannel:      workerStopChannel,
-	})
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil
 }
+
+// this is attempt and expire time is before SCHEDULE_TO_CLOSE timeout
 
 func newActivityContext(
 	ctx context.Context,
 	interceptors []WorkerInterceptor,
 	env *activityEnvironment,
 ) (context.Context, error) {
-	ctx = context.WithValue(ctx, activityEnvContextKey, env)
-
-	// Create interceptor with default inbound and outbound values and put on
-	// context
-	envInterceptor := &activityEnvironmentInterceptor{env: env}
-	envInterceptor.inboundInterceptor = envInterceptor
-	envInterceptor.outboundInterceptor = envInterceptor
-	ctx = context.WithValue(ctx, activityEnvInterceptorContextKey, envInterceptor)
-	ctx = context.WithValue(ctx, activityInterceptorContextKey, envInterceptor.outboundInterceptor)
-
-	// Intercept, run init, and put the new outbound interceptor on the context
-	for i := len(interceptors) - 1; i >= 0; i-- {
-		envInterceptor.inboundInterceptor = interceptors[i].InterceptActivity(ctx, envInterceptor.inboundInterceptor)
-	}
-	err := envInterceptor.inboundInterceptor.Init(envInterceptor)
-	if err != nil {
-		return nil, err
-	}
-	ctx = context.WithValue(ctx, activityInterceptorContextKey, envInterceptor.outboundInterceptor)
-
-	return ctx, nil
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil
 }
+
+// Create interceptor with default inbound and outbound values and put on
+// context
+
+// Intercept, run init, and put the new outbound interceptor on the context
 
 func calculateActivityDeadline(scheduled time.Time, scheduleToCloseTimeout, startToCloseTimeout time.Duration) time.Time {
-	startToCloseDeadline := time.Now().Add(startToCloseTimeout)
-	if scheduleToCloseTimeout > 0 {
-		scheduleToCloseDeadline := scheduled.Add(scheduleToCloseTimeout)
-		// Minimum of the two deadlines.
-		if scheduleToCloseDeadline.Before(startToCloseDeadline) {
-			return scheduleToCloseDeadline
-		}
-	}
-	return startToCloseDeadline
+	_ = "STUB: not implemented"
+	return *new(time.Time)
 }
+
+// Minimum of the two deadlines.

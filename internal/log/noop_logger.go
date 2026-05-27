@@ -9,23 +9,38 @@ type NoopLogger struct {
 }
 
 // NewNopLogger creates new instance of NoopLogger.
-func NewNopLogger() *NoopLogger {
-	return &NoopLogger{}
-}
+func NewNopLogger() *NoopLogger { _ = "STUB: not implemented"; return nil }
 
 // Debug does nothing.
-func (l *NoopLogger) Debug(string, ...interface{}) {}
+func (l *NoopLogger) Debug(string, ...interface{}) {
+	_ = "STUB: not implemented"
 
-// Info does nothing.
-func (l *NoopLogger) Info(string, ...interface{}) {}
+	// Info does nothing.
+	return
+}
 
-// Warn does nothing.
-func (l *NoopLogger) Warn(string, ...interface{}) {}
+func (l *NoopLogger) Info(string, ...interface{}) {
+	_ = "STUB: not implemented"
 
-// Error does nothing.
-func (l *NoopLogger) Error(string, ...interface{}) {}
+	// Warn does nothing.
+	return
+}
 
-// With returns new NoopLogger.
+func (l *NoopLogger) Warn(string, ...interface{}) {
+	_ = "STUB: not implemented"
+
+	// Error does nothing.
+	return
+}
+
+func (l *NoopLogger) Error(string, ...interface{}) {
+	_ = "STUB: not implemented"
+
+	// With returns new NoopLogger.
+	return
+}
+
 func (l *NoopLogger) With(...interface{}) log.Logger {
-	return NewNopLogger()
+	_ = "STUB: not implemented"
+	return *new(log.Logger)
 }

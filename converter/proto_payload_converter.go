@@ -1,13 +1,7 @@
 package converter
 
 import (
-	"encoding/base64"
-	"fmt"
-	"reflect"
-
-	gogoproto "github.com/gogo/protobuf/proto"
 	commonpb "go.temporal.io/api/common/v1"
-	"google.golang.org/protobuf/proto"
 )
 
 // ProtoPayloadConverter converts proto objects to protobuf binary format.
@@ -23,19 +17,17 @@ type ProtoPayloadConverterOptions struct {
 }
 
 // NewProtoPayloadConverter creates new instance of `ProtoPayloadConverter“.
-func NewProtoPayloadConverter() *ProtoPayloadConverter {
-	return &ProtoPayloadConverter{}
-}
+func NewProtoPayloadConverter() *ProtoPayloadConverter { _ = "STUB: not implemented"; return nil }
 
 // NewProtoPayloadConverterWithOptions creates new instance of `ProtoPayloadConverter` with the provided options.
 func NewProtoPayloadConverterWithOptions(options ProtoPayloadConverterOptions) *ProtoPayloadConverter {
-	return &ProtoPayloadConverter{
-		options: options,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ToPayload converts single proto value to payload.
 func (c *ProtoPayloadConverter) ToPayload(value interface{}) (*commonpb.Payload, error) {
+	_ = "STUB: not implemented"
 	// Proto golang structs might be generated with 4 different protoc plugin versions:
 	//   1. github.com/golang/protobuf - ~v1.3.5 is the most recent pre-APIv2 version of APIv1.
 	//   2. github.com/golang/protobuf - ^v1.4.0 is a version of APIv1 implemented in terms of APIv2.
@@ -45,102 +37,38 @@ func (c *ProtoPayloadConverter) ToPayload(value interface{}) (*commonpb.Payload,
 	// Cases 2 and 3 implements proto.Message and are the same in this context.
 	// Case 4 implements gogoproto.Message.
 	// It is important to check for proto.Message first because cases 2 and 3 also implements gogoproto.Message.
-
-	builtPointer := false
-	for {
-		if valueProto, ok := value.(proto.Message); ok {
-			byteSlice, err := proto.Marshal(valueProto)
-			if err != nil {
-				return nil, fmt.Errorf("%w: %v", ErrUnableToEncode, err)
-			}
-			return newProtoPayload(byteSlice, c, string(valueProto.ProtoReflect().Descriptor().FullName())), nil
-		}
-		if valueGogoProto, ok := value.(gogoproto.Message); ok {
-			data, err := gogoproto.Marshal(valueGogoProto)
-			if err != nil {
-				return nil, fmt.Errorf("%w: %v", ErrUnableToEncode, err)
-			}
-			return newProtoPayload(data, c, gogoproto.MessageName(valueGogoProto)), nil
-		}
-		if builtPointer {
-			break
-		}
-		value = pointerTo(value).Interface()
-		builtPointer = true
-	}
-
 	return nil, nil
 }
 
 // FromPayload converts single proto value from payload.
 func (c *ProtoPayloadConverter) FromPayload(payload *commonpb.Payload, valuePtr interface{}) error {
-	originalValue := reflect.ValueOf(valuePtr)
-	if originalValue.Kind() != reflect.Ptr {
-		return fmt.Errorf("type: %T: %w", valuePtr, ErrValuePtrIsNotPointer)
-	}
-
-	originalValue = originalValue.Elem()
-	if !originalValue.CanSet() {
-		return fmt.Errorf("type: %T: %w", valuePtr, ErrUnableToSetValue)
-	}
-
-	if originalValue.Kind() == reflect.Interface {
-		return fmt.Errorf("value type: %s: %w", originalValue.Type().String(), ErrValuePtrMustConcreteType)
-	}
-
-	value := originalValue
-	// If original value is of value type (i.e. commonpb.WorkflowType), create a pointer to it.
-	if originalValue.Kind() != reflect.Ptr {
-		value = pointerTo(originalValue.Interface())
-	}
-
-	protoValue := value.Interface() // protoValue is for sure of pointer type (i.e. *commonpb.WorkflowType).
-	gogoProtoMessage, isGogoProtoMessage := protoValue.(gogoproto.Message)
-	protoMessage, isProtoMessage := protoValue.(proto.Message)
-	if !isGogoProtoMessage && !isProtoMessage {
-		return fmt.Errorf("type: %T: %w", protoValue, ErrTypeNotImplementProtoMessage)
-	}
-
-	// If original value is nil, create new instance.
-	if originalValue.Kind() == reflect.Ptr && originalValue.IsNil() {
-		value = newOfSameType(originalValue)
-		protoValue = value.Interface()
-		if isProtoMessage {
-			protoMessage = protoValue.(proto.Message) // type assertion must always succeed
-		} else if isGogoProtoMessage {
-			gogoProtoMessage = protoValue.(gogoproto.Message) // type assertion must always succeed
-		}
-	}
-
-	var err error
-	if isProtoMessage {
-		err = proto.Unmarshal(payload.GetData(), protoMessage)
-	} else if isGogoProtoMessage {
-		err = gogoproto.Unmarshal(payload.GetData(), gogoProtoMessage)
-	}
-	// If original value wasn't a pointer then set value back to where valuePtr points to.
-	if originalValue.Kind() != reflect.Ptr {
-		originalValue.Set(value.Elem())
-	}
-
-	if err != nil {
-		return fmt.Errorf("%w: %v", ErrUnableToDecode, err)
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// If original value is of value type (i.e. commonpb.WorkflowType), create a pointer to it.
+
+// protoValue is for sure of pointer type (i.e. *commonpb.WorkflowType).
+
+// If original value is nil, create new instance.
+
+// type assertion must always succeed
+
+// type assertion must always succeed
+
+// If original value wasn't a pointer then set value back to where valuePtr points to.
+
 // ToString converts payload object into human readable string.
 func (c *ProtoPayloadConverter) ToString(payload *commonpb.Payload) string {
+	_ = "STUB: not implemented"
 	// We can't do anything better here.
-	return base64.RawStdEncoding.EncodeToString(payload.GetData())
+	return ""
 }
 
 // Encoding returns MetadataEncodingProto.
-func (c *ProtoPayloadConverter) Encoding() string {
-	return MetadataEncodingProto
-}
+func (c *ProtoPayloadConverter) Encoding() string { _ = "STUB: not implemented"; return "" }
 
 func (c *ProtoPayloadConverter) ExcludeProtobufMessageTypes() bool {
-	return c.options.ExcludeProtobufMessageTypes
+	_ = "STUB: not implemented"
+	return false
 }

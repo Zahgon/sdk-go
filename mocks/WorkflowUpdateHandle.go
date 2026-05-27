@@ -17,75 +17,18 @@ type WorkflowUpdateHandle struct {
 
 // Get provides a mock function with given fields: ctx, valuePtr
 func (_m *WorkflowUpdateHandle) Get(ctx context.Context, valuePtr interface{}) error {
-	ret := _m.Called(ctx, valuePtr)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Get")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
-		r0 = rf(ctx, valuePtr)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RunID provides a mock function with given fields:
-func (_m *WorkflowUpdateHandle) RunID() string {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for RunID")
-	}
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func() string); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	return r0
-}
+func (_m *WorkflowUpdateHandle) RunID() string { _ = "STUB: not implemented"; return "" }
 
 // UpdateID provides a mock function with given fields:
-func (_m *WorkflowUpdateHandle) UpdateID() string {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateID")
-	}
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func() string); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	return r0
-}
+func (_m *WorkflowUpdateHandle) UpdateID() string { _ = "STUB: not implemented"; return "" }
 
 // WorkflowID provides a mock function with given fields:
-func (_m *WorkflowUpdateHandle) WorkflowID() string {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for WorkflowID")
-	}
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func() string); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	return r0
-}
+func (_m *WorkflowUpdateHandle) WorkflowID() string { _ = "STUB: not implemented"; return "" }
 
 // NewWorkflowUpdateHandle creates a new instance of WorkflowUpdateHandle. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
@@ -93,10 +36,6 @@ func NewWorkflowUpdateHandle(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *WorkflowUpdateHandle {
-	mock := &WorkflowUpdateHandle{}
-	mock.Mock.Test(t)
-
-	t.Cleanup(func() { mock.AssertExpectations(t) })
-
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }

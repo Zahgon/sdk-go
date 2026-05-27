@@ -35,9 +35,13 @@ type Counter interface {
 type CounterFunc func(int64)
 
 // Inc implements Counter.Inc.
-func (c CounterFunc) Inc(d int64) { c(d) }
+func (c CounterFunc) Inc(d int64) {
+	_ = "STUB: not implemented"
 
-// Gauge can be set to any float.
+	// Gauge can be set to any float.
+	return
+}
+
 type Gauge interface {
 	// Update updates the gauge value.
 	Update(float64)
@@ -47,9 +51,13 @@ type Gauge interface {
 type GaugeFunc func(float64)
 
 // Update implements Gauge.Update.
-func (g GaugeFunc) Update(d float64) { g(d) }
+func (g GaugeFunc) Update(d float64) {
+	_ = "STUB: not implemented"
 
-// Timer records time durations.
+	// Timer records time durations.
+	return
+}
+
 type Timer interface {
 	// Record sets the timer value.
 	Record(time.Duration)
@@ -59,20 +67,27 @@ type Timer interface {
 type TimerFunc func(time.Duration)
 
 // Record implements Timer.Record.
-func (t TimerFunc) Record(d time.Duration) { t(d) }
+func (t TimerFunc) Record(d time.Duration) {
+	_ = "STUB: not implemented"
 
-// NopHandler is a noop handler that does nothing with the metrics.
+	// NopHandler is a noop handler that does nothing with the metrics.
+	return
+}
+
 var NopHandler Handler = nopHandler{}
 
 type nopHandler struct{}
 
-func (nopHandler) WithTags(map[string]string) Handler { return nopHandler{} }
-func (nopHandler) Counter(string) Counter             { return nopHandler{} }
-func (nopHandler) Gauge(string) Gauge                 { return nopHandler{} }
-func (nopHandler) Timer(string) Timer                 { return nopHandler{} }
-func (nopHandler) Inc(int64)                          {}
-func (nopHandler) Update(float64)                     {}
-func (nopHandler) Record(time.Duration)               {}
+func (nopHandler) WithTags(map[string]string) Handler {
+	_ = "STUB: not implemented"
+	return *new(Handler)
+}
+func (nopHandler) Counter(string) Counter { _ = "STUB: not implemented"; return *new(Counter) }
+func (nopHandler) Gauge(string) Gauge     { _ = "STUB: not implemented"; return *new(Gauge) }
+func (nopHandler) Timer(string) Timer     { _ = "STUB: not implemented"; return *new(Timer) }
+func (nopHandler) Inc(int64)              { _ = "STUB: not implemented"; return }
+func (nopHandler) Update(float64)         { _ = "STUB: not implemented"; return }
+func (nopHandler) Record(time.Duration)   { _ = "STUB: not implemented"; return }
 
 type replayAwareHandler struct {
 	replay     *bool
@@ -82,40 +97,28 @@ type replayAwareHandler struct {
 // NewReplayAwareHandler is a handler that will not record any metrics if the
 // boolean pointed to by "replay" is true.
 func NewReplayAwareHandler(replay *bool, underlying Handler) Handler {
-	return &replayAwareHandler{replay, underlying}
+	_ = "STUB: not implemented"
+	return *new(Handler)
 }
 
 func (r *replayAwareHandler) WithTags(tags map[string]string) Handler {
-	return NewReplayAwareHandler(r.replay, r.underlying.WithTags(tags))
+	_ = "STUB: not implemented"
+	return *new(Handler)
 }
 
 func (r *replayAwareHandler) Counter(name string) Counter {
-	underlying := r.underlying.Counter(name)
-	return CounterFunc(func(d int64) {
-		if !*r.replay {
-			underlying.Inc(d)
-		}
-	})
+	_ = "STUB: not implemented"
+	return *new(Counter)
 }
 
 func (r *replayAwareHandler) Gauge(name string) Gauge {
-	underlying := r.underlying.Gauge(name)
-	return GaugeFunc(func(d float64) {
-		if !*r.replay {
-			underlying.Update(d)
-		}
-	})
+	_ = "STUB: not implemented"
+	return *new(Gauge)
 }
 
 func (r *replayAwareHandler) Timer(name string) Timer {
-	underlying := r.underlying.Timer(name)
-	return TimerFunc(func(d time.Duration) {
-		if !*r.replay {
-			underlying.Record(d)
-		}
-	})
+	_ = "STUB: not implemented"
+	return *new(Timer)
 }
 
-func (r *replayAwareHandler) Unwrap() Handler {
-	return r.underlying
-}
+func (r *replayAwareHandler) Unwrap() Handler { _ = "STUB: not implemented"; return *new(Handler) }

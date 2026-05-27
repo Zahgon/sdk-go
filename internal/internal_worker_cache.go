@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"runtime"
 	"sync"
 
 	"go.temporal.io/sdk/internal/common/cache"
@@ -39,101 +38,42 @@ var desiredWorkflowCacheSize = defaultStickyCacheSize
 // the workflow does not have to reconstruct state by replaying history from the beginning. The cache is shared between
 // workers running within same process. This must be called before any worker is started. If not called, the default
 // size of 10K (which may change) will be used.
-func SetStickyWorkflowCacheSize(cacheSize int) {
-	sharedWorkerCacheLock.Lock()
-	defer sharedWorkerCacheLock.Unlock()
-	desiredWorkflowCacheSize = cacheSize
-}
+func SetStickyWorkflowCacheSize(cacheSize int) { _ = "STUB: not implemented"; return }
 
 // PurgeStickyWorkflowCache resets the sticky workflow cache. This must be called only when all workers are stopped.
-func PurgeStickyWorkflowCache() {
-	sharedWorkerCacheLock.Lock()
-	defer sharedWorkerCacheLock.Unlock()
-
-	if sharedWorkerCachePtr.workflowCache != nil {
-		(*sharedWorkerCachePtr.workflowCache).Clear()
-	}
-}
+func PurgeStickyWorkflowCache() { _ = "STUB: not implemented"; return }
 
 // NewWorkerCache Creates a new WorkerCache, and increases workerRefcount by one. Instances of WorkerCache decrement the refcounter as
 // a hook to runtime.SetFinalizer (ie: When they are freed by the GC). When there are no reachable instances of
 // WorkerCache, shared caches will be cleared
-func NewWorkerCache() *WorkerCache {
-	sharedWorkerCacheLock.Lock()
-	desiredWorkflowCacheSize := desiredWorkflowCacheSize
-	sharedWorkerCacheLock.Unlock()
-
-	return newWorkerCache(sharedWorkerCachePtr, &sharedWorkerCacheLock, desiredWorkflowCacheSize)
-}
+func NewWorkerCache() *WorkerCache { _ = "STUB: not implemented"; return nil }
 
 // This private version allows us to test functionality without affecting the global shared cache
 func newWorkerCache(storeIn *sharedWorkerCache, lock *sync.Mutex, cacheSize int) *WorkerCache {
-	lock.Lock()
-	defer lock.Unlock()
-
-	if storeIn == nil {
-		panic("Provided sharedWorkerCache pointer must not be nil")
-	}
-
-	if storeIn.workerRefcount == 0 {
-		newcache := cache.New(cacheSize-1, &cache.Options{
-			RemovedFunc: func(cachedEntity interface{}) {
-				wc := cachedEntity.(*workflowExecutionContextImpl)
-				wc.onEviction()
-			},
-		})
-		*storeIn = sharedWorkerCache{workflowCache: &newcache, workerRefcount: 0, maxWorkflowCacheSize: cacheSize}
-	}
-	storeIn.workerRefcount++
-	newWorkerCache := WorkerCache{
-		sharedCache: storeIn,
-	}
-	runtime.SetFinalizer(&newWorkerCache, func(wc *WorkerCache) {
-		wc.close(lock)
-	})
-	return &newWorkerCache
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wc *WorkerCache) getWorkflowCache() cache.Cache {
-	return *wc.sharedCache.workflowCache
+	_ = "STUB: not implemented"
+	return *new(cache.Cache)
 }
 
-func (wc *WorkerCache) close(lock *sync.Mutex) {
-	lock.Lock()
-	defer lock.Unlock()
+func (wc *WorkerCache) close(lock *sync.Mutex) { _ = "STUB: not implemented"; return }
 
-	wc.sharedCache.workerRefcount--
-	if wc.sharedCache.workerRefcount == 0 {
-		// Delete cache if no more outstanding references
-		wc.sharedCache.workflowCache = nil
-	}
-}
+// Delete cache if no more outstanding references
 
 func (wc *WorkerCache) getWorkflowContext(runID string) *workflowExecutionContextImpl {
-	o := (*wc.sharedCache.workflowCache).Get(runID)
-	if o == nil {
-		return nil
-	}
-	wec := o.(*workflowExecutionContextImpl)
-	return wec
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wc *WorkerCache) putWorkflowContext(runID string, wec *workflowExecutionContextImpl) (*workflowExecutionContextImpl, error) {
-	existing, err := (*wc.sharedCache.workflowCache).PutIfNotExist(runID, wec)
-	if err != nil {
-		return nil, err
-	}
-	return existing.(*workflowExecutionContextImpl), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (wc *WorkerCache) removeWorkflowContext(runID string) {
-	(*wc.sharedCache.workflowCache).Delete(runID)
-}
+func (wc *WorkerCache) removeWorkflowContext(runID string) { _ = "STUB: not implemented"; return }
 
 // MaxWorkflowCacheSize returns the maximum allowed size of the sticky cache
-func (wc *WorkerCache) MaxWorkflowCacheSize() int {
-	if wc == nil {
-		return desiredWorkflowCacheSize
-	}
-	return wc.sharedCache.maxWorkflowCacheSize
-}
+func (wc *WorkerCache) MaxWorkflowCacheSize() int { _ = "STUB: not implemented"; return 0 }

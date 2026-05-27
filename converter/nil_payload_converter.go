@@ -1,9 +1,6 @@
 package converter
 
 import (
-	"fmt"
-	"reflect"
-
 	commonpb "go.temporal.io/api/common/v1"
 )
 
@@ -12,40 +9,26 @@ type NilPayloadConverter struct {
 }
 
 // NewNilPayloadConverter creates new instance of NilPayloadConverter.
-func NewNilPayloadConverter() *NilPayloadConverter {
-	return &NilPayloadConverter{}
-}
+func NewNilPayloadConverter() *NilPayloadConverter { _ = "STUB: not implemented"; return nil }
 
 // ToPayload converts single nil value to payload.
 func (c *NilPayloadConverter) ToPayload(value interface{}) (*commonpb.Payload, error) {
-	if isInterfaceNil(value) {
-		return newPayload(nil, c), nil
-	}
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
 // FromPayload converts single nil value from payload.
 func (c *NilPayloadConverter) FromPayload(_ *commonpb.Payload, valuePtr interface{}) error {
-	originalValue := reflect.ValueOf(valuePtr)
-	if originalValue.Kind() != reflect.Ptr {
-		return fmt.Errorf("type: %T: %w", valuePtr, ErrValuePtrIsNotPointer)
-	}
-
-	originalValue = originalValue.Elem()
-	if !originalValue.CanSet() {
-		return fmt.Errorf("type: %T: %w", valuePtr, ErrUnableToSetValue)
-	}
-
-	originalValue.Set(reflect.Zero(originalValue.Type()))
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // ToString converts payload object into human readable string.
 func (c *NilPayloadConverter) ToString(*commonpb.Payload) string {
-	return "nil"
+	_ = "STUB: not implemented"
+
+	// Encoding returns MetadataEncodingNil.
+	return ""
 }
 
-// Encoding returns MetadataEncodingNil.
-func (c *NilPayloadConverter) Encoding() string {
-	return MetadataEncodingNil
-}
+func (c *NilPayloadConverter) Encoding() string { _ = "STUB: not implemented"; return "" }

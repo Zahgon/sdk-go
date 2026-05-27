@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -114,30 +113,17 @@ type Context interface {
 type emptyCtx int
 
 func (*emptyCtx) Deadline() (deadline time.Time, ok bool) {
-	return
+	_ = "STUB: not implemented"
+	return *new(time.Time), false
 }
 
-func (*emptyCtx) Done() Channel {
-	return nil
-}
+func (*emptyCtx) Done() Channel { _ = "STUB: not implemented"; return *new(Channel) }
 
-func (*emptyCtx) Err() error {
-	return nil
-}
+func (*emptyCtx) Err() error { _ = "STUB: not implemented"; return nil }
 
-func (*emptyCtx) Value(_ interface{}) interface{} {
-	return nil
-}
+func (*emptyCtx) Value(_ interface{}) interface{} { _ = "STUB: not implemented"; return nil }
 
-func (e *emptyCtx) String() string {
-	switch e {
-	case background:
-		return "context.Background"
-	case todo:
-		return "context.TODO"
-	}
-	return "unknown empty Context"
-}
+func (e *emptyCtx) String() string { _ = "STUB: not implemented"; return "" }
 
 var (
 	background = new(emptyCtx)
@@ -147,12 +133,14 @@ var (
 // Background returns a non-nil, empty Context. It is never canceled, has no
 // values, and has no deadline
 func Background() Context {
-	return background
+	_ = "STUB: not implemented"
+
+	// ErrCanceled is the error returned by Context.Err when the context is canceled.
+	//
+	// Exposed as: [go.temporal.io/sdk/workflow.ErrCanceled]
+	return *new(Context)
 }
 
-// ErrCanceled is the error returned by Context.Err when the context is canceled.
-//
-// Exposed as: [go.temporal.io/sdk/workflow.ErrCanceled]
 var ErrCanceled = NewCanceledError()
 
 // ErrDeadlineExceeded is the error returned by Context.Err when the context's
@@ -177,9 +165,8 @@ type CancelFunc func()
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithCancel]
 func WithCancel(parent Context) (ctx Context, cancel CancelFunc) {
-	c := newCancelCtx(parent)
-	propagateCancel(parent, c)
-	return c, func() { c.cancel(true, ErrCanceled) }
+	_ = "STUB: not implemented"
+	return *new(Context), *new(CancelFunc)
 }
 
 // NewDisconnectedContext returns a new context that won't propagate parent's cancellation to the new child context.
@@ -195,68 +182,30 @@ func WithCancel(parent Context) (ctx Context, cancel CancelFunc) {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewDisconnectedContext]
 func NewDisconnectedContext(parent Context) (ctx Context, cancel CancelFunc) {
-	c := newCancelCtx(parent)
-	return c, func() { c.cancel(true, ErrCanceled) }
+	_ = "STUB: not implemented"
+	return *new(Context), *new(CancelFunc)
 }
 
 // newCancelCtx returns an initialized cancelCtx.
-func newCancelCtx(parent Context) *cancelCtx {
-	return &cancelCtx{
-		Context: parent,
-		done:    NewNamedChannel(parent, "cancelCtx-done-channel"),
-	}
-}
+func newCancelCtx(parent Context) *cancelCtx { _ = "STUB: not implemented"; return nil }
 
 // propagateCancel arranges for child to be canceled when parent is.
-func propagateCancel(parent Context, child canceler) {
-	if parent.Done() == nil {
-		return // parent is never canceled
-	}
-	if p, ok := parentCancelCtx(parent); ok {
-		if parentErr := p.Err(); parentErr != nil {
-			// parent has already been canceled
-			child.cancel(false, parentErr)
-		} else {
-			p.childrenLock.Lock()
-			if p.children == nil {
-				p.children = make(map[canceler]bool)
-			}
-			p.children[child] = true
-			p.childrenLock.Unlock()
-		}
-	} else {
-		panic("cancelCtx not found")
-	}
-}
+func propagateCancel(parent Context, child canceler) { _ = "STUB: not implemented"; return }
+
+// parent is never canceled
+
+// parent has already been canceled
 
 // parentCancelCtx follows a chain of parent references until it finds a
 // *cancelCtx.  This function understands how each of the concrete types in this
 // package represents its parent.
 func parentCancelCtx(parent Context) (*cancelCtx, bool) {
-	for {
-		switch c := parent.(type) {
-		case *cancelCtx:
-			return c, true
-		case *valueCtx:
-			parent = c.Context
-		default:
-			return nil, false
-		}
-	}
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // removeChild removes a context from its parent.
-func removeChild(parent Context, child canceler) {
-	p, ok := parentCancelCtx(parent)
-	if !ok {
-		return
-	}
-	p.childrenLock.Lock()
-	if p.children != nil {
-		delete(p.children, child)
-	}
-	p.childrenLock.Unlock()
-}
+func removeChild(parent Context, child canceler) { _ = "STUB: not implemented"; return }
 
 // A canceler is a context type that can be canceled directly.  The
 // implementations are *cancelCtx and *timerCtx.
@@ -278,51 +227,20 @@ type cancelCtx struct {
 	errLock      sync.RWMutex
 }
 
-func (c *cancelCtx) Done() Channel {
-	return c.done
-}
+func (c *cancelCtx) Done() Channel { _ = "STUB: not implemented"; return *new(Channel) }
 
-func (c *cancelCtx) Err() error {
-	c.errLock.RLock()
-	defer c.errLock.RUnlock()
-	return c.err
-}
+func (c *cancelCtx) Err() error { _ = "STUB: not implemented"; return nil }
 
-func (c *cancelCtx) String() string {
-	return fmt.Sprintf("%v.WithCancel", c.Context)
-}
+func (c *cancelCtx) String() string { _ = "STUB: not implemented"; return "" }
 
 // cancel closes c.done, cancels each of c's children, and, if
 // removeFromParent is true, removes c from its parent's children.
-func (c *cancelCtx) cancel(removeFromParent bool, err error) {
-	if err == nil {
-		panic("context: internal error: missing cancel error")
-	}
-	// This can be called from separate goroutines concurrently, so we use the
-	// presence of the error under lock to prevent duplicate calls
-	c.errLock.Lock()
-	alreadyCancelled := c.err != nil
-	if !alreadyCancelled {
-		c.err = err
-	}
-	c.errLock.Unlock()
-	if alreadyCancelled {
-		return
-	}
-	c.done.Close()
-	c.childrenLock.Lock()
-	children := c.children
-	c.children = nil
-	c.childrenLock.Unlock()
-	for child := range children {
-		// NOTE: acquiring the child's lock while holding parent's lock.
-		child.cancel(false, err)
-	}
+func (c *cancelCtx) cancel(removeFromParent bool, err error) { _ = "STUB: not implemented"; return }
 
-	if removeFromParent {
-		removeChild(c.Context, c)
-	}
-}
+// This can be called from separate goroutines concurrently, so we use the
+// presence of the error under lock to prevent duplicate calls
+
+// NOTE: acquiring the child's lock while holding parent's lock.
 
 // WithValue returns a copy of parent in which the value associated with key is
 // val.
@@ -332,7 +250,8 @@ func (c *cancelCtx) cancel(removeFromParent bool, err error) {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithValue]
 func WithValue(parent Context, key interface{}, val interface{}) Context {
-	return &valueCtx{parent, key, val}
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // A valueCtx carries a key-value pair.  It implements Value for that key and
@@ -342,13 +261,6 @@ type valueCtx struct {
 	key, val interface{}
 }
 
-func (c *valueCtx) String() string {
-	return fmt.Sprintf("%v.WithValue(%#v, %#v)", c.Context, c.key, c.val)
-}
+func (c *valueCtx) String() string { _ = "STUB: not implemented"; return "" }
 
-func (c *valueCtx) Value(key interface{}) interface{} {
-	if c.key == key {
-		return c.val
-	}
-	return c.Context.Value(key)
-}
+func (c *valueCtx) Value(key interface{}) interface{} { _ = "STUB: not implemented"; return nil }

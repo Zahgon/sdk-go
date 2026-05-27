@@ -3,18 +3,13 @@ package opentelemetry
 
 import (
 	"context"
-	"fmt"
 
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/baggage"
-	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
 
 	"go.temporal.io/sdk/interceptor"
 	"go.temporal.io/sdk/log"
-	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 )
 
@@ -80,180 +75,67 @@ type tracer struct {
 // NewTracer creates a tracer with the given options. Most callers should use
 // NewTracingInterceptor instead.
 func NewTracer(options TracerOptions) (interceptor.Tracer, error) {
-	if options.Tracer == nil {
-		options.Tracer = otel.GetTracerProvider().Tracer("temporal-sdk-go")
-	}
-	if options.TextMapPropagator == nil {
-		options.TextMapPropagator = DefaultTextMapPropagator
-	}
-	if options.SpanContextKey == nil {
-		options.SpanContextKey = spanContextKey{}
-	}
-	if options.HeaderKey == "" {
-		options.HeaderKey = defaultHeaderKey
-	}
-	if options.SpanStarter == nil {
-		options.SpanStarter = func(
-			ctx context.Context,
-			t trace.Tracer,
-			spanName string,
-			opts ...trace.SpanStartOption,
-		) trace.Span {
-			_, span := t.Start(ctx, spanName, opts...)
-			return span
-		}
-	}
-	return &tracer{options: &options}, nil
+	_ = "STUB: not implemented"
+	return *new(interceptor.Tracer), nil
 }
 
 // NewTracingInterceptor creates an interceptor for setting on client options
 // that implements OpenTelemetry tracing for workflows.
 func NewTracingInterceptor(options TracerOptions) (interceptor.Interceptor, error) {
-	t, err := NewTracer(options)
-	if err != nil {
-		return nil, err
-	}
-	return interceptor.NewTracingInterceptor(t), nil
+	_ = "STUB: not implemented"
+	return *new(interceptor.Interceptor), nil
 }
 
 func (t *tracer) Options() interceptor.TracerOptions {
-	return interceptor.TracerOptions{
-		SpanContextKey:          t.options.SpanContextKey,
-		HeaderKey:               t.options.HeaderKey,
-		DisableSignalTracing:    t.options.DisableSignalTracing,
-		DisableQueryTracing:     t.options.DisableQueryTracing,
-		DisableUpdateTracing:    t.options.DisableUpdateTracing,
-		AllowInvalidParentSpans: t.options.AllowInvalidParentSpans,
-	}
+	_ = "STUB: not implemented"
+	return *new(interceptor.TracerOptions)
 }
 
 func (t *tracer) UnmarshalSpan(m map[string]string) (interceptor.TracerSpanRef, error) {
-	if _, ok := m["traceparent"]; !ok {
-		// If there is no span, return nothing, but don't error out. This is
-		// a legitimate place where a span does not exist in the headers
-		return nil, nil
-	}
-	ctx := t.options.TextMapPropagator.Extract(context.Background(), textMapCarrier(m))
-	spanCtx := trace.SpanContextFromContext(ctx)
-	if !spanCtx.IsValid() {
-		return nil, fmt.Errorf("failed extracting OpenTelemetry span from map")
-	}
-	spanRef := &tracerSpanRef{SpanContext: spanCtx}
-	if !t.options.DisableBaggage {
-		spanRef.Baggage = baggage.FromContext(ctx)
-	}
-	return spanRef, nil
+	_ = "STUB: not implemented"
+	return *new(interceptor.TracerSpanRef), nil
 }
 
+// If there is no span, return nothing, but don't error out. This is
+// a legitimate place where a span does not exist in the headers
+
 func (t *tracer) MarshalSpan(span interceptor.TracerSpan) (map[string]string, error) {
-	data := textMapCarrier{}
-	tSpan := span.(*tracerSpan)
-	ctx := context.Background()
-	if !t.options.DisableBaggage {
-		ctx = baggage.ContextWithBaggage(ctx, tSpan.Baggage)
-	}
-	t.options.TextMapPropagator.Inject(trace.ContextWithSpan(ctx, tSpan.Span), data)
-	return data, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (t *tracer) SpanFromContext(ctx context.Context) interceptor.TracerSpan {
-	span := trace.SpanFromContext(ctx)
-	if !span.SpanContext().IsValid() {
-		return nil
-	}
-	tSpan := &tracerSpan{Span: span}
-	if !t.options.DisableBaggage {
-		tSpan.Baggage = baggage.FromContext(ctx)
-	}
-	return tSpan
+	_ = "STUB: not implemented"
+	return *new(interceptor.TracerSpan)
 }
 
 func (t *tracer) ContextWithSpan(ctx context.Context, span interceptor.TracerSpan) context.Context {
-	if !t.options.DisableBaggage {
-		ctx = baggage.ContextWithBaggage(ctx, span.(*tracerSpan).Baggage)
-	}
-	return trace.ContextWithSpan(ctx, span.(*tracerSpan).Span)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // SpanFromWorkflowContext extracts an OpenTelemetry span from the given
 // workflow context.  If no span is found, a no-op span is returned.
 func SpanFromWorkflowContext(ctx workflow.Context) (trace.Span, bool) {
-	val := ctx.Value(spanContextKey{})
-
-	if val != nil {
-		if span, ok := val.(*tracerSpan); ok {
-			return span.Span, true
-		}
-	}
-
-	// Fallback to OpenTelemetry span extraction behavior
-	return trace.SpanFromContext(nil), false
+	_ = "STUB: not implemented"
+	return *new(trace.Span), false
 }
+
+// Fallback to OpenTelemetry span extraction behavior
 
 func (t *tracer) StartSpan(opts *interceptor.TracerStartSpanOptions) (interceptor.TracerSpan, error) {
+	_ = "STUB: not implemented"
 	// Create context with parent
-	var parent trace.SpanContext
-	var bag baggage.Baggage
-	switch optParent := opts.Parent.(type) {
-	case nil:
-	case *tracerSpan:
-		parent = optParent.SpanContext()
-		bag = optParent.Baggage
-	case *tracerSpanRef:
-		parent = optParent.SpanContext
-		bag = optParent.Baggage
-	default:
-		return nil, fmt.Errorf("unrecognized parent type %T", optParent)
-	}
-	ctx := context.Background()
-	if parent.IsValid() {
-		ctx = trace.ContextWithSpanContext(ctx, parent)
-		if !t.options.DisableBaggage {
-			ctx = baggage.ContextWithBaggage(ctx, bag)
-		}
-	}
-
-	if opts.ToHeader && opts.FromHeader {
-		return nil, fmt.Errorf("cannot set both ToHeader and FromHeader for span")
-	}
-
-	spanKind := trace.SpanKindServer
-	if opts.ToHeader {
-		spanKind = trace.SpanKindClient
-	}
-
-	// Create span
-	span := t.options.SpanStarter(ctx, t.options.Tracer, opts.Operation+":"+opts.Name, trace.WithTimestamp(opts.Time), trace.WithSpanKind(spanKind))
-
-	// Set tags
-	if len(opts.Tags) > 0 {
-		attrs := make([]attribute.KeyValue, 0, len(opts.Tags))
-		for k, v := range opts.Tags {
-			attrs = append(attrs, attribute.String(k, v))
-		}
-		span.SetAttributes(attrs...)
-	}
-
-	tSpan := &tracerSpan{Span: span}
-	if !t.options.DisableBaggage {
-		tSpan.Baggage = bag
-	}
-
-	return tSpan, nil
+	return *new(interceptor.TracerSpan), nil
 }
 
+// Create span
+
+// Set tags
+
 func (t *tracer) GetLogger(logger log.Logger, ref interceptor.TracerSpanRef) log.Logger {
-	span, ok := ref.(*tracerSpan)
-	if !ok {
-		return logger
-	}
-
-	logger = log.With(logger,
-		"TraceID", span.SpanContext().TraceID(),
-		"SpanID", span.SpanContext().SpanID(),
-	)
-
-	return logger
+	_ = "STUB: not implemented"
+	return *new(log.Logger)
 }
 
 type tracerSpanRef struct {
@@ -267,27 +149,14 @@ type tracerSpan struct {
 }
 
 func (t *tracerSpan) Finish(opts *interceptor.TracerFinishSpanOptions) {
-	t.RecordError(opts.Error)
-
-	if opts.Error != nil && !isBenignApplicationError(opts.Error) {
-		t.SetStatus(codes.Error, opts.Error.Error())
-	}
-	t.End()
+	_ = "STUB: not implemented"
+	return
 }
 
-func isBenignApplicationError(err error) bool {
-	appError, _ := err.(*temporal.ApplicationError)
-	return appError != nil && appError.Category() == temporal.ApplicationErrorCategoryBenign
-}
+func isBenignApplicationError(err error) bool { _ = "STUB: not implemented"; return false }
 
 type textMapCarrier map[string]string
 
-func (t textMapCarrier) Get(key string) string        { return t[key] }
-func (t textMapCarrier) Set(key string, value string) { t[key] = value }
-func (t textMapCarrier) Keys() []string {
-	ret := make([]string, 0, len(t))
-	for k := range t {
-		ret = append(ret, k)
-	}
-	return ret
-}
+func (t textMapCarrier) Get(key string) string        { _ = "STUB: not implemented"; return "" }
+func (t textMapCarrier) Set(key string, value string) { _ = "STUB: not implemented"; return }
+func (t textMapCarrier) Keys() []string               { _ = "STUB: not implemented"; return nil }

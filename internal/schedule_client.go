@@ -726,5 +726,4 @@ type (
 	}
 )
 
-func (*ScheduleWorkflowAction) isScheduleAction() {
-}
+func (*ScheduleWorkflowAction) isScheduleAction() { _ = "STUB: not implemented"; return }

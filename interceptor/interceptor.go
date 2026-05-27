@@ -353,7 +353,8 @@ type NexusCancelOperationInput = internal.NexusCancelOperationInput
 // ClientOutboundInterceptor.ExecuteWorkflow, and
 // ClientOutboundInterceptor.SignalWithStartWorkflow.
 func Header(ctx context.Context) map[string]*commonpb.Payload {
-	return internal.Header(ctx)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // WorkflowHeader provides Temporal header information from the workflow context
@@ -366,5 +367,6 @@ func Header(ctx context.Context) map[string]*commonpb.Payload {
 // WorkflowOutboundInterceptor.ExecuteChildWorkflow, and
 // WorkflowOutboundInterceptor.NewContinueAsNewError.
 func WorkflowHeader(ctx workflow.Context) map[string]*commonpb.Payload {
-	return internal.WorkflowHeader(ctx)
+	_ = "STUB: not implemented"
+	return nil
 }

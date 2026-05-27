@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"errors"
 	"time"
 
 	taskqueuepb "go.temporal.io/api/taskqueue/v1"
@@ -246,79 +245,11 @@ type (
 // Deprecated: Build-id based versioning is deprecated in favor of worker deployment based versioning and will be removed soon.
 //
 // WARNING: Worker versioning is currently experimental
-func (c *VersioningConflictToken) Token() []byte {
-	return c.token
-}
+func (c *VersioningConflictToken) Token() []byte { _ = "STUB: not implemented"; return nil }
 
 func (uw *UpdateWorkerVersioningRulesOptions) validateAndConvertToProto(namespace string) (*workflowservice.UpdateWorkerVersioningRulesRequest, error) {
-	if namespace == "" {
-		return nil, errors.New("missing namespace argument")
-	}
-	if uw.TaskQueue == "" {
-		return nil, errors.New("missing TaskQueue field")
-	}
-	if err := uw.Operation.validateOp(); err != nil {
-		return nil, err
-	}
-	req := &workflowservice.UpdateWorkerVersioningRulesRequest{
-		Namespace:     namespace,
-		TaskQueue:     uw.TaskQueue,
-		ConflictToken: uw.ConflictToken.token,
-	}
-
-	switch v := uw.Operation.(type) {
-	case *VersioningOperationInsertAssignmentRule:
-		req.Operation = &workflowservice.UpdateWorkerVersioningRulesRequest_InsertAssignmentRule{
-			InsertAssignmentRule: &workflowservice.UpdateWorkerVersioningRulesRequest_InsertBuildIdAssignmentRule{
-				RuleIndex: v.RuleIndex,
-				Rule:      versioningAssignmentRuleToProto(&v.Rule),
-			},
-		}
-	case *VersioningOperationReplaceAssignmentRule:
-		req.Operation = &workflowservice.UpdateWorkerVersioningRulesRequest_ReplaceAssignmentRule{
-			ReplaceAssignmentRule: &workflowservice.UpdateWorkerVersioningRulesRequest_ReplaceBuildIdAssignmentRule{
-				RuleIndex: v.RuleIndex,
-				Rule:      versioningAssignmentRuleToProto(&v.Rule),
-				Force:     v.Force,
-			},
-		}
-	case *VersioningOperationDeleteAssignmentRule:
-		req.Operation = &workflowservice.UpdateWorkerVersioningRulesRequest_DeleteAssignmentRule{
-			DeleteAssignmentRule: &workflowservice.UpdateWorkerVersioningRulesRequest_DeleteBuildIdAssignmentRule{
-				RuleIndex: v.RuleIndex,
-				Force:     v.Force,
-			},
-		}
-	case *VersioningOperationAddRedirectRule:
-		req.Operation = &workflowservice.UpdateWorkerVersioningRulesRequest_AddCompatibleRedirectRule{
-			AddCompatibleRedirectRule: &workflowservice.UpdateWorkerVersioningRulesRequest_AddCompatibleBuildIdRedirectRule{
-				Rule: versioningRedirectRuleToProto(&v.Rule),
-			},
-		}
-	case *VersioningOperationReplaceRedirectRule:
-		req.Operation = &workflowservice.UpdateWorkerVersioningRulesRequest_ReplaceCompatibleRedirectRule{
-			ReplaceCompatibleRedirectRule: &workflowservice.UpdateWorkerVersioningRulesRequest_ReplaceCompatibleBuildIdRedirectRule{
-				Rule: versioningRedirectRuleToProto(&v.Rule),
-			},
-		}
-	case *VersioningOperationDeleteRedirectRule:
-		req.Operation = &workflowservice.UpdateWorkerVersioningRulesRequest_DeleteCompatibleRedirectRule{
-			DeleteCompatibleRedirectRule: &workflowservice.UpdateWorkerVersioningRulesRequest_DeleteCompatibleBuildIdRedirectRule{
-				SourceBuildId: v.SourceBuildID,
-			},
-		}
-	case *VersioningOperationCommitBuildID:
-		req.Operation = &workflowservice.UpdateWorkerVersioningRulesRequest_CommitBuildId_{
-			CommitBuildId: &workflowservice.UpdateWorkerVersioningRulesRequest_CommitBuildId{
-				TargetBuildId: v.TargetBuildID,
-				Force:         v.Force,
-			},
-		}
-	default:
-		return nil, errors.New("converting an invalid operation")
-	}
-
-	return req, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // GetWorkerVersioningOptions is the input to [Client.GetWorkerVersioningRules].
@@ -334,19 +265,8 @@ type GetWorkerVersioningOptions struct {
 }
 
 func (gw *GetWorkerVersioningOptions) validateAndConvertToProto(namespace string) (*workflowservice.GetWorkerVersioningRulesRequest, error) {
-	if namespace == "" {
-		return nil, errors.New("missing namespace argument")
-	}
-
-	if gw.TaskQueue == "" {
-		return nil, errors.New("missing  TaskQueue field")
-	}
-	req := &workflowservice.GetWorkerVersioningRulesRequest{
-		Namespace: namespace,
-		TaskQueue: gw.TaskQueue,
-	}
-
-	return req, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // WorkerVersioningRules is the response for [Client.GetWorkerVersioningRules].
@@ -363,158 +283,77 @@ type WorkerVersioningRules struct {
 }
 
 func versioningAssignmentRuleToProto(rule *VersioningAssignmentRule) *taskqueuepb.BuildIdAssignmentRule {
+	_ = "STUB: not implemented"
 	// Assumed `rule` already validated
-	result := &taskqueuepb.BuildIdAssignmentRule{
-		TargetBuildId: rule.TargetBuildID,
-	}
-
-	switch r := rule.Ramp.(type) {
-	case *VersioningRampByPercentage:
-		result.Ramp = &taskqueuepb.BuildIdAssignmentRule_PercentageRamp{
-			PercentageRamp: &taskqueuepb.RampByPercentage{
-				RampPercentage: r.Percentage,
-			},
-		}
-	}
-
-	return result
+	return nil
 }
 
 func versioningRedirectRuleToProto(rule *VersioningRedirectRule) *taskqueuepb.CompatibleBuildIdRedirectRule {
+	_ = "STUB: not implemented"
 	// Assumed `rule` already validated
-	result := &taskqueuepb.CompatibleBuildIdRedirectRule{
-		SourceBuildId: rule.SourceBuildID,
-		TargetBuildId: rule.TargetBuildID,
-	}
-
-	return result
+	return nil
 }
 
 func versioningAssignmentRuleFromProto(rule *taskqueuepb.BuildIdAssignmentRule, timestamp *timestamppb.Timestamp) *VersioningAssignmentRuleWithTimestamp {
-	if rule == nil {
-		return nil
-	}
-
-	result := &VersioningAssignmentRuleWithTimestamp{
-		Rule: VersioningAssignmentRule{
-			TargetBuildID: rule.GetTargetBuildId(),
-		},
-	}
-
-	switch r := rule.GetRamp().(type) {
-	case *taskqueuepb.BuildIdAssignmentRule_PercentageRamp:
-		result.Rule.Ramp = &VersioningRampByPercentage{
-			Percentage: r.PercentageRamp.GetRampPercentage(),
-		}
-	}
-
-	if timestamp != nil {
-		result.CreateTime = timestamp.AsTime()
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func versioningRedirectRuleFromProto(rule *taskqueuepb.CompatibleBuildIdRedirectRule, timestamp *timestamppb.Timestamp) *VersioningRedirectRuleWithTimestamp {
-	if rule == nil {
-		return nil
-	}
-
-	result := &VersioningRedirectRuleWithTimestamp{
-		Rule: VersioningRedirectRule{
-			SourceBuildID: rule.GetSourceBuildId(),
-			TargetBuildID: rule.GetTargetBuildId(),
-		},
-	}
-
-	if timestamp != nil {
-		result.CreateTime = timestamp.AsTime()
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func workerVersioningRulesFromResponse(assignmentRules []*taskqueuepb.TimestampedBuildIdAssignmentRule, redirectRules []*taskqueuepb.TimestampedCompatibleBuildIdRedirectRule, token []byte) *WorkerVersioningRules {
-	aRules := make([]*VersioningAssignmentRuleWithTimestamp, len(assignmentRules))
-	for i, s := range assignmentRules {
-		aRules[i] = versioningAssignmentRuleFromProto(s.GetRule(), s.GetCreateTime())
-	}
-
-	rRules := make([]*VersioningRedirectRuleWithTimestamp, len(redirectRules))
-	for i, s := range redirectRules {
-		rRules[i] = versioningRedirectRuleFromProto(s.GetRule(), s.GetCreateTime())
-	}
-
-	conflictToken := VersioningConflictToken{
-		token,
-	}
-	return &WorkerVersioningRules{
-		AssignmentRules: aRules,
-		RedirectRules:   rRules,
-		ConflictToken:   conflictToken,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func workerVersioningRulesFromProtoUpdateResponse(response *workflowservice.UpdateWorkerVersioningRulesResponse) *WorkerVersioningRules {
-	if response == nil {
-		return nil
-	}
-	return workerVersioningRulesFromResponse(response.GetAssignmentRules(), response.GetCompatibleRedirectRules(), response.GetConflictToken())
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func workerVersioningRulesFromProtoGetResponse(response *workflowservice.GetWorkerVersioningRulesResponse) *WorkerVersioningRules {
-	if response == nil {
-		return nil
-	}
-	return workerVersioningRulesFromResponse(response.GetAssignmentRules(), response.GetCompatibleRedirectRules(), response.GetConflictToken())
-}
-
-func (r *VersioningRampByPercentage) validateRamp() error {
-	if r.Percentage >= 0.0 && r.Percentage < 100.0 {
-		return nil
-	} else {
-		return errors.New("invalid percentage in `Ramp`, not in [0,100)")
-	}
-}
-
-func (r *VersioningAssignmentRule) validateRule() error {
-	if r.TargetBuildID == "" {
-		return errors.New("missing TargetBuildID in assigment rule")
-	}
-	switch ramp := r.Ramp.(type) {
-	case *VersioningRampByPercentage:
-		if err := ramp.validateRamp(); err != nil {
-			return err
-		}
-		// Ramp is optional, defaults to "nothing to validate"
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (r *VersioningRedirectRule) validateRule() error {
-	if r.TargetBuildID == "" {
-		return errors.New("missing TargetBuildID in redirect rule")
-	}
-	if r.SourceBuildID == "" {
-		return errors.New("missing SourceBuildID in redirect rule")
-	}
+func (r *VersioningRampByPercentage) validateRamp() error { _ = "STUB: not implemented"; return nil }
+
+func (r *VersioningAssignmentRule) validateRule() error { _ = "STUB: not implemented"; return nil }
+
+// Ramp is optional, defaults to "nothing to validate"
+
+func (r *VersioningRedirectRule) validateRule() error { _ = "STUB: not implemented"; return nil }
+
+func (u *VersioningOperationInsertAssignmentRule) validateOp() error {
+	_ = "STUB: not implemented"
 	return nil
 }
-
-func (u *VersioningOperationInsertAssignmentRule) validateOp() error  { return u.Rule.validateRule() }
-func (u *VersioningOperationReplaceAssignmentRule) validateOp() error { return u.Rule.validateRule() }
-func (u *VersioningOperationDeleteAssignmentRule) validateOp() error  { return nil }
-func (u *VersioningOperationAddRedirectRule) validateOp() error       { return u.Rule.validateRule() }
-func (u *VersioningOperationReplaceRedirectRule) validateOp() error   { return u.Rule.validateRule() }
+func (u *VersioningOperationReplaceAssignmentRule) validateOp() error {
+	_ = "STUB: not implemented"
+	return nil
+}
+func (u *VersioningOperationDeleteAssignmentRule) validateOp() error {
+	_ = "STUB: not implemented"
+	return nil
+}
+func (u *VersioningOperationAddRedirectRule) validateOp() error {
+	_ = "STUB: not implemented"
+	return nil
+}
+func (u *VersioningOperationReplaceRedirectRule) validateOp() error {
+	_ = "STUB: not implemented"
+	return nil
+}
 
 func (u *VersioningOperationDeleteRedirectRule) validateOp() error {
-	if u.SourceBuildID == "" {
-		return errors.New("missing SourceBuildID")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (u *VersioningOperationCommitBuildID) validateOp() error {
-	if u.TargetBuildID == "" {
-		return errors.New("missing TargetBuildID")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

@@ -14,24 +14,28 @@ type (
 
 // NewJSONPBEncoder creates a new JSONPBEncoder.
 func NewJSONPBEncoder() JSONPBEncoder {
-	return JSONPBEncoder{}
+	_ = "STUB: not implemented"
+	return *
+
+	// NewJSONPBIndentEncoder creates a new JSONPBEncoder with indent.
+	new(JSONPBEncoder)
 }
 
-// NewJSONPBIndentEncoder creates a new JSONPBEncoder with indent.
 func NewJSONPBIndentEncoder(indent string) JSONPBEncoder {
-	return JSONPBEncoder{
-		opts: protojson.MarshalOptions{
-			Indent: indent,
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(JSONPBEncoder)
 }
 
 // Encode protobuf struct to bytes.
 func (e JSONPBEncoder) Encode(pb proto.Message) ([]byte, error) {
-	return e.opts.Marshal(pb)
+	_ = "STUB: not implemented"
+	return nil,
+
+		// Decode bytes to protobuf struct.
+		nil
 }
 
-// Decode bytes to protobuf struct.
 func (e JSONPBEncoder) Decode(data []byte, pb proto.Message) error {
-	return protojson.Unmarshal(data, pb)
+	_ = "STUB: not implemented"
+	return nil
 }

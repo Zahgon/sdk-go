@@ -26,23 +26,11 @@ type protoPayloadConverterInterface interface {
 }
 
 func newPayload(data []byte, c PayloadConverter) *commonpb.Payload {
-	return &commonpb.Payload{
-		Metadata: map[string][]byte{
-			MetadataEncoding: []byte(c.Encoding()),
-		},
-		Data: data,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func newProtoPayload(data []byte, c protoPayloadConverterInterface, messageType string) *commonpb.Payload {
-	if !c.ExcludeProtobufMessageTypes() {
-		return &commonpb.Payload{
-			Metadata: map[string][]byte{
-				MetadataEncoding:    []byte(c.Encoding()),
-				MetadataMessageType: []byte(messageType),
-			},
-			Data: data,
-		}
-	}
-	return newPayload(data, c)
+	_ = "STUB: not implemented"
+	return nil
 }

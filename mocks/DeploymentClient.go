@@ -23,173 +23,91 @@ type DeploymentClient struct {
 //
 //lint:ignore SA1019 ignore deprecated versioning APIs
 func (_m *DeploymentClient) Describe(ctx context.Context, options client.DeploymentDescribeOptions) (client.DeploymentDescription, error) {
-	ret := _m.Called(ctx, options)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Describe")
-	}
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	var r0 client.DeploymentDescription
-	var r1 error
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(0).(func(context.Context, client.DeploymentDescribeOptions) (client.DeploymentDescription, error)); ok {
-		return rf(ctx, options)
-	}
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(0).(func(context.Context, client.DeploymentDescribeOptions) client.DeploymentDescription); ok {
-		r0 = rf(ctx, options)
-	} else {
-		//lint:ignore SA1019 ignore deprecated versioning APIs
-		r0 = ret.Get(0).(client.DeploymentDescription)
-	}
-
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(1).(func(context.Context, client.DeploymentDescribeOptions) error); ok {
-		r1 = rf(ctx, options)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	_ = "STUB: not implemented"
+	return *new(client.DeploymentDescription), nil
 }
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
 
 // GetCurrent provides a mock function with given fields: ctx, options
 //
 //lint:ignore SA1019 ignore deprecated versioning APIs
 func (_m *DeploymentClient) GetCurrent(ctx context.Context, options client.DeploymentGetCurrentOptions) (client.DeploymentGetCurrentResponse, error) {
-	ret := _m.Called(ctx, options)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetCurrent")
-	}
-
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	var r0 client.DeploymentGetCurrentResponse
-	var r1 error
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(0).(func(context.Context, client.DeploymentGetCurrentOptions) (client.DeploymentGetCurrentResponse, error)); ok {
-		return rf(ctx, options)
-	}
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(0).(func(context.Context, client.DeploymentGetCurrentOptions) client.DeploymentGetCurrentResponse); ok {
-		r0 = rf(ctx, options)
-	} else {
-		//lint:ignore SA1019 ignore deprecated versioning APIs
-		r0 = ret.Get(0).(client.DeploymentGetCurrentResponse)
-	}
-
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(1).(func(context.Context, client.DeploymentGetCurrentOptions) error); ok {
-		r1 = rf(ctx, options)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	_ = "STUB: not implemented"
+	return *new(client.DeploymentGetCurrentResponse), nil
 }
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
 
 // GetReachability provides a mock function with given fields: ctx, options
 //
 //lint:ignore SA1019 ignore deprecated versioning APIs
 func (_m *DeploymentClient) GetReachability(ctx context.Context, options client.DeploymentGetReachabilityOptions) (client.DeploymentReachabilityInfo, error) {
-	ret := _m.Called(ctx, options)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetReachability")
-	}
-
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	var r0 client.DeploymentReachabilityInfo
-	var r1 error
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(0).(func(context.Context, client.DeploymentGetReachabilityOptions) (client.DeploymentReachabilityInfo, error)); ok {
-		return rf(ctx, options)
-	}
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(0).(func(context.Context, client.DeploymentGetReachabilityOptions) client.DeploymentReachabilityInfo); ok {
-		r0 = rf(ctx, options)
-	} else {
-		//lint:ignore SA1019 ignore deprecated versioning APIs
-		r0 = ret.Get(0).(client.DeploymentReachabilityInfo)
-	}
-
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(1).(func(context.Context, client.DeploymentGetReachabilityOptions) error); ok {
-		r1 = rf(ctx, options)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	_ = "STUB: not implemented"
+	return *new(client.DeploymentReachabilityInfo), nil
 }
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
 
 // List provides a mock function with given fields: ctx, options
 //
 //lint:ignore SA1019 ignore deprecated versioning APIs
 func (_m *DeploymentClient) List(ctx context.Context, options client.DeploymentListOptions) (client.DeploymentListIterator, error) {
-	ret := _m.Called(ctx, options)
-
-	if len(ret) == 0 {
-		panic("no return value specified for List")
-	}
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	var r0 client.DeploymentListIterator
-	var r1 error
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(0).(func(context.Context, client.DeploymentListOptions) (client.DeploymentListIterator, error)); ok {
-		return rf(ctx, options)
-	}
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(0).(func(context.Context, client.DeploymentListOptions) client.DeploymentListIterator); ok {
-		r0 = rf(ctx, options)
-	} else {
-		if ret.Get(0) != nil {
-			//lint:ignore SA1019 ignore deprecated versioning APIs
-			r0 = ret.Get(0).(client.DeploymentListIterator)
-		}
-	}
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(1).(func(context.Context, client.DeploymentListOptions) error); ok {
-		r1 = rf(ctx, options)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	_ = "STUB: not implemented"
+	return *new(client.DeploymentListIterator), nil
 }
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
 
 // SetCurrent provides a mock function with given fields: ctx, options
 //
 //lint:ignore SA1019 ignore deprecated versioning APIs
 func (_m *DeploymentClient) SetCurrent(ctx context.Context, options client.DeploymentSetCurrentOptions) (client.DeploymentSetCurrentResponse, error) {
-	ret := _m.Called(ctx, options)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SetCurrent")
-	}
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	var r0 client.DeploymentSetCurrentResponse
-	var r1 error
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(0).(func(context.Context, client.DeploymentSetCurrentOptions) (client.DeploymentSetCurrentResponse, error)); ok {
-		return rf(ctx, options)
-	}
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(0).(func(context.Context, client.DeploymentSetCurrentOptions) client.DeploymentSetCurrentResponse); ok {
-		r0 = rf(ctx, options)
-	} else {
-		//lint:ignore SA1019 ignore deprecated versioning APIs
-		r0 = ret.Get(0).(client.DeploymentSetCurrentResponse)
-	}
-	//lint:ignore SA1019 ignore deprecated versioning APIs
-	if rf, ok := ret.Get(1).(func(context.Context, client.DeploymentSetCurrentOptions) error); ok {
-		r1 = rf(ctx, options)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	_ = "STUB: not implemented"
+	return *new(client.DeploymentSetCurrentResponse), nil
 }
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
 
 // NewDeploymentClient creates a new instance of DeploymentClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
@@ -197,10 +115,6 @@ func NewDeploymentClient(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *DeploymentClient {
-	mock := &DeploymentClient{}
-	mock.Mock.Test(t)
-
-	t.Cleanup(func() { mock.AssertExpectations(t) })
-
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }

@@ -1,8 +1,6 @@
 package converter
 
 import (
-	"fmt"
-
 	commonpb "go.temporal.io/api/common/v1"
 )
 
@@ -43,17 +41,12 @@ type (
 
 // NewRawValue creates a new RawValue instance.
 func NewRawValue(payload *commonpb.Payload) RawValue {
-	return RawValue{payload: payload}
+	_ = "STUB: not implemented"
+	return *new(RawValue)
 }
 
-func (v RawValue) Payload() *commonpb.Payload {
-	return v.payload
-}
+func (v RawValue) Payload() *commonpb.Payload { _ = "STUB: not implemented"; return nil }
 
-func (v RawValue) MarshalJSON() ([]byte, error) {
-	return nil, fmt.Errorf("RawValue is not JSON serializable")
-}
+func (v RawValue) MarshalJSON() ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
 
-func (v *RawValue) UnmarshalJSON(b []byte) error {
-	return fmt.Errorf("RawValue is not JSON serializable")
-}
+func (v *RawValue) UnmarshalJSON(b []byte) error { _ = "STUB: not implemented"; return nil }

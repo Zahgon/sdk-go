@@ -34,17 +34,20 @@ type CompositeTunerOptions = internal.CompositeTunerOptions
 
 // NewFixedSizeTuner creates a WorkerTuner that uses fixed size slot suppliers.
 func NewFixedSizeTuner(options FixedSizeTunerOptions) (WorkerTuner, error) {
-	return internal.NewFixedSizeTuner(options)
+	_ = "STUB: not implemented"
+	return *new(WorkerTuner), nil
 }
 
 // NewCompositeTuner creates a WorkerTuner that uses a combination of slot suppliers.
 func NewCompositeTuner(options CompositeTunerOptions) (WorkerTuner, error) {
-	return internal.NewCompositeTuner(options)
+	_ = "STUB: not implemented"
+	return *new(WorkerTuner), nil
 }
 
 // NewFixedSizeSlotSupplier creates a new FixedSizeSlotSupplier with the given number of slots.
 func NewFixedSizeSlotSupplier(numSlots int) (SlotSupplier, error) {
-	return internal.NewFixedSizeSlotSupplier(numSlots)
+	_ = "STUB: not implemented"
+	return *new(SlotSupplier), nil
 }
 
 // SysInfoProvider implementations provide information about system resources.
@@ -68,7 +71,8 @@ type ResourceBasedTunerOptions = internal.ResourceBasedTunerOptions
 // InfoSupplier is required - use contrib/sysinfo.SysInfoProvider() for a gopsutil-based
 // implementation, or provide your own.
 func NewResourceBasedTuner(opts ResourceBasedTunerOptions) (WorkerTuner, error) {
-	return internal.NewResourceBasedTuner(opts)
+	_ = "STUB: not implemented"
+	return *new(WorkerTuner), nil
 }
 
 // ResourceBasedSlotSupplierOptions configures a particular ResourceBasedSlotSupplier.
@@ -84,7 +88,8 @@ func NewResourceBasedSlotSupplier(
 	controller *ResourceController,
 	options ResourceBasedSlotSupplierOptions,
 ) (*ResourceBasedSlotSupplier, error) {
-	return internal.NewResourceBasedSlotSupplier(controller, options)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ResourceControllerOptions contains configurable parameters for a ResourceController.
@@ -105,20 +110,24 @@ type ResourceController = internal.ResourceController
 // InfoSupplier looks at overall system resources, multiple instances with different configs can
 // only conflict with one another.
 func NewResourceController(options ResourceControllerOptions) *ResourceController {
-	return internal.NewResourceController(options)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // DefaultResourceControllerOptions returns a ResourceControllerOptions with default values.
 func DefaultResourceControllerOptions() ResourceControllerOptions {
-	return internal.DefaultResourceControllerOptions()
+	_ = "STUB: not implemented"
+	return *new(ResourceControllerOptions)
 }
 
 // DefaultWorkflowResourceBasedSlotSupplierOptions returns default options for workflow slot suppliers.
 func DefaultWorkflowResourceBasedSlotSupplierOptions() ResourceBasedSlotSupplierOptions {
-	return internal.DefaultWorkflowResourceBasedSlotSupplierOptions()
+	_ = "STUB: not implemented"
+	return *new(ResourceBasedSlotSupplierOptions)
 }
 
 // DefaultActivityResourceBasedSlotSupplierOptions returns default options for activity slot suppliers.
 func DefaultActivityResourceBasedSlotSupplierOptions() ResourceBasedSlotSupplierOptions {
-	return internal.DefaultActivityResourceBasedSlotSupplierOptions()
+	_ = "STUB: not implemented"
+	return *new(ResourceBasedSlotSupplierOptions)
 }

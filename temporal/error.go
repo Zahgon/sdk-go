@@ -1,10 +1,7 @@
 package temporal
 
 import (
-	"errors"
-
 	enumspb "go.temporal.io/api/enums/v1"
-	"go.temporal.io/api/serviceerror"
 
 	"go.temporal.io/sdk/internal"
 )
@@ -159,7 +156,8 @@ type ApplicationErrorOptions = internal.ApplicationErrorOptions
 // newly created error could be controlled through instance of ApplicationErrorOptions.
 // The options structure also receives some extra requests. See activity.ApplicationErrorOptions for details.
 func NewApplicationErrorWithOptions(msg, errType string, options ApplicationErrorOptions) error {
-	return internal.NewApplicationErrorWithOptions(msg, errType, options)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewApplicationError creates new instance of retryable *ApplicationError with message, type, and optional details.
@@ -167,7 +165,8 @@ func NewApplicationErrorWithOptions(msg, errType string, options ApplicationErro
 // errType can be used to control if error is retryable or not. Add the same type in to RetryPolicy.NonRetryableErrorTypes
 // to avoid retrying of particular error types.
 func NewApplicationError(message, errType string, details ...interface{}) error {
-	return internal.NewApplicationErrorWithOptions(message, errType, ApplicationErrorOptions{Details: details})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewApplicationErrorWithCause creates new instance of retryable *ApplicationError with message, type, cause, and optional details.
@@ -175,17 +174,15 @@ func NewApplicationError(message, errType string, details ...interface{}) error 
 // errType can be used to control if error is retryable or not. Add the same type in to RetryPolicy.NonRetryableErrorTypes
 // to avoid retrying of particular error types.
 func NewApplicationErrorWithCause(message, errType string, cause error, details ...interface{}) error {
-	return internal.NewApplicationErrorWithOptions(
-		message, errType, ApplicationErrorOptions{NonRetryable: false, Cause: cause, Details: details},
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewNonRetryableApplicationError creates new instance of non-retryable *ApplicationError with message, type, and optional cause and details.
 // Use ApplicationError for any use case specific errors that cross activity and child workflow boundaries.
 func NewNonRetryableApplicationError(message, errType string, cause error, details ...interface{}) error {
-	return internal.NewApplicationErrorWithOptions(
-		message, errType, ApplicationErrorOptions{NonRetryable: true, Cause: cause, Details: details},
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CanceledErrorOptions should be used to set all the desired attributes of a new CanceledError
@@ -194,71 +191,51 @@ type CanceledErrorOptions = internal.CanceledErrorOptions
 
 // NewCanceledError creates CanceledError instance.
 // Return this error from activity or child workflow to indicate that it was successfully canceled.
-func NewCanceledError(details ...interface{}) error {
-	return internal.NewCanceledError(details...)
-}
+func NewCanceledError(details ...interface{}) error { _ = "STUB: not implemented"; return nil }
 
 // NewCanceledErrorWithOptions creates CanceledError instance.
 // Return this error from activity or child workflow to indicate that it was successfully canceled.
 func NewCanceledErrorWithOptions(options CanceledErrorOptions) error {
-	return internal.NewCanceledErrorWithOptions(options)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // IsApplicationError return if the err is a ApplicationError
-func IsApplicationError(err error) bool {
-	var applicationError *ApplicationError
-	return errors.As(err, &applicationError)
-}
+func IsApplicationError(err error) bool { _ = "STUB: not implemented"; return false }
 
 // IsWorkflowExecutionAlreadyStartedError return if the err is a
 // WorkflowExecutionAlreadyStartedError or if an error in the chain is a
 // ChildWorkflowExecutionAlreadyStartedError.
 func IsWorkflowExecutionAlreadyStartedError(err error) bool {
-	if _, ok := err.(*serviceerror.WorkflowExecutionAlreadyStarted); ok {
-		return ok
-	}
-	var childError *ChildWorkflowExecutionAlreadyStartedError
-	return errors.As(err, &childError)
+	_ = "STUB: not implemented"
+	return false
 }
 
 // IsCanceledError return if the err is a CanceledError
-func IsCanceledError(err error) bool {
-	var cancelError *CanceledError
-	return errors.As(err, &cancelError)
-}
+func IsCanceledError(err error) bool { _ = "STUB: not implemented"; return false }
 
 // IsTimeoutError return if the err is a TimeoutError
-func IsTimeoutError(err error) bool {
-	var timeoutError *TimeoutError
-	return errors.As(err, &timeoutError)
-}
+func IsTimeoutError(err error) bool { _ = "STUB: not implemented"; return false }
 
 // IsTerminatedError return if the err is a TerminatedError
-func IsTerminatedError(err error) bool {
-	var terminateError *TerminatedError
-	return errors.As(err, &terminateError)
-}
+func IsTerminatedError(err error) bool { _ = "STUB: not implemented"; return false }
 
 // IsPanicError return if the err is a PanicError
-func IsPanicError(err error) bool {
-	var panicError *PanicError
-	return errors.As(err, &panicError)
-}
+func IsPanicError(err error) bool { _ = "STUB: not implemented"; return false }
 
 // NewTimeoutError creates TimeoutError instance.
 // Use NewHeartbeatTimeoutError to create heartbeat TimeoutError
 // WARNING: This function is public only to support unit testing of workflows.
 // It shouldn't be used by application level code.
 func NewTimeoutError(timeoutType enumspb.TimeoutType, lastErr error, details ...interface{}) error {
-	return internal.NewTimeoutError("Test timeout", timeoutType, lastErr, details...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewHeartbeatTimeoutError creates TimeoutError instance
 // WARNING: This function is public only to support unit testing of workflows.
 // It shouldn't be used by application level code.
-func NewHeartbeatTimeoutError(details ...interface{}) error {
-	return internal.NewHeartbeatTimeoutError(details...)
-}
+func NewHeartbeatTimeoutError(details ...interface{}) error { _ = "STUB: not implemented"; return nil }
 
 // ApplicationErrorCategory sets the category of the error. The category of the error
 // maps to logging/metrics SDK behaviors and does not impact server-side logging/metrics.

@@ -2,7 +2,6 @@ package workflow
 
 import (
 	"cmp"
-	"errors"
 
 	"go.temporal.io/sdk/converter"
 	"go.temporal.io/sdk/internal"
@@ -258,7 +257,8 @@ type (
 //
 // ExecuteActivity immediately returns a Future that can be used to block waiting for activity result or failure.
 func ExecuteActivity(ctx Context, activity interface{}, args ...interface{}) Future {
-	return internal.ExecuteActivity(ctx, activity, args...)
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
 
 // ExecuteLocalActivity requests to run a local activity. A local activity is like a regular activity with some key
@@ -305,7 +305,8 @@ func ExecuteActivity(ctx Context, activity interface{}, args ...interface{}) Fut
 //
 // ExecuteLocalActivity returns Future with local activity result or failure.
 func ExecuteLocalActivity(ctx Context, activity interface{}, args ...interface{}) Future {
-	return internal.ExecuteLocalActivity(ctx, activity, args...)
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
 
 // ExecuteChildWorkflow requests child workflow execution in the context of a workflow.
@@ -332,44 +333,39 @@ func ExecuteLocalActivity(ctx Context, activity interface{}, args ...interface{}
 //
 // ExecuteChildWorkflow returns ChildWorkflowFuture.
 func ExecuteChildWorkflow(ctx Context, childWorkflow interface{}, args ...interface{}) ChildWorkflowFuture {
-	return internal.ExecuteChildWorkflow(ctx, childWorkflow, args...)
+	_ = "STUB: not implemented"
+	return *new(ChildWorkflowFuture)
 }
 
 // GetInfo extracts info of a current workflow from a context.
-func GetInfo(ctx Context) *Info {
-	return internal.GetWorkflowInfo(ctx)
-}
+func GetInfo(ctx Context) *Info { _ = "STUB: not implemented"; return nil }
 
 // GetTypedSearchAttributes returns a collection of the search attributes currently set for this workflow
 func GetTypedSearchAttributes(ctx Context) temporal.SearchAttributes {
-	return internal.GetTypedSearchAttributes(ctx)
+	_ = "STUB: not implemented"
+	return *new(temporal.SearchAttributes)
 }
 
 // GetCurrentUpdateInfo returns information about the currently running update if any
 // from the context.
-func GetCurrentUpdateInfo(ctx Context) *UpdateInfo {
-	return internal.GetCurrentUpdateInfo(ctx)
-}
+func GetCurrentUpdateInfo(ctx Context) *UpdateInfo { _ = "STUB: not implemented"; return nil }
 
 // GetLogger returns a logger to be used in workflow's context.
 // This logger does not record logs during replay.
 //
 // The logger may also extract additional fields from the context, such as update info
 // if used in an update handler.
-func GetLogger(ctx Context) log.Logger {
-	return internal.GetLogger(ctx)
-}
+func GetLogger(ctx Context) log.Logger { _ = "STUB: not implemented"; return *new(log.Logger) }
 
 // GetMetricsHandler returns a metrics handler to be used in workflow's context.
 // This handler does not record metrics during replay.
 func GetMetricsHandler(ctx Context) metrics.Handler {
-	return internal.GetMetricsHandler(ctx)
+	_ = "STUB: not implemented"
+	return *new(metrics.Handler)
 }
 
 // GetUnhandledSignalNames returns signal names that have unconsumed signals.
-func GetUnhandledSignalNames(ctx Context) []string {
-	return internal.GetUnhandledSignalNames(ctx)
-}
+func GetUnhandledSignalNames(ctx Context) []string { _ = "STUB: not implemented"; return nil }
 
 // RequestCancelExternalWorkflow can be used to request cancellation of an external workflow.
 // Input workflowID is the workflow ID of target workflow.
@@ -382,7 +378,8 @@ func GetUnhandledSignalNames(ctx Context) []string {
 //
 // RequestCancelExternalWorkflow return Future with failure or empty success result.
 func RequestCancelExternalWorkflow(ctx Context, workflowID, runID string) Future {
-	return internal.RequestCancelExternalWorkflow(ctx, workflowID, runID)
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
 
 // SignalExternalWorkflow can be used to send signal info to an external workflow.
@@ -396,12 +393,14 @@ func RequestCancelExternalWorkflow(ctx Context, workflowID, runID string) Future
 //
 // SignalExternalWorkflow return Future with failure or empty success result.
 func SignalExternalWorkflow(ctx Context, workflowID, runID, signalName string, arg interface{}) Future {
-	return internal.SignalExternalWorkflow(ctx, workflowID, runID, signalName, arg)
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
 
 // GetSignalChannel returns the channel corresponding to the signal name.
 func GetSignalChannel(ctx Context, signalName string) ReceiveChannel {
-	return internal.GetSignalChannel(ctx, signalName)
+	_ = "STUB: not implemented"
+	return *new(ReceiveChannel)
 }
 
 // GetSignalChannelWithOptions returns channel corresponding to the signal name.
@@ -409,7 +408,8 @@ func GetSignalChannel(ctx Context, signalName string) ReceiveChannel {
 //
 // NOTE: Experimental
 func GetSignalChannelWithOptions(ctx Context, signalName string, options SignalChannelOptions) ReceiveChannel {
-	return internal.GetSignalChannelWithOptions(ctx, signalName, options)
+	_ = "STUB: not implemented"
+	return *new(ReceiveChannel)
 }
 
 // SideEffect executes the provided function once, records its result into the workflow history. The recorded result on
@@ -452,7 +452,8 @@ func GetSignalChannelWithOptions(ctx Context, signalName string, options SignalC
 //	       ....
 //	}
 func SideEffect(ctx Context, f func(ctx Context) interface{}) converter.EncodedValue {
-	return internal.SideEffect(ctx, f)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 // SideEffectWithOptions executes the provided function once, records its result into the workflow history.
@@ -461,7 +462,8 @@ func SideEffect(ctx Context, f func(ctx Context) interface{}) converter.EncodedV
 //
 // The options parameter allows specifying additional options like a summary that will be displayed in UI/CLI.
 func SideEffectWithOptions(ctx Context, options SideEffectOptions, f func(ctx Context) interface{}) converter.EncodedValue {
-	return internal.SideEffectWithOptions(ctx, options, f)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 // MutableSideEffect executes the provided function once, then it looks up the history for the value with the given id.
@@ -480,13 +482,15 @@ func SideEffectWithOptions(ctx Context, options SideEffectOptions, f func(ctx Co
 //
 // One good use case of MutableSideEffect() is to access dynamically changing config without breaking determinism.
 func MutableSideEffect(ctx Context, id string, f func(ctx Context) interface{}, equals func(a, b interface{}) bool) converter.EncodedValue {
-	return internal.MutableSideEffect(ctx, id, f, equals)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 // MutableSideEffectWithOptions is like MutableSideEffect but allows specifying additional options
 // like a summary that will be displayed in UI/CLI.
 func MutableSideEffectWithOptions(ctx Context, id string, options MutableSideEffectOptions, f func(ctx Context) interface{}, equals func(a, b interface{}) bool) converter.EncodedValue {
-	return internal.MutableSideEffectWithOptions(ctx, id, options, f, equals)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 // DefaultVersion is a version returned by GetVersion for code that wasn't versioned before
@@ -558,7 +562,8 @@ const DefaultVersion Version = internal.DefaultVersion
 //	  err = workflow.ExecuteActivity(ctx, qux, data).Get(ctx, nil)
 //	}
 func GetVersion(ctx Context, changeID string, minSupported, maxSupported Version) Version {
-	return internal.GetVersion(ctx, changeID, minSupported, maxSupported)
+	_ = "STUB: not implemented"
+	return *new(Version)
 }
 
 // SetQueryHandler sets the query handler to handle workflow query. The queryType specify which query type this handler
@@ -603,7 +608,8 @@ func GetVersion(ctx Context, changeID string, minSupported, maxSupported Version
 //
 // See [SetQueryHandlerWithOptions] to set additional options.
 func SetQueryHandler(ctx Context, queryType string, handler interface{}) error {
-	return internal.SetQueryHandler(ctx, queryType, handler)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SetQueryHandlerWithOptions is [SetQueryHandler] with extra options. See
@@ -611,14 +617,16 @@ func SetQueryHandler(ctx Context, queryType string, handler interface{}) error {
 //
 // NOTE: Experimental
 func SetQueryHandlerWithOptions(ctx Context, queryType string, handler interface{}, options QueryHandlerOptions) error {
-	return internal.SetQueryHandlerWithOptions(ctx, queryType, handler, options)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SetUpdateHandler forwards to SetUpdateHandlerWithOptions with an
 // zero-initialized UpdateHandlerOptions struct. See SetUpdateHandlerWithOptions
 // for more details.
 func SetUpdateHandler(ctx Context, updateName string, handler interface{}) error {
-	return SetUpdateHandlerWithOptions(ctx, updateName, handler, UpdateHandlerOptions{})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SetUpdateHandlerWithOptions binds an update handler function to the specified name such that
@@ -668,7 +676,8 @@ func SetUpdateHandler(ctx Context, updateName string, handler interface{}) error
 //		return counter, nil
 //	}
 func SetUpdateHandlerWithOptions(ctx Context, updateName string, handler interface{}, opts UpdateHandlerOptions) error {
-	return internal.SetUpdateHandler(ctx, updateName, handler, opts)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetCurrentDetails gets the current details for this workflow. This is simply
@@ -676,18 +685,14 @@ func SetUpdateHandlerWithOptions(ctx Context, updateName string, handler interfa
 // for more details.
 //
 // NOTE: Experimental
-func GetCurrentDetails(ctx Context) string {
-	return internal.GetCurrentDetails(ctx)
-}
+func GetCurrentDetails(ctx Context) string { _ = "STUB: not implemented"; return "" }
 
 // SetCurrentDetails sets the current details for this workflow. This is
 // typically an arbitrary string in Temporal markdown format may be displayed in
 // the UI or CLI.
 //
 // NOTE: Experimental
-func SetCurrentDetails(ctx Context, details string) {
-	internal.SetCurrentDetails(ctx, details)
-}
+func SetCurrentDetails(ctx Context, details string) { _ = "STUB: not implemented"; return }
 
 // IsReplaying returns whether the current workflow code is replaying.
 //
@@ -703,18 +708,14 @@ func SetCurrentDetails(ctx Context, details string) {
 // on the failure. If workflow don't want to be blocked on those failure, it should ignore those failure; if workflow do
 // want to make sure it proceed only when that action succeed then it should panic on that failure. Panic raised from a
 // workflow causes workflow task to fail and temporal server will rescheduled later to retry.
-func IsReplaying(ctx Context) bool {
-	return internal.IsReplaying(ctx)
-}
+func IsReplaying(ctx Context) bool { _ = "STUB: not implemented"; return false }
 
 // HasLastCompletionResult checks if there is completion result from previous runs.
 // This is used in combination with cron schedule. A workflow can be started with an optional cron schedule.
 // If a cron workflow wants to pass some data to next schedule, it can return any data and that data will become
 // available when next run starts.
 // This HasLastCompletionResult() checks if there is such data available passing down from previous successful run.
-func HasLastCompletionResult(ctx Context) bool {
-	return internal.HasLastCompletionResult(ctx)
-}
+func HasLastCompletionResult(ctx Context) bool { _ = "STUB: not implemented"; return false }
 
 // GetLastCompletionResult extract last completion result from the last successful run for this cron or schedule workflow.
 // This is used in combination with cron schedule or schedule workflow. A workflow can be started with an optional cron schedule.
@@ -727,16 +728,15 @@ func HasLastCompletionResult(ctx Context) bool {
 // of existing values may result in unexpected behavior similar to
 // json.Unmarshal.
 func GetLastCompletionResult(ctx Context, d ...interface{}) error {
-	return internal.GetLastCompletionResult(ctx, d...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetLastError extracts the error from the last run of this workflow. If the last run of this workflow did not fail or
 // this is the first run, this will be nil. This is used in combination with cron schedule or schedule workflow.
 //
 // See TestWorkflowEnvironment.SetLastError() for unit test support.
-func GetLastError(ctx Context) error {
-	return internal.GetLastError(ctx)
-}
+func GetLastError(ctx Context) error { _ = "STUB: not implemented"; return nil }
 
 // UpsertSearchAttributes is used to add or update workflow search attributes.
 // The search attributes can be used in query of List/Scan/Count workflow APIs.
@@ -772,7 +772,8 @@ func GetLastError(ctx Context) error {
 //
 // [Visibility]: https://docs.temporal.io/visibility
 func UpsertSearchAttributes(ctx Context, attributes map[string]interface{}) error {
-	return internal.UpsertSearchAttributes(ctx, attributes)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // UpsertTypedSearchAttributes is used to add, update, or remove workflow search attributes. The search attributes can
@@ -795,7 +796,8 @@ func UpsertSearchAttributes(ctx Context, attributes map[string]interface{}) erro
 //
 // [Visibility]: https://docs.temporal.io/visibility
 func UpsertTypedSearchAttributes(ctx Context, searchAttributeUpdate ...temporal.SearchAttributeUpdate) error {
-	return internal.UpsertTypedSearchAttributes(ctx, searchAttributeUpdate...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // UpsertMemo is used to add or update workflow memo.
@@ -825,7 +827,8 @@ func UpsertTypedSearchAttributes(ctx Context, searchAttributeUpdate ...temporal.
 //
 // This is only supported with Temporal Server 1.18+
 func UpsertMemo(ctx Context, memo map[string]interface{}) error {
-	return internal.UpsertMemo(ctx, memo)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewContinueAsNewError creates ContinueAsNewError instance
@@ -841,19 +844,18 @@ func UpsertMemo(ctx Context, memo map[string]interface{}) error {
 //	 wfn - workflow function. for new execution it can be different from the currently running.
 //	 args - arguments for the new workflow.
 func NewContinueAsNewError(ctx Context, wfn interface{}, args ...interface{}) error {
-	return internal.NewContinueAsNewError(ctx, wfn, args...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewContinueAsNewErrorWithOptions creates ContinueAsNewError instance with additional options.
 func NewContinueAsNewErrorWithOptions(ctx Context, options ContinueAsNewErrorOptions, wfn interface{}, args ...interface{}) error {
-	return internal.NewContinueAsNewErrorWithOptions(ctx, options, wfn, args...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // IsContinueAsNewError return if the err is a ContinueAsNewError
-func IsContinueAsNewError(err error) bool {
-	var continueAsNewErr *ContinueAsNewError
-	return errors.As(err, &continueAsNewErr)
-}
+func IsContinueAsNewError(err error) bool { _ = "STUB: not implemented"; return false }
 
 // DataConverterWithoutDeadlockDetection returns a data converter that disables
 // workflow deadlock detection for each call on the data converter. This should
@@ -861,21 +863,21 @@ func IsContinueAsNewError(err error) bool {
 // otherwise intentionally execute longer than the default deadlock detection
 // timeout.
 func DataConverterWithoutDeadlockDetection(c converter.DataConverter) converter.DataConverter {
-	return internal.DataConverterWithoutDeadlockDetection(c)
+	_ = "STUB: not implemented"
+	return *new(converter.DataConverter)
 }
 
 // DeterministicKeys returns the keys of a map in deterministic (sorted) order. To be used in for
 // loops in workflows for deterministic iteration.
-func DeterministicKeys[K cmp.Ordered, V any](m map[K]V) []K {
-	return internal.DeterministicKeys(m)
-}
+func DeterministicKeys[K cmp.Ordered, V any](m map[K]V) []K { _ = "STUB: not implemented"; return nil }
 
 // DeterministicKeysFunc returns the keys of a map in a deterministic (sorted) order.
 // cmp(a, b) should return a negative number when a < b, a positive number when
 // a > b and zero when a == b. Keys are sorted by cmp.
 // To be used in for loops in workflows for deterministic iteration.
 func DeterministicKeysFunc[K comparable, V any](m map[K]V, cmp func(K, K) int) []K {
-	return internal.DeterministicKeysFunc(m, cmp)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // AllHandlersFinished returns true if all update handlers have finished execution.
@@ -883,11 +885,10 @@ func DeterministicKeysFunc[K comparable, V any](m map[K]V, cmp func(K, K) int) [
 // interruption of in-progress handlers by workflow exit:
 //
 //	workflow.Await(ctx, func() bool { return workflow.AllHandlersFinished(ctx) })
-func AllHandlersFinished(ctx Context) bool {
-	return internal.AllHandlersFinished(ctx)
-}
+func AllHandlersFinished(ctx Context) bool { _ = "STUB: not implemented"; return false }
 
 // NewNexusClient creates a [NexusClient] from an endpoint name and a service name.
 func NewNexusClient(endpoint, service string) NexusClient {
-	return internal.NewNexusClient(endpoint, service)
+	_ = "STUB: not implemented"
+	return *new(NexusClient)
 }

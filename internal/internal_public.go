@@ -94,6 +94,4 @@ type (
 var enableVerboseLogging = false
 
 // EnableVerboseLogging enable or disable verbose logging. This is for internal use only.
-func EnableVerboseLogging(enable bool) {
-	enableVerboseLogging = enable
-}
+func EnableVerboseLogging(enable bool) { _ = "STUB: not implemented"; return }

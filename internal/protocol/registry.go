@@ -20,31 +20,15 @@ type (
 	}
 )
 
-func NewRegistry() *Registry {
-	return &Registry{instances: map[string]Instance{}}
-}
+func NewRegistry() *Registry { _ = "STUB: not implemented"; return nil }
 
 // FindOrAdd looks up an existing protocol by instance ID or constructs a new
 // one and registers it under the instance ID indicated.
 func (r *Registry) FindOrAdd(instID string, ctor func() Instance) Instance {
-	r.mut.Lock()
-	defer r.mut.Unlock()
-	p, ok := r.instances[instID]
-	if !ok {
-		p = ctor()
-		r.instances[instID] = p
-	}
-	return p
+	_ = "STUB: not implemented"
+	return *new(Instance)
 }
 
 // ClearCompleted walks the registered protocols and removes those that have
 // completed.
-func (r *Registry) ClearCompleted() {
-	r.mut.Lock()
-	defer r.mut.Unlock()
-	for instID, inst := range r.instances {
-		if inst.HasCompleted() {
-			delete(r.instances, instID)
-		}
-	}
-}
+func (r *Registry) ClearCompleted() { _ = "STUB: not implemented"; return }

@@ -2,10 +2,8 @@ package test
 
 import (
 	"context"
-	"strings"
 	"sync"
 
-	ilog "go.temporal.io/sdk/internal/log"
 	"go.temporal.io/sdk/log"
 )
 
@@ -19,44 +17,15 @@ type SimpleTrafficController struct {
 	lock         sync.RWMutex
 }
 
-func NewSimpleTrafficController() *SimpleTrafficController {
-	return &SimpleTrafficController{
-		totalCalls:   make(map[string]int),
-		allowedCalls: make(map[string]int),
-		failAttempts: make(map[string]map[int]error),
-		lock:         sync.RWMutex{},
-		logger:       ilog.NewDefaultLogger(),
-	}
-}
+func NewSimpleTrafficController() *SimpleTrafficController { _ = "STUB: not implemented"; return nil }
 
 func (tc *SimpleTrafficController) CheckCallAllowed(_ context.Context, method string, _, _ interface{}) error {
+	_ = "STUB: not implemented"
 	// Name of the API being called
-	operation := method[strings.LastIndex(method, "/")+1:]
-	tc.lock.Lock()
-	defer tc.lock.Unlock()
-	var err error
-	attempt := tc.totalCalls[operation]
-	if _, ok := tc.failAttempts[operation]; ok && (tc.failAttempts[operation][attempt] != nil || tc.failAttempts[operation][FailAllAttempts] != nil) {
-		err = tc.failAttempts[operation][attempt]
-		if err == nil {
-			err = tc.failAttempts[operation][FailAllAttempts]
-		}
-		tc.logger.Debug("Failing API call for", "operation:", operation, "call:", attempt)
-	}
-	tc.totalCalls[operation]++
-	if err == nil {
-		tc.allowedCalls[operation]++
-	}
-	return err
+	return nil
 }
 
 func (tc *SimpleTrafficController) AddError(operation string, err error, failAttempts ...int) {
-	tc.lock.Lock()
-	defer tc.lock.Unlock()
-	if _, ok := tc.failAttempts[operation]; !ok {
-		tc.failAttempts[operation] = make(map[int]error)
-		for _, attempt := range failAttempts {
-			tc.failAttempts[operation][attempt] = err
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }

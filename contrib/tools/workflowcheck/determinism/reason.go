@@ -2,50 +2,30 @@ package determinism
 
 import (
 	"encoding/gob"
-	"fmt"
 	"go/token"
 	"go/types"
-	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
 )
 
 // PackageNonDeterminisms contains func/var non-determinisms keyed by name.
 type PackageNonDeterminisms map[string]NonDeterminisms
 
 // AFact is for implementing golang.org/x/tools/go/analysis.Fact.
-func (*PackageNonDeterminisms) AFact() {}
+func (*PackageNonDeterminisms) AFact() { _ = "STUB: not implemented"; return }
 
-func (n *PackageNonDeterminisms) String() string {
-	if n == nil || len(*n) == 0 {
-		return "0 non-deterministic vars/funcs"
-	} else if len(*n) == 1 {
-		return "1 non-deterministic var/func"
-	}
-	return strconv.Itoa(len(*n)) + " non-deterministic vars/funcs"
-}
+func (n *PackageNonDeterminisms) String() string { _ = "STUB: not implemented"; return "" }
 
 // NonDeterminisms is a set of reasons why a function/var is non-deterministic.
 type NonDeterminisms []Reason
 
 // AFact is for implementing golang.org/x/tools/go/analysis.Fact.
-func (*NonDeterminisms) AFact() {}
+func (*NonDeterminisms) AFact() {
+	_ = "STUB: not implemented"
 
-// String returns all reasons as a comma-delimited string.
-func (n *NonDeterminisms) String() string {
-	if n == nil {
-		return "<none>"
-	}
-	var str string
-	for _, reason := range *n {
-		if str != "" {
-			str += ", "
-		}
-		str += reason.String()
-	}
-	return str
+	// String returns all reasons as a comma-delimited string.
+	return
 }
+
+func (n *NonDeterminisms) String() string { _ = "STUB: not implemented"; return "" }
 
 // AppendChildReasonLines appends to lines the set of reasons in this slice.
 // This will include newlines and indention based on depth.
@@ -59,35 +39,13 @@ func (n NonDeterminisms) AppendChildReasonLines(
 	lookupCache *PackageLookupCache,
 	seenPos map[string]bool,
 ) []string {
-	for _, reason := range n {
-		reasonStr := reason.String()
-		// Relativize path if it at least starts with working dir
-		pos := reason.Pos()
-		filename := pos.Filename
-		if wd, err := os.Getwd(); err == nil && strings.HasPrefix(filename, wd) {
-			if relFilename, err := filepath.Rel(wd, filename); err == nil {
-				filename = relFilename
-			}
-		}
-		posStr := fmt.Sprintf("%v:%v:%v", filename, pos.Line, pos.Column)
-		if includePos {
-			reasonStr += " at " + posStr
-		}
-		s = append(s, fmt.Sprintf("%v is non-deterministic, reason: %v",
-			strings.Repeat(depthRepeat, depth)+subject, reasonStr))
-		// Recurse if func call and we haven't seen this pos str before
-		seen := seenPos[posStr]
-		seenPos[posStr] = true
-		if funcCall, _ := reason.(*ReasonFuncCall); funcCall != nil && !seen {
-			childPkg, childPkgNonDet := lookupCache.PackageNonDeterminismsFromName(pkg, funcCall.PackageName())
-			if childNonDet := childPkgNonDet[funcCall.FuncName]; len(childNonDet) > 0 {
-				s = childNonDet.AppendChildReasonLines(funcCall.FuncName, s, depth+1,
-					depthRepeat, includePos, childPkg, lookupCache, seenPos)
-			}
-		}
-	}
-	return s
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Relativize path if it at least starts with working dir
+
+// Recurse if func call and we haven't seen this pos str before
 
 // Reason represents a reason for non-determinism.
 type Reason interface {
@@ -103,12 +61,14 @@ type ReasonDecl struct {
 }
 
 // Pos returns the source position.
-func (r *ReasonDecl) Pos() *token.Position { return r.SourcePos }
+func (r *ReasonDecl) Pos() *token.Position {
+	_ = "STUB: not implemented"
 
-// String returns the reason.
-func (r *ReasonDecl) String() string {
-	return "declared non-deterministic"
+	// String returns the reason.
+	return nil
 }
+
+func (r *ReasonDecl) String() string { _ = "STUB: not implemented"; return "" }
 
 // ReasonFuncCall represents a call to a non-deterministic function.
 type ReasonFuncCall struct {
@@ -118,26 +78,20 @@ type ReasonFuncCall struct {
 }
 
 // Pos returns the source position.
-func (r *ReasonFuncCall) Pos() *token.Position { return r.SourcePos }
+func (r *ReasonFuncCall) Pos() *token.Position {
+	_ = "STUB: not implemented"
 
-// String returns the reason.
-func (r *ReasonFuncCall) String() string {
-	return "calls non-deterministic function " + r.FuncName
+	// String returns the reason.
+	return nil
 }
 
-func (r *ReasonFuncCall) PackageName() string {
-	pkgPrefixedName := r.FuncName
-	// If there is an ending parenthesis, it's a method; take the receiver as the name
-	if endParen := strings.Index(r.FuncName, ")"); endParen >= 0 {
-		pkgPrefixedName = strings.TrimLeft(r.FuncName[:endParen], "(*")
-	}
-	// Take up until the last dot as the package name
-	lastDot := strings.LastIndex(pkgPrefixedName, ".")
-	if lastDot == -1 {
-		return pkgPrefixedName
-	}
-	return pkgPrefixedName[:lastDot]
-}
+func (r *ReasonFuncCall) String() string { _ = "STUB: not implemented"; return "" }
+
+func (r *ReasonFuncCall) PackageName() string { _ = "STUB: not implemented"; return "" }
+
+// If there is an ending parenthesis, it's a method; take the receiver as the name
+
+// Take up until the last dot as the package name
 
 // ReasonVarAccess represents accessing a non-deterministic global variable.
 type ReasonVarAccess struct {
@@ -147,12 +101,14 @@ type ReasonVarAccess struct {
 }
 
 // Pos returns the source position.
-func (r *ReasonVarAccess) Pos() *token.Position { return r.SourcePos }
+func (r *ReasonVarAccess) Pos() *token.Position {
+	_ = "STUB: not implemented"
 
-// String returns the reason.
-func (r *ReasonVarAccess) String() string {
-	return "accesses non-deterministic var " + r.VarName
+	// String returns the reason.
+	return nil
 }
+
+func (r *ReasonVarAccess) String() string { _ = "STUB: not implemented"; return "" }
 
 // ReasonConcurrency represents a non-deterministic concurrency construct.
 type ReasonConcurrency struct {
@@ -161,23 +117,14 @@ type ReasonConcurrency struct {
 }
 
 // Pos returns the source position.
-func (r *ReasonConcurrency) Pos() *token.Position { return r.SourcePos }
+func (r *ReasonConcurrency) Pos() *token.Position {
+	_ = "STUB: not implemented"
 
-// String returns the reason.
-func (r *ReasonConcurrency) String() string {
-	switch r.Kind {
-	case ConcurrencyKindGo:
-		return "starts goroutine"
-	case ConcurrencyKindRecv:
-		return "receives from channel"
-	case ConcurrencyKindSend:
-		return "sends to channel"
-	case ConcurrencyKindRange:
-		return "iterates over channel"
-	default:
-		return "<unknown-kind>"
-	}
+	// String returns the reason.
+	return nil
 }
+
+func (r *ReasonConcurrency) String() string { _ = "STUB: not implemented"; return "" }
 
 // ConcurrencyKind is a construct that is non-deterministic for
 // ReasonConcurrency.
@@ -196,12 +143,14 @@ type ReasonMapRange struct {
 }
 
 // Pos returns the source position.
-func (r *ReasonMapRange) Pos() *token.Position { return r.SourcePos }
+func (r *ReasonMapRange) Pos() *token.Position {
+	_ = "STUB: not implemented"
 
-// String returns the reason.
-func (r *ReasonMapRange) String() string {
-	return "iterates over map"
+	// String returns the reason.
+	return nil
 }
+
+func (r *ReasonMapRange) String() string { _ = "STUB: not implemented"; return "" }
 
 func init() {
 	// Needed for go vet usage

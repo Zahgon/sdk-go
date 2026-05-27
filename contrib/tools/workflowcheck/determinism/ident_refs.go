@@ -2,7 +2,6 @@ package determinism
 
 import (
 	"flag"
-	"strings"
 )
 
 // DefaultIdentRefs are the built-in set of known non-deterministic functions
@@ -47,45 +46,31 @@ var DefaultIdentRefs = IdentRefs{
 type IdentRefs map[string]bool
 
 // Clone copies the map and returns it.
-func (i IdentRefs) Clone() IdentRefs {
-	ret := make(IdentRefs, len(i))
-	for k, v := range i {
-		ret[k] = v
-	}
-	return ret
-}
+func (i IdentRefs) Clone() IdentRefs { _ = "STUB: not implemented"; return *new(IdentRefs) }
 
 // SetAllStrings sets values based on the given string values. The strings are
 // qualified type names and are assumed as "true" (non-deterministic) unless the
 // string ends with "=false" which is then treated as false in the map.
 func (i IdentRefs) SetAllStrings(refs []string) IdentRefs {
-	for _, ref := range refs {
-		if strings.HasSuffix(ref, "=false") {
-			i[strings.TrimSuffix(ref, "=false")] = false
-		} else {
-			i[strings.TrimSuffix(ref, "=true")] = true
-		}
-	}
-	return i
+	_ = "STUB: not implemented"
+	return *new(IdentRefs)
 }
 
 // SetAll sets the given values on this map and returns this map.
 func (i IdentRefs) SetAll(refs IdentRefs) IdentRefs {
-	for k, v := range refs {
-		i[k] = v
-	}
-	return i
+	_ = "STUB: not implemented"
+	return *new(IdentRefs)
 }
 
 type identRefsFlag struct{ refs IdentRefs }
 
 // NewIdentRefsFlag creates a flag.Value implementation for using
 // IdentRefs.SetAllStrings as a CLI flag value.
-func NewIdentRefsFlag(refs IdentRefs) flag.Value { return identRefsFlag{refs} }
-
-func (identRefsFlag) String() string { return "<built-in>" }
-
-func (i identRefsFlag) Set(flag string) error {
-	i.refs.SetAllStrings(strings.Split(flag, ","))
-	return nil
+func NewIdentRefsFlag(refs IdentRefs) flag.Value {
+	_ = "STUB: not implemented"
+	return *new(flag.Value)
 }
+
+func (identRefsFlag) String() string { _ = "STUB: not implemented"; return "" }
+
+func (i identRefsFlag) Set(flag string) error { _ = "STUB: not implemented"; return nil }

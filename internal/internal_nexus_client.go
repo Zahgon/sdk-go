@@ -2,20 +2,14 @@ package internal
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"iter"
-	"reflect"
 	"time"
 
-	"github.com/google/uuid"
-	commonpb "go.temporal.io/api/common/v1"
 	enumspb "go.temporal.io/api/enums/v1"
 	failurepb "go.temporal.io/api/failure/v1"
 	nexuspb "go.temporal.io/api/nexus/v1"
 	"go.temporal.io/api/workflowservice/v1"
 	"go.temporal.io/sdk/converter"
-	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 const pollNexusOperationTimeout = 60 * time.Second
@@ -367,20 +361,8 @@ var (
 //
 // NOTE: Experimental
 func (d *ClientNexusOperationExecutionDescription) GetSummary() (string, error) {
-	payload := d.RawInfo.GetUserMetadata().GetSummary()
-	if payload == nil {
-		return "", nil
-	}
-	var err error
-	if payload, err = visitPayload(context.Background(), d.inboundPayloadVisitor, payload); err != nil {
-		return "", err
-	}
-	var summary string
-	err = d.dc.FromPayload(payload, &summary)
-	if err != nil {
-		return "", err
-	}
-	return summary, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // GetLastAttemptFailure returns the last attempt failure of the operation, using the failure
@@ -388,14 +370,8 @@ func (d *ClientNexusOperationExecutionDescription) GetSummary() (string, error) 
 //
 // NOTE: Experimental
 func (d *ClientNexusOperationExecutionDescription) GetLastAttemptFailure() error {
-	failure := d.LastAttemptFailure
-	if failure == nil {
-		return nil
-	}
-	if err := visitProtoPayloads(context.Background(), d.inboundPayloadVisitor, failure, 0); err != nil {
-		return err
-	}
-	return d.failureConverter.FailureToError(failure)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetLastAttemptFailure returns the last attempt failure of the cancellation info.
@@ -403,257 +379,83 @@ func (d *ClientNexusOperationExecutionDescription) GetLastAttemptFailure() error
 //
 // NOTE: Experimental
 func (c *ClientNexusOperationCancellationInfo) GetLastAttemptFailure() error {
-	if c.lastAttemptFailure == nil {
-		return nil
-	}
-	if err := visitProtoPayloads(context.Background(), c.inboundPayloadVisitor, c.lastAttemptFailure, 0); err != nil {
-		return err
-	}
-	return c.failureConverter.FailureToError(c.lastAttemptFailure)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (nc *nexusClientImpl) ExecuteOperation(ctx context.Context, operation any, input any, options ClientStartNexusOperationOptions) (ClientNexusOperationHandle, error) {
-	if err := nc.client.ensureInitialized(ctx); err != nil {
-		return nil, err
-	}
-
-	// Resolve operation name from the operation parameter
-	operationName, err := resolveNexusOperationName(operation, input)
-	if err != nil {
-		return nil, err
-	}
-
-	// Set header before interceptor run so interceptors can access it
-	ctx = contextWithNewHeader(ctx)
-
-	return nc.client.interceptor.ExecuteNexusOperation(ctx, &ClientExecuteNexusOperationInput{
-		Options:       &options,
-		Endpoint:      nc.endpoint,
-		Service:       nc.service,
-		OperationType: operationName,
-		Input:         input,
-	})
+	_ = "STUB: not implemented"
+	return *new(ClientNexusOperationHandle), nil
 }
+
+// Resolve operation name from the operation parameter
+
+// Set header before interceptor run so interceptors can access it
 
 // resolveNexusOperationName resolves a Nexus operation name from the given value.
 // It accepts a string name or a typed operation reference (with Name() and InputType() methods).
 // This matches the resolution logic used in workflow context (see prepareNexusOperationParams).
 func resolveNexusOperationName(operation any, input any) (string, error) {
-	if name, ok := operation.(string); ok {
-		if name == "" {
-			return "", fmt.Errorf("operation name must not be empty")
-		}
-		return name, nil
-	}
-	if regOp, ok := operation.(interface {
-		Name() string
-		InputType() reflect.Type
-	}); ok {
-		operationName := regOp.Name()
-		inputType := reflect.TypeOf(input)
-		if inputType != nil && !inputType.AssignableTo(regOp.InputType()) {
-			return "", fmt.Errorf("cannot assign argument of type %q to type %q for operation %q", inputType, regOp.InputType(), operationName)
-		}
-		return operationName, nil
-	}
-	return "", fmt.Errorf("invalid 'operation' parameter, must be an OperationReference or a string")
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func (h *clientNexusOperationHandleImpl) GetID() string {
-	return h.id
-}
+func (h *clientNexusOperationHandleImpl) GetID() string { _ = "STUB: not implemented"; return "" }
 
-func (h *clientNexusOperationHandleImpl) GetRunID() string {
-	return h.runID
-}
+func (h *clientNexusOperationHandleImpl) GetRunID() string { _ = "STUB: not implemented"; return "" }
 
 func (h *clientNexusOperationHandleImpl) Get(ctx context.Context, valuePtr any) error {
-	if h.result != nil {
-		if h.result.Error != nil {
-			return h.result.Error
-		}
-		if h.result.Result != nil {
-			if valuePtr == nil {
-				return nil
-			}
-			return h.result.Result.Get(valuePtr)
-		}
-	}
-	if err := h.client.ensureInitialized(ctx); err != nil {
-		return err
-	}
-
-	// repeatedly poll, the loop repeats until there's an outcome
-	for {
-		resp, err := h.client.interceptor.PollNexusOperationResult(ctx, &ClientPollNexusOperationResultInput{
-			OperationID: h.id,
-			RunID:       h.runID,
-		})
-		if err != nil {
-			return err
-		}
-		if resp.Error != nil {
-			h.result = &ClientPollNexusOperationResultOutput{Error: resp.Error}
-			return resp.Error
-		}
-		if resp.Result != nil {
-			h.result = &ClientPollNexusOperationResultOutput{Result: resp.Result}
-			if valuePtr == nil {
-				return nil
-			}
-			return resp.Result.Get(valuePtr)
-		}
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// repeatedly poll, the loop repeats until there's an outcome
+
 func (h *clientNexusOperationHandleImpl) Describe(ctx context.Context, options ClientDescribeNexusOperationOptions) (*ClientNexusOperationExecutionDescription, error) {
-	if err := h.client.ensureInitialized(ctx); err != nil {
-		return nil, err
-	}
-	out, err := h.client.interceptor.DescribeNexusOperation(ctx, &ClientDescribeNexusOperationInput{
-		OperationID: h.id,
-		RunID:       h.runID,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return out.Description, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (h *clientNexusOperationHandleImpl) Cancel(ctx context.Context, options ClientCancelNexusOperationOptions) error {
-	if err := h.client.ensureInitialized(ctx); err != nil {
-		return err
-	}
-	return h.client.interceptor.CancelNexusOperation(ctx, &ClientCancelNexusOperationInput{
-		OperationID: h.id,
-		RunID:       h.runID,
-		Reason:      options.Reason,
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (h *clientNexusOperationHandleImpl) Terminate(ctx context.Context, options ClientTerminateNexusOperationOptions) error {
-	if err := h.client.ensureInitialized(ctx); err != nil {
-		return err
-	}
-	return h.client.interceptor.TerminateNexusOperation(ctx, &ClientTerminateNexusOperationInput{
-		OperationID: h.id,
-		RunID:       h.runID,
-		Reason:      options.Reason,
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // WorkflowClient methods for Nexus operations
 
 func (wc *WorkflowClient) NewNexusClient(options ClientNexusClientOptions) (ClientNexusClient, error) {
-	if options.Endpoint == "" {
-		return nil, errors.New("endpoint is required")
-	}
-	if options.Service == "" {
-		return nil, errors.New("service is required")
-	}
-	return &nexusClientImpl{client: wc, endpoint: options.Endpoint, service: options.Service}, nil
+	_ = "STUB: not implemented"
+	return *new(ClientNexusClient), nil
 }
 
 func (wc *WorkflowClient) GetNexusOperationHandle(options ClientGetNexusOperationHandleOptions) ClientNexusOperationHandle {
-	return wc.interceptor.GetNexusOperationHandle(&ClientGetNexusOperationHandleInput{
-		OperationID: options.OperationID,
-		RunID:       options.RunID,
-	})
+	_ = "STUB: not implemented"
+	return *new(ClientNexusOperationHandle)
 }
 
 // ListNexusOperations does not go through the interceptor chain, consistent with ListActivities.
 func (wc *WorkflowClient) ListNexusOperations(ctx context.Context, options ClientListNexusOperationsOptions) (ClientListNexusOperationsResult, error) {
-	return ClientListNexusOperationsResult{
-		Results: func(yield func(*ClientNexusOperationMetadata, error) bool) {
-			if err := wc.ensureInitialized(ctx); err != nil {
-				yield(nil, err)
-				return
-			}
-
-			request := &workflowservice.ListNexusOperationExecutionsRequest{
-				Namespace: wc.namespace,
-				Query:     options.Query,
-			}
-
-			for {
-				resp, err := wc.getListNexusOperationsPage(ctx, request)
-				if err != nil {
-					yield(nil, err)
-					return
-				}
-
-				for _, op := range resp.Operations {
-					if !yield(&ClientNexusOperationMetadata{
-						RawExecutionListInfo: op,
-						OperationID:          op.OperationId,
-						OperationRunID:       op.RunId,
-						Endpoint:             op.Endpoint,
-						Service:              op.Service,
-						Operation:            op.Operation,
-						ScheduledTime:        op.ScheduleTime.AsTime(),
-						CloseTime:            op.CloseTime.AsTime(),
-						Status:               op.Status,
-						SearchAttributes:     convertToTypedSearchAttributes(wc.logger, op.SearchAttributes.GetIndexedFields()),
-						StateTransitionCount: op.StateTransitionCount,
-						ExecutionDuration:    op.ExecutionDuration.AsDuration(),
-					}, nil) {
-						return
-					}
-				}
-
-				if resp.NextPageToken != nil {
-					request.NextPageToken = resp.NextPageToken
-				} else {
-					return
-				}
-			}
-		},
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(ClientListNexusOperationsResult), nil
 }
 
 func (wc *WorkflowClient) getListNexusOperationsPage(ctx context.Context, request *workflowservice.ListNexusOperationExecutionsRequest) (*workflowservice.ListNexusOperationExecutionsResponse, error) {
-	grpcCtx, cancel := newGRPCContext(ctx, defaultGrpcRetryParameters(ctx))
-	defer cancel()
-
-	return wc.WorkflowService().ListNexusOperationExecutions(grpcCtx, request)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // CountNexusOperations does not go through the interceptor chain, consistent with CountActivities.
 func (wc *WorkflowClient) CountNexusOperations(ctx context.Context, options ClientCountNexusOperationsOptions) (*ClientCountNexusOperationsResult, error) {
-	if err := wc.ensureInitialized(ctx); err != nil {
-		return nil, err
-	}
-
-	grpcCtx, cancel := newGRPCContext(ctx, defaultGrpcRetryParameters(ctx))
-	defer cancel()
-
-	request := &workflowservice.CountNexusOperationExecutionsRequest{
-		Namespace: wc.namespace,
-		Query:     options.Query,
-	}
-	resp, err := wc.WorkflowService().CountNexusOperationExecutions(grpcCtx, request)
-	if err != nil {
-		return nil, err
-	}
-
-	groups := make([]ClientCountNexusOperationsAggregationGroup, len(resp.Groups))
-	for i, group := range resp.Groups {
-		groupValues := make([]any, len(group.GroupValues))
-		for j, groupValue := range group.GroupValues {
-			// should never fail, and if it does, leaving nil behind
-			_ = converter.GetDefaultDataConverter().FromPayload(groupValue, &groupValues[j])
-		}
-		groups[i] = ClientCountNexusOperationsAggregationGroup{
-			GroupValues: groupValues,
-			Count:       group.Count,
-		}
-	}
-
-	return &ClientCountNexusOperationsResult{
-		Count:  resp.Count,
-		Groups: groups,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// should never fail, and if it does, leaving nil behind
 
 // workflowClientInterceptor implementations for Nexus operations
 
@@ -661,233 +463,49 @@ func (w *workflowClientInterceptor) ExecuteNexusOperation(
 	ctx context.Context,
 	in *ClientExecuteNexusOperationInput,
 ) (ClientNexusOperationHandle, error) {
-	dataConverter := WithContext(ctx, w.client.dataConverter)
-	if dataConverter == nil {
-		dataConverter = converter.GetDefaultDataConverter()
-	}
-
-	if in.Options.ID == "" {
-		return nil, errors.New("operation ID is required")
-	}
-	if in.Options.ScheduleToCloseTimeout < 0 {
-		return nil, errors.New("ScheduleToCloseTimeout must not be negative")
-	}
-
-	// Encode input as a single Payload (not Payloads)
-	inputPayload, err := dataConverter.ToPayload(in.Input)
-	if err != nil {
-		return nil, err
-	}
-
-	searchAttrs, err := serializeTypedSearchAttributes(in.Options.SearchAttributes.GetUntypedValues())
-	if err != nil {
-		return nil, err
-	}
-
-	userMetadata, err := buildUserMetadata(in.Options.Summary, "", dataConverter)
-	if err != nil {
-		return nil, err
-	}
-
-	request := &workflowservice.StartNexusOperationExecutionRequest{
-		Namespace:        w.client.namespace,
-		Identity:         w.client.identity,
-		RequestId:        uuid.NewString(),
-		OperationId:      in.Options.ID,
-		Endpoint:         in.Endpoint,
-		Service:          in.Service,
-		Operation:        in.OperationType,
-		Input:            inputPayload,
-		IdReusePolicy:    in.Options.IDReusePolicy,
-		IdConflictPolicy: in.Options.IDConflictPolicy,
-		SearchAttributes: searchAttrs,
-		UserMetadata:     userMetadata,
-	}
-	if in.Options.ScheduleToCloseTimeout > 0 {
-		request.ScheduleToCloseTimeout = durationpb.New(in.Options.ScheduleToCloseTimeout)
-	}
-	if in.Options.ScheduleToStartTimeout > 0 {
-		request.ScheduleToStartTimeout = durationpb.New(in.Options.ScheduleToStartTimeout)
-	}
-	if in.Options.StartToCloseTimeout > 0 {
-		request.StartToCloseTimeout = durationpb.New(in.Options.StartToCloseTimeout)
-	}
-	if err := visitProtoPayloads(ctx, w.outboundPayloadVisitor, request, 0); err != nil {
-		return nil, err
-	}
-
-	grpcCtx, cancel := newGRPCContext(ctx, defaultGrpcRetryParameters(ctx))
-	defer cancel()
-
-	resp, err := w.client.WorkflowService().StartNexusOperationExecution(grpcCtx, request)
-	if err != nil {
-		return nil, err
-	}
-
-	return &clientNexusOperationHandleImpl{
-		client: w.client,
-		id:     in.Options.ID,
-		runID:  resp.RunId,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(ClientNexusOperationHandle), nil
 }
+
+// Encode input as a single Payload (not Payloads)
 
 func (w *workflowClientInterceptor) GetNexusOperationHandle(
 	in *ClientGetNexusOperationHandleInput,
 ) ClientNexusOperationHandle {
-	return &clientNexusOperationHandleImpl{
-		client: w.client,
-		id:     in.OperationID,
-		runID:  in.RunID,
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientNexusOperationHandle)
 }
 
 func (w *workflowClientInterceptor) PollNexusOperationResult(
 	ctx context.Context,
 	in *ClientPollNexusOperationResultInput,
 ) (*ClientPollNexusOperationResultOutput, error) {
-	request := &workflowservice.PollNexusOperationExecutionRequest{
-		Namespace:   w.client.namespace,
-		OperationId: in.OperationID,
-		RunId:       in.RunID,
-		WaitStage:   enumspb.NEXUS_OPERATION_WAIT_STAGE_CLOSED,
-	}
-
-	var resp *workflowservice.PollNexusOperationExecutionResponse
-	for resp.GetOutcome() == nil {
-		grpcCtx, cancel := newGRPCContext(ctx, grpcLongPoll(true), grpcTimeout(pollNexusOperationTimeout), defaultGrpcRetryParameters(ctx))
-		var err error
-		resp, err = w.client.WorkflowService().PollNexusOperationExecution(grpcCtx, request)
-		cancel()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if err := visitProtoPayloads(ctx, w.inboundPayloadVisitor, resp, 0); err != nil {
-		return nil, err
-	}
-
-	switch v := resp.GetOutcome().(type) {
-	case *workflowservice.PollNexusOperationExecutionResponse_Result:
-		// Wrap single Payload in Payloads for EncodedValue compatibility
-		payloads := &commonpb.Payloads{Payloads: []*commonpb.Payload{v.Result}}
-		return &ClientPollNexusOperationResultOutput{Result: newEncodedValue(payloads, w.client.dataConverter)}, nil
-	case *workflowservice.PollNexusOperationExecutionResponse_Failure:
-		return &ClientPollNexusOperationResultOutput{Error: w.client.failureConverter.FailureToError(v.Failure)}, nil
-	default:
-		return nil, fmt.Errorf("unexpected nexus operation outcome type: %T", v)
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Wrap single Payload in Payloads for EncodedValue compatibility
 
 func (w *workflowClientInterceptor) DescribeNexusOperation(
 	ctx context.Context,
 	in *ClientDescribeNexusOperationInput,
 ) (*ClientDescribeNexusOperationOutput, error) {
-	grpcCtx, cancel := newGRPCContext(ctx, defaultGrpcRetryParameters(ctx))
-	defer cancel()
-
-	request := &workflowservice.DescribeNexusOperationExecutionRequest{
-		Namespace:   w.client.namespace,
-		OperationId: in.OperationID,
-		RunId:       in.RunID,
-	}
-	resp, err := w.client.WorkflowService().DescribeNexusOperationExecution(grpcCtx, request)
-	if err != nil {
-		return nil, err
-	}
-	info := resp.GetInfo()
-	if info == nil {
-		return nil, errors.New("DescribeNexusOperationExecution response doesn't contain info")
-	}
-
-	var cancellationInfo *ClientNexusOperationCancellationInfo
-	if info.CancellationInfo != nil {
-		cancellationInfo = &ClientNexusOperationCancellationInfo{
-			RawInfo:                 info.CancellationInfo,
-			RequestedTime:           info.CancellationInfo.RequestedTime.AsTime(),
-			State:                   info.CancellationInfo.State,
-			Attempt:                 info.CancellationInfo.Attempt,
-			LastAttemptCompleteTime: info.CancellationInfo.LastAttemptCompleteTime.AsTime(),
-			NextAttemptScheduleTime: info.CancellationInfo.NextAttemptScheduleTime.AsTime(),
-			BlockedReason:           info.CancellationInfo.BlockedReason,
-			Reason:                  info.CancellationInfo.Reason,
-			lastAttemptFailure:      info.CancellationInfo.LastAttemptFailure,
-			failureConverter:        w.client.failureConverter,
-			inboundPayloadVisitor:   w.inboundPayloadVisitor,
-		}
-	}
-
-	return &ClientDescribeNexusOperationOutput{
-		Description: &ClientNexusOperationExecutionDescription{
-			ClientNexusOperationMetadata: ClientNexusOperationMetadata{
-				RawExecutionListInfo: nil,
-				OperationID:          info.OperationId,
-				OperationRunID:       info.RunId,
-				Endpoint:             info.Endpoint,
-				Service:              info.Service,
-				Operation:            info.Operation,
-				ScheduledTime:        info.ScheduleTime.AsTime(),
-				CloseTime:            info.CloseTime.AsTime(),
-				Status:               info.Status,
-				SearchAttributes:     convertToTypedSearchAttributes(w.client.logger, info.SearchAttributes.GetIndexedFields()),
-				StateTransitionCount: info.StateTransitionCount,
-				ExecutionDuration:    info.ExecutionDuration.AsDuration(),
-			},
-			RawInfo:                 info,
-			State:                   info.State,
-			ScheduleToCloseTimeout:  info.ScheduleToCloseTimeout.AsDuration(),
-			ScheduleToStartTimeout:  info.ScheduleToStartTimeout.AsDuration(),
-			StartToCloseTimeout:     info.StartToCloseTimeout.AsDuration(),
-			Attempt:                 info.Attempt,
-			ExpirationTime:          info.ExpirationTime.AsTime(),
-			LastAttemptCompleteTime: info.LastAttemptCompleteTime.AsTime(),
-			NextAttemptScheduleTime: info.NextAttemptScheduleTime.AsTime(),
-			LastAttemptFailure:      info.LastAttemptFailure,
-			BlockedReason:           info.BlockedReason,
-			OperationToken:          info.OperationToken,
-			Identity:                info.Identity,
-			CancellationInfo:        cancellationInfo,
-			dc:                      WithContext(ctx, w.client.dataConverter),
-			failureConverter:        w.client.failureConverter,
-			inboundPayloadVisitor:   w.inboundPayloadVisitor,
-		},
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (w *workflowClientInterceptor) CancelNexusOperation(
 	ctx context.Context,
 	in *ClientCancelNexusOperationInput,
 ) error {
-	grpcCtx, cancel := newGRPCContext(ctx, defaultGrpcRetryParameters(ctx))
-	defer cancel()
-
-	request := &workflowservice.RequestCancelNexusOperationExecutionRequest{
-		Namespace:   w.client.namespace,
-		OperationId: in.OperationID,
-		RunId:       in.RunID,
-		Identity:    w.client.identity,
-		RequestId:   uuid.NewString(),
-		Reason:      in.Reason,
-	}
-	_, err := w.client.WorkflowService().RequestCancelNexusOperationExecution(grpcCtx, request)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (w *workflowClientInterceptor) TerminateNexusOperation(
 	ctx context.Context,
 	in *ClientTerminateNexusOperationInput,
 ) error {
-	grpcCtx, cancel := newGRPCContext(ctx, defaultGrpcRetryParameters(ctx))
-	defer cancel()
-
-	request := &workflowservice.TerminateNexusOperationExecutionRequest{
-		Namespace:   w.client.namespace,
-		OperationId: in.OperationID,
-		RunId:       in.RunID,
-		Identity:    w.client.identity,
-		RequestId:   uuid.NewString(),
-		Reason:      in.Reason,
-	}
-	_, err := w.client.WorkflowService().TerminateNexusOperationExecution(grpcCtx, request)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }

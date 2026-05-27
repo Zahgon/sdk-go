@@ -1,14 +1,9 @@
 package opentelemetry
 
 import (
-	"context"
-	"time"
-
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	"go.temporal.io/sdk/client"
-	"go.temporal.io/sdk/internal/common/metrics"
 )
 
 var _ client.MetricsHandler = MetricsHandler{}
@@ -38,17 +33,8 @@ type MetricsHandlerOptions struct {
 
 // NewMetricsHandler returns a client.MetricsHandler that is backed by the given Meter
 func NewMetricsHandler(options MetricsHandlerOptions) MetricsHandler {
-	if options.Meter == nil {
-		options.Meter = otel.GetMeterProvider().Meter("temporal-sdk-go")
-	}
-	if options.OnError == nil {
-		options.OnError = func(err error) { panic(err) }
-	}
-	return MetricsHandler{
-		meter:      options.Meter,
-		attributes: options.InitialAttributes,
-		onError:    options.OnError,
-	}
+	_ = "STUB: not implemented"
+	return *new(MetricsHandler)
 }
 
 // ExtractMetricsHandler gets the underlying Open Telemetry MetricsHandler from a MetricsHandler
@@ -58,72 +44,42 @@ func NewMetricsHandler(options MetricsHandlerOptions) MetricsHandler {
 // advanced features. This scope does not skip metrics during replay like the
 // metrics handler does. Therefore the caller should check replay state.
 func ExtractMetricsHandler(handler client.MetricsHandler) *MetricsHandler {
+	_ = "STUB: not implemented"
 	// Continually unwrap until we find an instance of our own handler
-	for {
-		otelHandler, ok := handler.(MetricsHandler)
-		if ok {
-			return &otelHandler
-		}
-		// If unwrappable, do so, otherwise return noop
-		unwrappable, _ := handler.(interface{ Unwrap() client.MetricsHandler })
-		if unwrappable == nil {
-			return nil
-		}
-		handler = unwrappable.Unwrap()
-	}
+	return nil
 }
+
+// If unwrappable, do so, otherwise return noop
 
 // GetMeter returns the meter used by this handler.
 func (m MetricsHandler) GetMeter() metric.Meter {
-	return m.meter
+	_ = "STUB: not implemented"
+
+	// GetAttributes returns the attributes set on this handler.
+	return *new(metric.Meter)
 }
 
-// GetAttributes returns the attributes set on this handler.
 func (m MetricsHandler) GetAttributes() attribute.Set {
-	return m.attributes
+	_ = "STUB: not implemented"
+	return *new(attribute.Set)
 }
 
 func (m MetricsHandler) WithTags(tags map[string]string) client.MetricsHandler {
-	attributes := m.attributes.ToSlice()
-	for k, v := range tags {
-		attributes = append(attributes, attribute.String(k, v))
-	}
-	return MetricsHandler{
-		meter:      m.meter,
-		attributes: attribute.NewSet(attributes...),
-		onError:    m.onError,
-	}
+	_ = "STUB: not implemented"
+	return *new(client.MetricsHandler)
 }
 
 func (m MetricsHandler) Counter(name string) client.MetricsCounter {
-	c, err := m.meter.Int64UpDownCounter(name)
-	if err != nil {
-		m.onError(err)
-		return client.MetricsNopHandler.Counter(name)
-	}
-	return metrics.CounterFunc(func(d int64) {
-		c.Add(context.Background(), d, metric.WithAttributeSet(m.attributes))
-	})
+	_ = "STUB: not implemented"
+	return *new(client.MetricsCounter)
 }
 
 func (m MetricsHandler) Gauge(name string) client.MetricsGauge {
-	g, err := m.meter.Float64Gauge(name)
-	if err != nil {
-		m.onError(err)
-		return client.MetricsNopHandler.Gauge(name)
-	}
-	return metrics.GaugeFunc(func(f float64) {
-		g.Record(context.Background(), f, metric.WithAttributeSet(m.attributes))
-	})
+	_ = "STUB: not implemented"
+	return *new(client.MetricsGauge)
 }
 
 func (m MetricsHandler) Timer(name string) client.MetricsTimer {
-	h, err := m.meter.Float64Histogram(name, metric.WithUnit("s"))
-	if err != nil {
-		m.onError(err)
-		return client.MetricsNopHandler.Timer(name)
-	}
-	return metrics.TimerFunc(func(t time.Duration) {
-		h.Record(context.Background(), t.Seconds(), metric.WithAttributeSet(m.attributes))
-	})
+	_ = "STUB: not implemented"
+	return *new(client.MetricsTimer)
 }

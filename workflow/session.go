@@ -102,7 +102,8 @@ var (
 // NOTE: Session recreation via RecreateSession may not work properly across worker fail/crash before Temporal server
 // version v1.15.1.
 func CreateSession(ctx Context, sessionOptions *SessionOptions) (Context, error) {
-	return internal.CreateSession(ctx, sessionOptions)
+	_ = "STUB: not implemented"
+	return *new(Context), nil
 }
 
 // RecreateSession recreate a session based on the sessionInfo passed in. Activities executed within
@@ -117,7 +118,8 @@ func CreateSession(ctx Context, sessionOptions *SessionOptions) (Context, error)
 // NOTE: Session recreation via RecreateSession may not work properly across worker fail/crash before Temporal server
 // version v1.15.1.
 func RecreateSession(ctx Context, recreateToken []byte, sessionOptions *SessionOptions) (Context, error) {
-	return internal.RecreateSession(ctx, recreateToken, sessionOptions)
+	_ = "STUB: not implemented"
+	return *new(Context), nil
 }
 
 // CompleteSession completes a session. It releases worker resources, so other sessions can be created.
@@ -130,15 +132,11 @@ func RecreateSession(ctx Context, recreateToken []byte, sessionOptions *SessionO
 //
 // Due to internal logic, this call must be made in the same coroutine CreateSession/RecreateSession were
 // called in.
-func CompleteSession(ctx Context) {
-	internal.CompleteSession(ctx)
-}
+func CompleteSession(ctx Context) { _ = "STUB: not implemented"; return }
 
 // GetSessionInfo returns the sessionInfo stored in the context. If there are multiple sessions in the context,
 // (for example, the same context is used to create, complete, create another session. Then user found that the
 // session has failed, and created a new one on it), the most recent sessionInfo will be returned.
 //
 // This API will return nil if there's no sessionInfo in the context.
-func GetSessionInfo(ctx Context) *SessionInfo {
-	return internal.GetSessionInfo(ctx)
-}
+func GetSessionInfo(ctx Context) *SessionInfo { _ = "STUB: not implemented"; return nil }

@@ -18,73 +18,27 @@ type NamespaceClient struct {
 
 // Close provides a mock function with given fields:
 func (_m *NamespaceClient) Close() {
-	_m.Called()
+	_ = "STUB: not implemented"
+
+	// Describe provides a mock function with given fields: ctx, name
+	return
 }
 
-// Describe provides a mock function with given fields: ctx, name
 func (_m *NamespaceClient) Describe(ctx context.Context, name string) (*workflowservice.DescribeNamespaceResponse, error) {
-	ret := _m.Called(ctx, name)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Describe")
-	}
-
-	var r0 *workflowservice.DescribeNamespaceResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*workflowservice.DescribeNamespaceResponse, error)); ok {
-		return rf(ctx, name)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *workflowservice.DescribeNamespaceResponse); ok {
-		r0 = rf(ctx, name)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*workflowservice.DescribeNamespaceResponse)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, name)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Register provides a mock function with given fields: ctx, request
 func (_m *NamespaceClient) Register(ctx context.Context, request *workflowservice.RegisterNamespaceRequest) error {
-	ret := _m.Called(ctx, request)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Register")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *workflowservice.RegisterNamespaceRequest) error); ok {
-		r0 = rf(ctx, request)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Update provides a mock function with given fields: ctx, request
 func (_m *NamespaceClient) Update(ctx context.Context, request *workflowservice.UpdateNamespaceRequest) error {
-	ret := _m.Called(ctx, request)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Update")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *workflowservice.UpdateNamespaceRequest) error); ok {
-		r0 = rf(ctx, request)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewNamespaceClient creates a new instance of NamespaceClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -93,10 +47,6 @@ func NewNamespaceClient(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *NamespaceClient {
-	mock := &NamespaceClient{}
-	mock.Mock.Test(t)
-
-	t.Cleanup(func() { mock.AssertExpectations(t) })
-
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }

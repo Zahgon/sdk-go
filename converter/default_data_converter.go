@@ -17,6 +17,4 @@ var (
 )
 
 // GetDefaultDataConverter returns default data converter used by Temporal worker.
-func GetDefaultDataConverter() DataConverter {
-	return defaultDataConverter
-}
+func GetDefaultDataConverter() DataConverter { _ = "STUB: not implemented"; return *new(DataConverter) }

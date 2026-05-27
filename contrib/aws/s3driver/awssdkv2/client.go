@@ -7,14 +7,9 @@
 package awssdkv2
 
 import (
-	"bytes"
 	"context"
-	"errors"
-	"io"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
-	"github.com/aws/smithy-go"
 	"go.temporal.io/sdk/contrib/aws/s3driver"
 )
 
@@ -26,55 +21,26 @@ type s3Client struct {
 //
 // NOTE: Experimental
 func NewClient(client *s3.Client) s3driver.Client {
-	return &s3Client{client: client}
+	_ = "STUB: not implemented"
+	return *new(s3driver.Client)
 }
 
 func (c *s3Client) PutObject(ctx context.Context, bucket, key string, data []byte) error {
-	_, err := c.client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: &bucket,
-		Key:    &key,
-		Body:   bytes.NewReader(data),
-	})
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *s3Client) ObjectExists(ctx context.Context, bucket, key string) (bool, error) {
-	_, err := c.client.HeadObject(ctx, &s3.HeadObjectInput{
-		Bucket: &bucket,
-		Key:    &key,
-	})
-	if err != nil {
-		// HeadObject returns a smithy APIError with code "NotFound" for
-		// missing objects; some SDK versions also surface *types.NotFound.
-		var apiErr smithy.APIError
-		if errors.As(err, &apiErr) && apiErr.ErrorCode() == "NotFound" {
-			return false, nil
-		}
-		var notFound *types.NotFound
-		if errors.As(err, &notFound) {
-			return false, nil
-		}
-		return false, err
-	}
-	return true, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
-func (c *s3Client) Describe() map[string]string {
-	region := c.client.Options().Region
-	if region == "" {
-		return nil
-	}
-	return map[string]string{"client_region": region}
-}
+// HeadObject returns a smithy APIError with code "NotFound" for
+// missing objects; some SDK versions also surface *types.NotFound.
+
+func (c *s3Client) Describe() map[string]string { _ = "STUB: not implemented"; return nil }
 
 func (c *s3Client) GetObject(ctx context.Context, bucket, key string) ([]byte, error) {
-	output, err := c.client.GetObject(ctx, &s3.GetObjectInput{
-		Bucket: &bucket,
-		Key:    &key,
-	})
-	if err != nil {
-		return nil, err
-	}
-	defer output.Body.Close()
-	return io.ReadAll(output.Body)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

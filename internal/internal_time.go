@@ -31,11 +31,11 @@ type (
 )
 
 func (i TimerID) String() string {
-	return i.id
+	_ = "STUB: not implemented"
+
+	// ParseTimerID returns TimerID constructed from its string representation.
+	// The string representation should be obtained through TimerID.String()
+	return ""
 }
 
-// ParseTimerID returns TimerID constructed from its string representation.
-// The string representation should be obtained through TimerID.String()
-func ParseTimerID(id string) (TimerID, error) {
-	return TimerID{id: id}, nil
-}
+func ParseTimerID(id string) (TimerID, error) { _ = "STUB: not implemented"; return *new(TimerID), nil }

@@ -20,22 +20,6 @@ const (
 // MaxInterval = Max(context_timeout/10, 20ms)
 // defaults to ExpirationInterval of 60 seconds, or uses context deadline as expiration interval
 func createDynamicServiceRetryPolicy(ctx context.Context) backoff.RetryPolicy {
-	timeout := retryServiceOperationExpirationInterval
-	if ctx != nil {
-		now := time.Now()
-		if expiration, ok := ctx.Deadline(); ok && expiration.After(now) {
-			timeout = expiration.Sub(now)
-		}
-	}
-	initialInterval := retryServiceOperationInitialInterval
-	maximumInterval := timeout / 10
-	if maximumInterval < retryServiceOperationInitialInterval {
-		maximumInterval = retryServiceOperationInitialInterval
-	}
-
-	policy := backoff.NewExponentialRetryPolicy(initialInterval)
-	policy.SetBackoffCoefficient(retryServiceOperationBackoff)
-	policy.SetMaximumInterval(maximumInterval)
-	policy.SetExpirationInterval(timeout)
-	return policy
+	_ = "STUB: not implemented"
+	return *new(backoff.RetryPolicy)
 }

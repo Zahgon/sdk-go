@@ -15,10 +15,12 @@ type (
 
 // NewDefaultFailureConverter creates new instance of DefaultFailureConverter.
 func NewDefaultFailureConverter(opt DefaultFailureConverterOptions) *DefaultFailureConverter {
-	return internal.NewDefaultFailureConverter(opt)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetDefaultFailureConverter returns the default failure converter used by Temporal.
 func GetDefaultFailureConverter() converter.FailureConverter {
-	return internal.GetDefaultFailureConverter()
+	_ = "STUB: not implemented"
+	return *new(converter.FailureConverter)
 }

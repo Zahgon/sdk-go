@@ -56,57 +56,39 @@ type (
 )
 
 func (hr *headerReader) ForEachKey(handler func(string, *commonpb.Payload) error) error {
-	if hr.header == nil {
-		return nil
-	}
-	for key, value := range hr.header.Fields {
-		if err := handler(key, value); err != nil {
-			return err
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (hr *headerReader) Get(key string) (*commonpb.Payload, bool) {
-	if hr.header == nil {
-		return nil, false
-	}
-	payload, ok := hr.header.Fields[key]
-	return payload, ok
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // NewHeaderReader returns a header reader interface
 func NewHeaderReader(header *commonpb.Header) HeaderReader {
-	return &headerReader{header: header}
+	_ = "STUB: not implemented"
+	return *new(HeaderReader)
 }
 
 type headerWriter struct {
 	header *commonpb.Header
 }
 
-func (hw *headerWriter) Set(key string, value *commonpb.Payload) {
-	if hw.header == nil {
-		return
-	}
-	hw.header.Fields[key] = value
-}
+func (hw *headerWriter) Set(key string, value *commonpb.Payload) { _ = "STUB: not implemented"; return }
 
 // NewHeaderWriter returns a header writer interface
 func NewHeaderWriter(header *commonpb.Header) HeaderWriter {
-	if header != nil && header.Fields == nil {
-		header.Fields = make(map[string]*commonpb.Payload)
-	}
-	return &headerWriter{header: header}
+	_ = "STUB: not implemented"
+	return *new(HeaderWriter)
 }
 
 // WithWorkflowContext returns a new DataConverter tailored to the passed Workflow context if
 // the DataConverter implements the ContextAware interface. Otherwise the DataConverter is returned
 // as-is.
 func WithWorkflowContext(ctx Context, dc converter.DataConverter) converter.DataConverter {
-	if d, ok := dc.(ContextAware); ok {
-		return d.WithWorkflowContext(ctx)
-	}
-	return dc
+	_ = "STUB: not implemented"
+	return *new(converter.DataConverter)
 }
 
 // WithContext returns a new DataConverter tailored to the passed Workflow/Activity context if
@@ -114,8 +96,6 @@ func WithWorkflowContext(ctx Context, dc converter.DataConverter) converter.Data
 // as-is. This is generally used for Activity context but can be context for a Workflow if we're
 // not yet executing the workflow so do not have a workflow.Context.
 func WithContext(ctx context.Context, dc converter.DataConverter) converter.DataConverter {
-	if d, ok := dc.(ContextAware); ok {
-		return d.WithContext(ctx)
-	}
-	return dc
+	_ = "STUB: not implemented"
+	return *new(converter.DataConverter)
 }

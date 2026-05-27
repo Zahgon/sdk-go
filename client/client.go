@@ -1725,21 +1725,21 @@ var MetricsNopHandler = metrics.NopHandler
 // Dial creates an instance of a workflow client. This will attempt to connect
 // to the server eagerly and will return an error if the server is not
 // available.
-func Dial(options Options) (Client, error) {
-	return DialContext(context.Background(), options)
-}
+func Dial(options Options) (Client, error) { _ = "STUB: not implemented"; return *new(Client), nil }
 
 // DialContext creates an instance of a workflow client. This will attempt to connect
 // to the server eagerly and will return an error if the server is not
 // available. Connection will respect provided context deadlines and cancellations.
 func DialContext(ctx context.Context, options Options) (Client, error) {
-	return internal.DialClient(ctx, options)
+	_ = "STUB: not implemented"
+	return *new(Client), nil
 }
 
 // NewLazyClient creates an instance of a workflow client. Unlike Dial, this
 // will not eagerly connect to the server.
 func NewLazyClient(options Options) (Client, error) {
-	return internal.NewLazyClient(options)
+	_ = "STUB: not implemented"
+	return *new(Client), nil
 }
 
 // NewClient creates an instance of a workflow client. This will attempt to
@@ -1748,7 +1748,8 @@ func NewLazyClient(options Options) (Client, error) {
 //
 // Deprecated: Use Dial or NewLazyClient instead.
 func NewClient(options Options) (Client, error) {
-	return internal.NewClient(context.Background(), options)
+	_ = "STUB: not implemented"
+	return *new(Client), nil
 }
 
 // NewClientFromExisting creates a new client using the same connection as the
@@ -1763,7 +1764,8 @@ func NewClient(options Options) (Client, error) {
 // associated with the existing client must call Close() and only the last one
 // actually performs the connection close.
 func NewClientFromExisting(existingClient Client, options Options) (Client, error) {
-	return NewClientFromExistingWithContext(context.Background(), existingClient, options)
+	_ = "STUB: not implemented"
+	return *new(Client), nil
 }
 
 // NewClientFromExistingWithContext creates a new client using the same connection as the
@@ -1778,7 +1780,8 @@ func NewClientFromExisting(existingClient Client, options Options) (Client, erro
 // associated with the existing client must call Close() and only the last one
 // actually performs the connection close.
 func NewClientFromExistingWithContext(ctx context.Context, existingClient Client, options Options) (Client, error) {
-	return internal.NewClientFromExisting(ctx, existingClient, options)
+	_ = "STUB: not implemented"
+	return *new(Client), nil
 }
 
 // NewNamespaceClient creates an instance of a namespace client, to manage
@@ -1786,7 +1789,8 @@ func NewClientFromExistingWithContext(ctx context.Context, existingClient Client
 // eagerly and therefore may not fail for an unreachable server until a call is
 // made.
 func NewNamespaceClient(options Options) (NamespaceClient, error) {
-	return internal.NewNamespaceClient(options)
+	_ = "STUB: not implemented"
+	return *new(NamespaceClient), nil
 }
 
 // make sure if new methods are added to internal.Client they are also added to public Client.
@@ -1805,7 +1809,8 @@ var (
 //	var result string // This need to be same type as the one passed to RecordHeartbeat
 //	NewValue(data).Get(&result)
 func NewValue(data *commonpb.Payloads) converter.EncodedValue {
-	return internal.NewValue(data)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 // NewValues creates a new [converter.EncodedValues] which can be used to decode binary data returned by Temporal. For example:
@@ -1817,7 +1822,8 @@ func NewValue(data *commonpb.Payloads) converter.EncodedValue {
 //	var result2 int // These need to be same type as those arguments passed to RecordHeartbeat
 //	NewValues(data).Get(&result1, &result2)
 func NewValues(data *commonpb.Payloads) converter.EncodedValues {
-	return internal.NewValues(data)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValues)
 }
 
 // HistoryJSONOptions are options for HistoryFromJSON.
@@ -1829,7 +1835,8 @@ type HistoryJSONOptions struct {
 // HistoryFromJSON deserializes history from a reader of JSON bytes. This does
 // not close the reader if it is closeable.
 func HistoryFromJSON(r io.Reader, options HistoryJSONOptions) (*historypb.History, error) {
-	return internal.HistoryFromJSON(r, options.LastEventID)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // NewAPIKeyStaticCredentials creates credentials that can be provided to
@@ -1846,7 +1853,8 @@ func HistoryFromJSON(r io.Reader, options HistoryJSONOptions) (*historypb.Histor
 //
 // Note, TLS is auto-enabled when API key is provided and TLS is not explicitly set/disabled.
 func NewAPIKeyStaticCredentials(apiKey string) Credentials {
-	return internal.NewAPIKeyStaticCredentials(apiKey)
+	_ = "STUB: not implemented"
+	return *new(Credentials)
 }
 
 // NewAPIKeyDynamicCredentials creates credentials powered by a callback that
@@ -1862,7 +1870,8 @@ func NewAPIKeyStaticCredentials(apiKey string) Credentials {
 //
 // Note, TLS is auto-enabled when API key is provided and TLS is not explicitly set/disabled.
 func NewAPIKeyDynamicCredentials(apiKeyCallback func(context.Context) (string, error)) Credentials {
-	return internal.NewAPIKeyDynamicCredentials(apiKeyCallback)
+	_ = "STUB: not implemented"
+	return *new(Credentials)
 }
 
 // NewMTLSCredentials creates credentials that use TLS with the client
@@ -1871,10 +1880,12 @@ func NewAPIKeyDynamicCredentials(apiKeyCallback func(context.Context) (string, e
 // already has a client certificate, client creation will fail when applying
 // these credentials.
 func NewMTLSCredentials(certificate tls.Certificate) Credentials {
-	return internal.NewMTLSCredentials(certificate)
+	_ = "STUB: not implemented"
+	return *new(Credentials)
 }
 
 // NewWorkflowUpdateServiceTimeoutOrCanceledError creates a new WorkflowUpdateServiceTimeoutOrCanceledError.
 func NewWorkflowUpdateServiceTimeoutOrCanceledError(err error) *WorkflowUpdateServiceTimeoutOrCanceledError {
-	return internal.NewWorkflowUpdateServiceTimeoutOrCanceledError(err)
+	_ = "STUB: not implemented"
+	return nil
 }

@@ -13,33 +13,13 @@ type OnceCell struct {
 }
 
 // Get fetches the value in the cell, calling the fetcher function if it has not yet been called
-func (oc *OnceCell) Get() string {
-	oc.once.Do(func() {
-		res := oc.fetcher()
-		oc.value = res
-	})
-	return oc.value
-}
+func (oc *OnceCell) Get() string { _ = "STUB: not implemented"; return "" }
 
 // PopulatedOnceCell creates an already-initialized cell
-func PopulatedOnceCell(value string) OnceCell {
-	return OnceCell{
-		once:  sync.Once{},
-		value: value,
-		fetcher: func() string {
-			return value
-		},
-	}
-}
+func PopulatedOnceCell(value string) OnceCell { _ = "STUB: not implemented"; return *new(OnceCell) }
 
 type fetcher func() string
 
 // LazyOnceCell creates a cell with no initial value, the provided function will be called once and only once the first
 // time OnceCell.Get is called
-func LazyOnceCell(fetcher fetcher) OnceCell {
-	return OnceCell{
-		once:    sync.Once{},
-		value:   "",
-		fetcher: fetcher,
-	}
-}
+func LazyOnceCell(fetcher fetcher) OnceCell { _ = "STUB: not implemented"; return *new(OnceCell) }

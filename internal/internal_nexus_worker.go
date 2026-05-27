@@ -3,7 +3,6 @@ package internal
 import (
 	"github.com/nexus-rpc/sdk-go/nexus"
 	"go.temporal.io/api/workflowservice/v1"
-	"go.temporal.io/sdk/internal/common/metrics"
 )
 
 type nexusWorkerOptions struct {
@@ -22,72 +21,12 @@ type nexusWorker struct {
 }
 
 func newNexusWorker(opts nexusWorkerOptions) (*nexusWorker, error) {
-	workerStopChannel := make(chan struct{})
-	params := opts.executionParameters
-	params.WorkerStopChannel = getReadOnlyChannel(workerStopChannel)
-	ensureRequiredParams(&params)
-	poller := newNexusTaskPoller(
-		newNexusTaskHandler(
-			opts.handler,
-			opts.executionParameters.Identity,
-			opts.executionParameters.Namespace,
-			opts.executionParameters.TaskQueue,
-			opts.client,
-			opts.executionParameters.DataConverter,
-			opts.executionParameters.FailureConverter,
-			opts.executionParameters.Logger,
-			opts.executionParameters.MetricsHandler,
-			opts.registry,
-		),
-		opts.workflowService,
-		params,
-	)
-
-	bwo := baseWorkerOptions{
-		pollerRate:       defaultPollerRate,
-		slotSupplier:     params.Tuner.GetNexusSlotSupplier(),
-		maxTaskPerSecond: defaultWorkerTaskExecutionRate,
-		taskPollers: []scalableTaskPoller{
-			newScalableTaskPoller(
-				poller,
-				opts.executionParameters.Logger,
-				params.NexusTaskPollerBehavior,
-				metrics.PollerTypeNexusTask,
-				params.serverSupportsAutoscaling,
-			),
-		},
-		taskProcessor:  poller,
-		workerType:     "NexusWorker",
-		identity:       params.Identity,
-		buildId:        params.getBuildID(),
-		logger:         params.Logger,
-		stopTimeout:    params.WorkerStopTimeout,
-		fatalErrCb:     params.WorkerFatalErrorCallback,
-		metricsHandler: params.MetricsHandler,
-		slotReservationData: slotReservationData{
-			taskQueue: params.TaskQueue,
-		},
-		isInternalWorker: params.isInternalWorker(),
-	}
-
-	baseWorker := newBaseWorker(bwo)
-
-	return &nexusWorker{
-		executionParameters: opts.executionParameters,
-		workflowService:     opts.workflowService,
-		worker:              baseWorker,
-		stopC:               workerStopChannel,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Start the worker.
-func (w *nexusWorker) Start() error {
-	w.worker.Start()
-	return nil
-}
+func (w *nexusWorker) Start() error { _ = "STUB: not implemented"; return nil }
 
 // Stop the worker.
-func (w *nexusWorker) Stop() {
-	close(w.stopC)
-	w.worker.Stop()
-}
+func (w *nexusWorker) Stop() { _ = "STUB: not implemented"; return }

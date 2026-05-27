@@ -2,9 +2,7 @@ package internal
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
-	"strings"
 	"time"
 
 	commonpb "go.temporal.io/api/common/v1"
@@ -401,102 +399,51 @@ const (
 
 // NewApplicationError create new instance of *ApplicationError with message, type, and optional details.
 func NewApplicationError(msg string, errType string, nonRetryable bool, cause error, details ...interface{}) error {
-	return NewApplicationErrorWithOptions(
-		msg,
-		errType,
-		ApplicationErrorOptions{NonRetryable: nonRetryable, Cause: cause, Details: details},
-	)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Exposed as: [go.temporal.io/sdk/temporal.NewApplicationError], [go.temporal.io/sdk/temporal.NewApplicationErrorWithOptions], [go.temporal.io/sdk/temporal.NewApplicationErrorWithCause], [go.temporal.io/sdk/temporal.NewNonRetryableApplicationError]
 func NewApplicationErrorWithOptions(msg string, errType string, options ApplicationErrorOptions) error {
-	applicationErr := &ApplicationError{
-		msg:            msg,
-		errType:        errType,
-		cause:          options.Cause,
-		nonRetryable:   options.NonRetryable,
-		nextRetryDelay: options.NextRetryDelay,
-		category:       options.Category,
-	}
-	// When return error to user, use EncodedValues as details and data is ready to be decoded by calling Get
-	details := options.Details
-	if len(details) == 1 {
-		if d, ok := details[0].(*EncodedValues); ok {
-			applicationErr.details = d
-			return applicationErr
-		}
-	}
-
-	// When create error for server, use ErrorDetailsValues as details to hold values and encode later
-	applicationErr.details = ErrorDetailsValues(details)
-	return applicationErr
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// When return error to user, use EncodedValues as details and data is ready to be decoded by calling Get
+
+// When create error for server, use ErrorDetailsValues as details to hold values and encode later
 
 // NewTimeoutError creates TimeoutError instance.
 // Use NewHeartbeatTimeoutError to create heartbeat TimeoutError.
 //
 // Exposed as: [go.temporal.io/sdk/temporal.NewTimeoutError]
 func NewTimeoutError(msg string, timeoutType enumspb.TimeoutType, cause error, lastHeartbeatDetails ...interface{}) error {
-	timeoutErr := &TimeoutError{
-		msg:         msg,
-		timeoutType: timeoutType,
-		cause:       cause,
-	}
-
-	if len(lastHeartbeatDetails) == 1 {
-		if d, ok := lastHeartbeatDetails[0].(*EncodedValues); ok {
-			timeoutErr.lastHeartbeatDetails = d
-			return timeoutErr
-		}
-	}
-	timeoutErr.lastHeartbeatDetails = ErrorDetailsValues(lastHeartbeatDetails)
-	return timeoutErr
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewHeartbeatTimeoutError creates TimeoutError instance.
 //
 // Exposed as: [go.temporal.io/sdk/temporal.NewHeartbeatTimeoutError]
-func NewHeartbeatTimeoutError(details ...interface{}) error {
-	return NewTimeoutError("heartbeat timeout", enumspb.TIMEOUT_TYPE_HEARTBEAT, nil, details...)
-}
+func NewHeartbeatTimeoutError(details ...interface{}) error { _ = "STUB: not implemented"; return nil }
 
 // NewCanceledError creates CanceledError instance.
 //
 // Exposed as: [go.temporal.io/sdk/temporal.NewCanceledError]
-func NewCanceledError(details ...interface{}) error {
-	return NewCanceledErrorWithOptions(CanceledErrorOptions{
-		Details: details,
-	})
-}
+func NewCanceledError(details ...interface{}) error { _ = "STUB: not implemented"; return nil }
 
 // NewCanceledErrorWithOptions creates CanceledError instance.
 //
 // Exposed as: [go.temporal.io/sdk/temporal.NewCanceledErrorWithOptions]
 func NewCanceledErrorWithOptions(options CanceledErrorOptions) error {
-	msg := options.Message
-	if msg == "" {
-		msg = "canceled"
-	}
-
-	if len(options.Details) == 1 {
-		if d, ok := options.Details[0].(*EncodedValues); ok {
-			return &CanceledError{
-				msg:     msg,
-				details: d,
-				cause:   options.Cause,
-			}
-		}
-	}
-	return &CanceledError{
-		msg:     msg,
-		details: ErrorDetailsValues(options.Details),
-		cause:   options.Cause,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewServerError create new instance of *ServerError with message.
 func NewServerError(msg string, nonRetryable bool, cause error) error {
-	return &ServerError{msg: msg, nonRetryable: nonRetryable, cause: cause}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewActivityError creates ActivityError instance.
@@ -509,15 +456,8 @@ func NewActivityError(
 	retryState enumspb.RetryState,
 	cause error,
 ) *ActivityError {
-	return &ActivityError{
-		scheduledEventID: scheduledEventID,
-		startedEventID:   startedEventID,
-		identity:         identity,
-		activityType:     activityType,
-		activityID:       activityID,
-		retryState:       retryState,
-		cause:            cause,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewChildWorkflowExecutionError creates ChildWorkflowExecutionError instance.
@@ -531,16 +471,8 @@ func NewChildWorkflowExecutionError(
 	retryState enumspb.RetryState,
 	cause error,
 ) *ChildWorkflowExecutionError {
-	return &ChildWorkflowExecutionError{
-		namespace:        namespace,
-		workflowID:       workflowID,
-		runID:            runID,
-		workflowType:     workflowType,
-		initiatedEventID: initiatedEventID,
-		startedEventID:   startedEventID,
-		retryState:       retryState,
-		cause:            cause,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewWorkflowExecutionError creates WorkflowExecutionError instance.
@@ -550,27 +482,16 @@ func NewWorkflowExecutionError(
 	workflowType string,
 	cause error,
 ) *WorkflowExecutionError {
-	return &WorkflowExecutionError{
-		workflowID:   workflowID,
-		runID:        runID,
-		workflowType: workflowType,
-		cause:        cause,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (e *temporalError) setFailure(f *failurepb.Failure) {
-	e.originalFailure = f
-}
+func (e *temporalError) setFailure(f *failurepb.Failure) { _ = "STUB: not implemented"; return }
 
-func (e *temporalError) failure() *failurepb.Failure {
-	return e.originalFailure
-}
+func (e *temporalError) failure() *failurepb.Failure { _ = "STUB: not implemented"; return nil }
 
 // IsCanceledError returns whether error in CanceledError.
-func IsCanceledError(err error) bool {
-	var canceledErr *CanceledError
-	return errors.As(err, &canceledErr)
-}
+func IsCanceledError(err error) bool { _ = "STUB: not implemented"; return false }
 
 // NewContinueAsNewError creates ContinueAsNewError instance
 // If the workflow main function returns this error then the current execution is ended and
@@ -587,27 +508,18 @@ func IsCanceledError(err error) bool {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewContinueAsNewError]
 func NewContinueAsNewError(ctx Context, wfn interface{}, args ...interface{}) error {
-	i := getWorkflowOutboundInterceptor(ctx)
-	// Put header on context before executing
-	ctx = workflowContextWithNewHeader(ctx)
-	return i.NewContinueAsNewError(ctx, wfn, args...)
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Put header on context before executing
 
 // NewContinueAsNewErrorWithOptions creates ContinueAsNewError instance with additional options.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewContinueAsNewErrorWithOptions]
 func NewContinueAsNewErrorWithOptions(ctx Context, options ContinueAsNewErrorOptions, wfn interface{}, args ...interface{}) error {
-	err := NewContinueAsNewError(ctx, wfn, args...)
-
-	var continueAsNewErr *ContinueAsNewError
-	if errors.As(err, &continueAsNewErr) {
-		if options.RetryPolicy != nil {
-			continueAsNewErr.RetryPolicy = options.RetryPolicy
-		}
-		continueAsNewErr.InitialVersioningBehavior = options.InitialVersioningBehavior
-	}
-
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wc *workflowEnvironmentInterceptor) NewContinueAsNewError(
@@ -615,484 +527,335 @@ func (wc *workflowEnvironmentInterceptor) NewContinueAsNewError(
 	wfn interface{},
 	args ...interface{},
 ) error {
+	_ = "STUB: not implemented"
 	// Validate type and its arguments.
-	options := getWorkflowEnvOptions(ctx)
-	if options == nil {
-		panic("context is missing required options for continue as new")
-	}
-	env := getWorkflowEnvironment(ctx)
-	dc := getDataConverterFromWorkflowContext(ctx)
-	workflowType, input, err := getValidatedWorkflowFunction(wfn, args, dc, env.GetRegistry())
-	if err != nil {
-		panic(err)
-	}
-
-	header, err := workflowHeaderPropagated(ctx, options.ContextPropagators)
-	if err != nil {
-		return err
-	}
-
-	return &ContinueAsNewError{
-		WorkflowType:              workflowType,
-		Input:                     input,
-		Header:                    header,
-		TaskQueueName:             options.TaskQueueName,
-		WorkflowExecutionTimeout:  options.WorkflowExecutionTimeout,
-		WorkflowRunTimeout:        options.WorkflowRunTimeout,
-		WorkflowTaskTimeout:       options.WorkflowTaskTimeout,
-		VersioningIntent:          options.VersioningIntent,
-		RetryPolicy:               nil, // The retry policy can't be propagated like other options due to #676.
-		InitialVersioningBehavior: options.InitialVersioningBehavior,
-	}
+	return nil
 }
+
+// The retry policy can't be propagated like other options due to #676.
 
 // NewActivityNotRegisteredError creates a new ActivityNotRegisteredError.
 func NewActivityNotRegisteredError(activityType string, supportedTypes []string) error {
-	return &ActivityNotRegisteredError{activityType: activityType, supportedTypes: supportedTypes}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Error from error interface.
-func (e *ApplicationError) Error() string {
-	msg := e.message()
-	if e.errType != "" {
-		msg = fmt.Sprintf("%s (type: %s, retryable: %v)", msg, e.errType, !e.nonRetryable)
-	}
-	if e.cause != nil {
-		msg = fmt.Sprintf("%s: %v", msg, e.cause)
-	}
-	return msg
-}
+func (e *ApplicationError) Error() string { _ = "STUB: not implemented"; return "" }
 
 func (e *ApplicationError) message() string {
-	return e.msg
+	_ = "STUB: not implemented"
+
+	// Message contains just the message string without extras added by Error().
+	return ""
 }
 
-// Message contains just the message string without extras added by Error().
 func (e *ApplicationError) Message() string {
-	return e.msg
+	_ = "STUB: not implemented"
+
+	// Type returns error type represented as string.
+	// This type can be passed explicitly to ApplicationError constructor.
+	// Also any other Go error is converted to ApplicationError and type is set automatically using reflection.
+	// For example instance of "MyCustomError struct" will be converted to ApplicationError and Type() will return "MyCustomError" string.
+	return ""
 }
 
-// Type returns error type represented as string.
-// This type can be passed explicitly to ApplicationError constructor.
-// Also any other Go error is converted to ApplicationError and type is set automatically using reflection.
-// For example instance of "MyCustomError struct" will be converted to ApplicationError and Type() will return "MyCustomError" string.
 func (e *ApplicationError) Type() string {
-	return e.errType
+	_ = "STUB: not implemented"
+
+	// HasDetails return if this error has strong typed detail data.
+	return ""
 }
 
-// HasDetails return if this error has strong typed detail data.
-func (e *ApplicationError) HasDetails() bool {
-	return e.details != nil && e.details.HasValues()
-}
+func (e *ApplicationError) HasDetails() bool { _ = "STUB: not implemented"; return false }
 
 // Details extracts strong typed detail data of this custom error. If there is no details, it will return ErrNoData.
-func (e *ApplicationError) Details(d ...interface{}) error {
-	if !e.HasDetails() {
-		return ErrNoData
-	}
-	return e.details.Get(d...)
-}
+func (e *ApplicationError) Details(d ...interface{}) error { _ = "STUB: not implemented"; return nil }
 
 // NonRetryable indicated if error is not retryable.
-func (e *ApplicationError) NonRetryable() bool {
-	return e.nonRetryable
-}
+func (e *ApplicationError) NonRetryable() bool { _ = "STUB: not implemented"; return false }
 
 func (e *ApplicationError) Unwrap() error {
-	return e.cause
+	_ = "STUB: not implemented"
+
+	// NextRetryDelay returns the delay to wait before retrying the activity.
+	// a zero value means to use the activities retry policy.
+	return nil
 }
 
-// NextRetryDelay returns the delay to wait before retrying the activity.
-// a zero value means to use the activities retry policy.
-func (e *ApplicationError) NextRetryDelay() time.Duration { return e.nextRetryDelay }
+func (e *ApplicationError) NextRetryDelay() time.Duration {
+	_ = "STUB: not implemented"
+	return *
 
-// Category returns the ApplicationErrorCategory of the error.
+	// Category returns the ApplicationErrorCategory of the error.
+	new(time.Duration)
+}
+
 func (e *ApplicationError) Category() ApplicationErrorCategory {
-	return e.category
+	_ = "STUB: not implemented"
+
+	// Error from error interface
+	return *new(ApplicationErrorCategory)
 }
 
-// Error from error interface
-func (e *TimeoutError) Error() string {
-	msg := fmt.Sprintf("%s (type: %s)", e.message(), e.timeoutType)
-	if e.cause != nil {
-		msg = fmt.Sprintf("%s: %v", msg, e.cause)
-	}
-	return msg
-}
+func (e *TimeoutError) Error() string { _ = "STUB: not implemented"; return "" }
 
 func (e *TimeoutError) message() string {
-	return e.msg
+	_ = "STUB: not implemented"
+
+	// Message contains just the message string without extras added by Error().
+	return ""
 }
 
-// Message contains just the message string without extras added by Error().
-func (e *TimeoutError) Message() string {
-	return e.msg
-}
+func (e *TimeoutError) Message() string { _ = "STUB: not implemented"; return "" }
 
 func (e *TimeoutError) Unwrap() error {
-	return e.cause
+	_ = "STUB: not implemented"
+
+	// TimeoutType return timeout type of this error
+	return nil
 }
 
-// TimeoutType return timeout type of this error
 func (e *TimeoutError) TimeoutType() enumspb.TimeoutType {
-	return e.timeoutType
+	_ = "STUB: not implemented"
+	return *
+
+	// HasLastHeartbeatDetails return if this error has strong typed detail data.
+	new(enumspb.TimeoutType)
 }
 
-// HasLastHeartbeatDetails return if this error has strong typed detail data.
-func (e *TimeoutError) HasLastHeartbeatDetails() bool {
-	return e.lastHeartbeatDetails != nil && e.lastHeartbeatDetails.HasValues()
-}
+func (e *TimeoutError) HasLastHeartbeatDetails() bool { _ = "STUB: not implemented"; return false }
 
 // LastHeartbeatDetails extracts strong typed detail data of this error. If there is no details, it will return ErrNoData.
 func (e *TimeoutError) LastHeartbeatDetails(d ...interface{}) error {
-	if !e.HasLastHeartbeatDetails() {
-		return ErrNoData
-	}
-	return e.lastHeartbeatDetails.Get(d...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Error from error interface
-func (e *CanceledError) Error() string {
-	return e.message()
-}
+func (e *CanceledError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (e *CanceledError) message() string {
-	return e.msg
-}
+func (e *CanceledError) message() string { _ = "STUB: not implemented"; return "" }
 
 func (e *CanceledError) Unwrap() error {
-	return e.cause
+	_ = "STUB: not implemented"
+
+	// HasDetails return if this error has strong typed detail data.
+	return nil
 }
 
-// HasDetails return if this error has strong typed detail data.
-func (e *CanceledError) HasDetails() bool {
-	return e.details != nil && e.details.HasValues()
-}
+func (e *CanceledError) HasDetails() bool { _ = "STUB: not implemented"; return false }
 
 // Details extracts strong typed detail data of this error.
-func (e *CanceledError) Details(d ...interface{}) error {
-	if !e.HasDetails() {
-		return ErrNoData
-	}
-	return e.details.Get(d...)
-}
+func (e *CanceledError) Details(d ...interface{}) error { _ = "STUB: not implemented"; return nil }
 
 func newPanicError(value interface{}, stackTrace string) error {
-	return &PanicError{value: value, stackTrace: stackTrace}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func newWorkflowPanicError(value interface{}, stackTrace string) error {
-	return &workflowPanicError{value: value, stackTrace: stackTrace}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Error from error interface
-func (e *PanicError) Error() string {
-	return e.message()
-}
+func (e *PanicError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (e *PanicError) message() string {
-	return fmt.Sprintf("%v", e.value)
-}
+func (e *PanicError) message() string { _ = "STUB: not implemented"; return "" }
 
 // StackTrace return stack trace of the panic
-func (e *PanicError) StackTrace() string {
-	return e.stackTrace
-}
+func (e *PanicError) StackTrace() string { _ = "STUB: not implemented"; return "" }
 
 // Error from error interface
-func (e *workflowPanicError) Error() string {
-	return fmt.Sprintf("%v", e.value)
-}
+func (e *workflowPanicError) Error() string { _ = "STUB: not implemented"; return "" }
 
 // StackTrace return stack trace of the panic
-func (e *workflowPanicError) StackTrace() string {
-	return e.stackTrace
-}
+func (e *workflowPanicError) StackTrace() string { _ = "STUB: not implemented"; return "" }
 
 // Error from error interface
-func (e *ContinueAsNewError) Error() string {
-	return e.message()
-}
+func (e *ContinueAsNewError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (e *ContinueAsNewError) message() string {
-	return "continue as new"
-}
+func (e *ContinueAsNewError) message() string { _ = "STUB: not implemented"; return "" }
 
 // newTerminatedError creates NewTerminatedError instance
-func newTerminatedError() *TerminatedError {
-	return &TerminatedError{}
-}
+func newTerminatedError() *TerminatedError { _ = "STUB: not implemented"; return nil }
 
 // Error from error interface
-func (e *TerminatedError) Error() string {
-	return e.message()
-}
+func (e *TerminatedError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (e *TerminatedError) message() string {
-	return "terminated"
-}
+func (e *TerminatedError) message() string { _ = "STUB: not implemented"; return "" }
 
 // newUnknownExternalWorkflowExecutionError creates UnknownExternalWorkflowExecutionError instance
 func newUnknownExternalWorkflowExecutionError() *UnknownExternalWorkflowExecutionError {
-	return &UnknownExternalWorkflowExecutionError{}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Error from error interface
 func (e *UnknownExternalWorkflowExecutionError) Error() string {
-	return "unknown external workflow execution"
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // Error from error interface
-func (e *ServerError) Error() string {
-	msg := e.message()
-	if e.cause != nil {
-		msg = fmt.Sprintf("%s: %v", msg, e.cause)
-	}
-	return msg
-}
+func (e *ServerError) Error() string { _ = "STUB: not implemented"; return "" }
 
 func (e *ServerError) message() string {
-	return e.msg
+	_ = "STUB: not implemented"
+
+	// Message contains just the message string without extras added by Error().
+	return ""
 }
 
-// Message contains just the message string without extras added by Error().
-func (e *ServerError) Message() string {
-	return e.msg
-}
+func (e *ServerError) Message() string { _ = "STUB: not implemented"; return "" }
 
-func (e *ServerError) Unwrap() error {
-	return e.cause
-}
+func (e *ServerError) Unwrap() error { _ = "STUB: not implemented"; return nil }
 
-func (e *ActivityError) Error() string {
-	msg := fmt.Sprintf("%s (type: %s, scheduledEventID: %d, startedEventID: %d, identity: %s)", e.message(), e.activityType.GetName(), e.scheduledEventID, e.startedEventID, e.identity)
-	if e.cause != nil {
-		msg = fmt.Sprintf("%s: %v", msg, e.cause)
-	}
-	return msg
-}
+func (e *ActivityError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (e *ActivityError) message() string {
-	return "activity error"
-}
+func (e *ActivityError) message() string { _ = "STUB: not implemented"; return "" }
 
 func (e *ActivityError) Unwrap() error {
-	return e.cause
+	_ = "STUB: not implemented"
+
+	// ScheduledEventID returns event id of the scheduled workflow task corresponding to the activity.
+	return nil
 }
 
-// ScheduledEventID returns event id of the scheduled workflow task corresponding to the activity.
-func (e *ActivityError) ScheduledEventID() int64 {
-	return e.scheduledEventID
-}
+func (e *ActivityError) ScheduledEventID() int64 { _ = "STUB: not implemented"; return 0 }
 
 // StartedEventID returns event id of the started workflow task corresponding to the activity.
-func (e *ActivityError) StartedEventID() int64 {
-	return e.startedEventID
-}
+func (e *ActivityError) StartedEventID() int64 { _ = "STUB: not implemented"; return 0 }
 
 // Identity returns identity of the worker that attempted activity execution.
 func (e *ActivityError) Identity() string {
-	return e.identity
+	_ = "STUB: not implemented"
+
+	// ActivityType returns declared type of the activity.
+	return ""
 }
 
-// ActivityType returns declared type of the activity.
 func (e *ActivityError) ActivityType() *commonpb.ActivityType {
-	return e.activityType
+	_ = "STUB: not implemented"
+	return nil
+
+	// ActivityID return assigned identifier for the activity.
 }
 
-// ActivityID return assigned identifier for the activity.
-func (e *ActivityError) ActivityID() string {
-	return e.activityID
-}
+func (e *ActivityError) ActivityID() string { _ = "STUB: not implemented"; return "" }
 
 // RetryState returns details on why activity failed.
 func (e *ActivityError) RetryState() enumspb.RetryState {
-	return e.retryState
+	_ = "STUB: not implemented"
+	return *
+
+	// Error from error interface
+	new(enumspb.RetryState)
 }
 
-// Error from error interface
-func (e *ChildWorkflowExecutionError) Error() string {
-	msg := fmt.Sprintf("%s (type: %s, workflowID: %s, runID: %s, initiatedEventID: %d, startedEventID: %d)",
-		e.message(), e.workflowType, e.workflowID, e.runID, e.initiatedEventID, e.startedEventID)
-	if e.cause != nil {
-		msg = fmt.Sprintf("%s: %v", msg, e.cause)
-	}
-	return msg
-}
+func (e *ChildWorkflowExecutionError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (e *ChildWorkflowExecutionError) message() string {
-	return "child workflow execution error"
-}
+func (e *ChildWorkflowExecutionError) message() string { _ = "STUB: not implemented"; return "" }
 
 func (e *ChildWorkflowExecutionError) Unwrap() error {
-	return e.cause
+	_ = "STUB: not implemented"
+
+	// Namespace returns namespace of the child workflow.
+	return nil
 }
 
-// Namespace returns namespace of the child workflow.
 func (e *ChildWorkflowExecutionError) Namespace() string {
-	return e.namespace
+	_ = "STUB: not implemented"
+
+	// WorkflowId returns workflow ID of the child workflow.
+	return ""
 }
 
-// WorkflowId returns workflow ID of the child workflow.
-func (e *ChildWorkflowExecutionError) WorkflowID() string {
-	return e.workflowID
-}
+func (e *ChildWorkflowExecutionError) WorkflowID() string { _ = "STUB: not implemented"; return "" }
 
 // RunID returns run ID of the child workflow.
 func (e *ChildWorkflowExecutionError) RunID() string {
-	return e.runID
+	_ = "STUB: not implemented"
+
+	// WorkflowType returns type of the child workflow.
+	return ""
 }
 
-// WorkflowType returns type of the child workflow.
-func (e *ChildWorkflowExecutionError) WorkflowType() string {
-	return e.workflowType
-}
+func (e *ChildWorkflowExecutionError) WorkflowType() string { _ = "STUB: not implemented"; return "" }
 
 // InitiatedEventID returns event ID of the child workflow initiated event.
-func (e *ChildWorkflowExecutionError) InitiatedEventID() int64 {
-	return e.initiatedEventID
-}
+func (e *ChildWorkflowExecutionError) InitiatedEventID() int64 { _ = "STUB: not implemented"; return 0 }
 
 // StartedEventID returns event ID of the child workflow started event.
-func (e *ChildWorkflowExecutionError) StartedEventID() int64 {
-	return e.startedEventID
-}
+func (e *ChildWorkflowExecutionError) StartedEventID() int64 { _ = "STUB: not implemented"; return 0 }
 
 // RetryState returns details on why child workflow failed.
 func (e *ChildWorkflowExecutionError) RetryState() enumspb.RetryState {
-	return e.retryState
+	_ = "STUB: not implemented"
+	return *
+
+	// Error implements the error interface.
+	new(enumspb.RetryState)
 }
 
-// Error implements the error interface.
-func (e *NexusOperationError) Error() string {
-	msg := fmt.Sprintf(
-		"%s (endpoint: %q, service: %q, operation: %q, operation token: %q, scheduledEventID: %d)",
-		e.Message, e.Endpoint, e.Service, e.Operation, e.OperationToken, e.ScheduledEventID)
-	if e.Cause != nil {
-		msg = fmt.Sprintf("%s: %v", msg, e.Cause)
-	}
-	return msg
-}
+func (e *NexusOperationError) Error() string { _ = "STUB: not implemented"; return "" }
 
 // setFailure implements the failureHolder interface for consistency with other failure based errors..
 func (e *NexusOperationError) setFailure(f *failurepb.Failure) {
-	e.Failure = f
+	_ = "STUB: not implemented"
+
+	// failure implements the failureHolder interface for consistency with other failure based errors.
+	return
 }
 
-// failure implements the failureHolder interface for consistency with other failure based errors.
 func (e *NexusOperationError) failure() *failurepb.Failure {
-	return e.Failure
+	_ = "STUB: not implemented"
+
+	// Unwrap returns the Cause associated with this error.
+	return nil
 }
 
-// Unwrap returns the Cause associated with this error.
 func (e *NexusOperationError) Unwrap() error {
-	return e.Cause
+	_ = "STUB: not implemented"
+
+	// Error from error interface
+	return nil
 }
 
-// Error from error interface
-func (*NamespaceNotFoundError) Error() string {
-	return "namespace not found"
-}
+func (*NamespaceNotFoundError) Error() string { _ = "STUB: not implemented"; return "" }
 
 // Error from error interface
 func (*ChildWorkflowExecutionAlreadyStartedError) Error() string {
-	return "child workflow execution already started"
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // Error from error interface
-func (e *WorkflowExecutionError) Error() string {
-	msg := fmt.Sprintf("workflow execution error (type: %s, workflowID: %s, runID: %s)",
-		e.workflowType, e.workflowID, e.runID)
-	if e.cause != nil {
-		msg = fmt.Sprintf("%s: %v", msg, e.cause)
-	}
-	return msg
-}
+func (e *WorkflowExecutionError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (e *WorkflowExecutionError) Unwrap() error {
-	return e.cause
-}
+func (e *WorkflowExecutionError) Unwrap() error { _ = "STUB: not implemented"; return nil }
 
-func (e *ActivityNotRegisteredError) Error() string {
-	supported := strings.Join(e.supportedTypes, ", ")
-	return fmt.Sprintf("unable to find activityType=%v. Supported types: [%v]", e.activityType, supported)
-}
+func (e *ActivityNotRegisteredError) Error() string { _ = "STUB: not implemented"; return "" }
 
 func convertErrDetailsToPayloads(details converter.EncodedValues, dc converter.DataConverter) *commonpb.Payloads {
-	switch d := details.(type) {
-	case ErrorDetailsValues:
-		data, err := encodeArgs(dc, d)
-		if err != nil {
-			panic(err)
-		}
-		return data
-	case *EncodedValues:
-		return d.values
-	default:
-		panic(fmt.Sprintf("unknown error details type %T", details))
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // IsRetryable returns if error retryable or not.
 func IsRetryable(err error, nonRetryableTypes []string) bool {
-	if err == nil {
-		return false
-	}
-
-	var terminatedErr *TerminatedError
-	var canceledErr *CanceledError
-	var workflowPanicErr *workflowPanicError
-	if errors.As(err, &terminatedErr) || errors.As(err, &canceledErr) || errors.As(err, &workflowPanicErr) {
-		return false
-	}
-
-	var timeoutErr *TimeoutError
-	if errors.As(err, &timeoutErr) {
-		return timeoutErr.timeoutType == enumspb.TIMEOUT_TYPE_START_TO_CLOSE || timeoutErr.timeoutType == enumspb.TIMEOUT_TYPE_HEARTBEAT
-	}
-
-	var applicationErr *ApplicationError
-	var errType string
-	if errors.As(err, &applicationErr) {
-		if applicationErr.nonRetryable {
-			return false
-		}
-		errType = applicationErr.errType
-	} else {
-		// If it is generic Go error.
-		errType = getErrType(err)
-	}
-
-	for _, nonRetryableType := range nonRetryableTypes {
-		if nonRetryableType == errType {
-			return false
-		}
-	}
-
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
-func getErrType(err error) string {
-	var t reflect.Type
-	for t = reflect.TypeOf(err); t.Kind() == reflect.Ptr; t = t.Elem() {
-	}
+// If it is generic Go error.
 
-	if t.Name() == goErrType {
-		return ""
-	}
+func getErrType(err error) string { _ = "STUB: not implemented"; return "" }
 
-	return t.Name()
-}
-
-func isBenignApplicationError(err error) bool {
-	appError, _ := err.(*ApplicationError)
-	return appError != nil && appError.Category() == ApplicationErrorCategoryBenign
-}
+func isBenignApplicationError(err error) bool { _ = "STUB: not implemented"; return false }
 
 func isBenignProtoApplicationFailure(failure *failurepb.Failure) bool {
-	if failure == nil {
-		return false
-	}
-	appFailureInfo := failure.GetApplicationFailureInfo()
-	return appFailureInfo != nil && appFailureInfo.GetCategory() == enumspb.APPLICATION_ERROR_CATEGORY_BENIGN
+	_ = "STUB: not implemented"
+	return false
 }

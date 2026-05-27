@@ -1,13 +1,11 @@
 package internal
 
 import (
-	"fmt"
 	"reflect"
 	"time"
 
 	commonpb "go.temporal.io/api/common/v1"
 	enumspb "go.temporal.io/api/enums/v1"
-	"go.temporal.io/sdk/converter"
 	"go.temporal.io/sdk/log"
 )
 
@@ -74,443 +72,250 @@ type (
 
 // GetName of the search attribute.
 func (bk baseSearchAttributeKey) GetName() string {
-	return bk.name
+	_ = "STUB: not implemented"
+
+	// GetValueType of the search attribute.
+	return ""
 }
 
-// GetValueType of the search attribute.
 func (bk baseSearchAttributeKey) GetValueType() enumspb.IndexedValueType {
-	return bk.valueType
+	_ = "STUB: not implemented"
+	return *
+
+	// GetReflectType of the search attribute.
+	new(enumspb.IndexedValueType)
 }
 
-// GetReflectType of the search attribute.
 func (bk baseSearchAttributeKey) GetReflectType() reflect.Type {
-	return bk.reflectType
+	_ = "STUB: not implemented"
+	return *new(reflect.Type)
 }
 
 func NewSearchAttributeKeyString(name string) SearchAttributeKeyString {
-	return SearchAttributeKeyString{
-		baseSearchAttributeKey: baseSearchAttributeKey{
-			name:        name,
-			valueType:   enumspb.INDEXED_VALUE_TYPE_TEXT,
-			reflectType: reflect.TypeOf(""),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeKeyString)
 }
 
 // ValueSet creates an update to set the value of the attribute.
 func (k SearchAttributeKeyString) ValueSet(value string) SearchAttributeUpdate {
-	return func(sa *SearchAttributes) {
-		sa.untypedValue[k] = value
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
 
 // ValueUnset creates an update to remove the attribute.
 func (k SearchAttributeKeyString) ValueUnset() SearchAttributeUpdate {
-	return func(sa *SearchAttributes) {
-		sa.untypedValue[k] = nil
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
 
 func NewSearchAttributeKeyKeyword(name string) SearchAttributeKeyKeyword {
-	return SearchAttributeKeyKeyword{
-		baseSearchAttributeKey: baseSearchAttributeKey{
-			name:        name,
-			valueType:   enumspb.INDEXED_VALUE_TYPE_KEYWORD,
-			reflectType: reflect.TypeOf(""),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeKeyKeyword)
 }
 
 // ValueSet creates an update to set the value of the attribute.
 func (k SearchAttributeKeyKeyword) ValueSet(value string) SearchAttributeUpdate {
-	return func(sa *SearchAttributes) {
-		sa.untypedValue[k] = value
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
 
 // ValueUnset creates an update to remove the attribute.
 func (k SearchAttributeKeyKeyword) ValueUnset() SearchAttributeUpdate {
-	return func(sa *SearchAttributes) {
-		sa.untypedValue[k] = nil
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
 
 func NewSearchAttributeKeyBool(name string) SearchAttributeKeyBool {
-	return SearchAttributeKeyBool{
-		baseSearchAttributeKey: baseSearchAttributeKey{
-			name:        name,
-			valueType:   enumspb.INDEXED_VALUE_TYPE_BOOL,
-			reflectType: reflect.TypeOf(false),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeKeyBool)
 }
 
 // ValueSet creates an update to set the value of the attribute.
 func (k SearchAttributeKeyBool) ValueSet(value bool) SearchAttributeUpdate {
-	return func(sa *SearchAttributes) {
-		sa.untypedValue[k] = value
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
 
 // ValueUnset creates an update to remove the attribute.
 func (k SearchAttributeKeyBool) ValueUnset() SearchAttributeUpdate {
-	return func(sa *SearchAttributes) {
-		sa.untypedValue[k] = nil
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
 
 func NewSearchAttributeKeyInt64(name string) SearchAttributeKeyInt64 {
-	return SearchAttributeKeyInt64{
-		baseSearchAttributeKey: baseSearchAttributeKey{
-			name:        name,
-			valueType:   enumspb.INDEXED_VALUE_TYPE_INT,
-			reflectType: reflect.TypeOf(int64(0)),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeKeyInt64)
 }
 
 // ValueSet creates an update to set the value of the attribute.
 func (k SearchAttributeKeyInt64) ValueSet(value int64) SearchAttributeUpdate {
-	return func(sa *SearchAttributes) {
-		sa.untypedValue[k] = value
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
 
 // ValueUnset creates an update to remove the attribute.
 func (k SearchAttributeKeyInt64) ValueUnset() SearchAttributeUpdate {
-	return func(sa *SearchAttributes) {
-		sa.untypedValue[k] = nil
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
 
 func NewSearchAttributeKeyFloat64(name string) SearchAttributeKeyFloat64 {
-	return SearchAttributeKeyFloat64{
-		baseSearchAttributeKey: baseSearchAttributeKey{
-			name:        name,
-			valueType:   enumspb.INDEXED_VALUE_TYPE_DOUBLE,
-			reflectType: reflect.TypeOf(float64(0)),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeKeyFloat64)
 }
 
 // ValueSet creates an update to set the value of the attribute.
 func (k SearchAttributeKeyFloat64) ValueSet(value float64) SearchAttributeUpdate {
-	return func(sa *SearchAttributes) {
-		sa.untypedValue[k] = value
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
 
 // ValueUnset creates an update to remove the attribute.
 func (k SearchAttributeKeyFloat64) ValueUnset() SearchAttributeUpdate {
-	return func(sa *SearchAttributes) {
-		sa.untypedValue[k] = nil
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
 
 func NewSearchAttributeKeyTime(name string) SearchAttributeKeyTime {
-	return SearchAttributeKeyTime{
-		baseSearchAttributeKey: baseSearchAttributeKey{
-			name:        name,
-			valueType:   enumspb.INDEXED_VALUE_TYPE_DATETIME,
-			reflectType: reflect.TypeOf(time.Time{}),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeKeyTime)
 }
 
 // ValueSet creates an update to set the value of the attribute.
 func (k SearchAttributeKeyTime) ValueSet(value time.Time) SearchAttributeUpdate {
-	return func(sa *SearchAttributes) {
-		sa.untypedValue[k] = value
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
 
 // ValueUnset creates an update to remove the attribute.
 func (k SearchAttributeKeyTime) ValueUnset() SearchAttributeUpdate {
-	return func(sa *SearchAttributes) {
-		sa.untypedValue[k] = nil
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
 
 func NewSearchAttributeKeyKeywordList(name string) SearchAttributeKeyKeywordList {
-	return SearchAttributeKeyKeywordList{
-		baseSearchAttributeKey: baseSearchAttributeKey{
-			name:        name,
-			valueType:   enumspb.INDEXED_VALUE_TYPE_KEYWORD_LIST,
-			reflectType: reflect.TypeOf([]string{}),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeKeyKeywordList)
 }
 
 // ValueSet creates an update to set the value of the attribute.
 func (k SearchAttributeKeyKeywordList) ValueSet(values []string) SearchAttributeUpdate {
-	listCopy := append([]string(nil), values...)
-	return func(sa *SearchAttributes) {
-		sa.untypedValue[k] = listCopy
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
 
 // ValueUnset creates an update to remove the attribute.
 func (k SearchAttributeKeyKeywordList) ValueUnset() SearchAttributeUpdate {
-	return func(sa *SearchAttributes) {
-		sa.untypedValue[k] = nil
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
 
 func NewSearchAttributes(attributes ...SearchAttributeUpdate) SearchAttributes {
-	sa := SearchAttributes{
-		untypedValue: make(map[SearchAttributeKey]interface{}),
-	}
-	for _, attr := range attributes {
-		attr(&sa)
-	}
-	return sa
+	_ = "STUB: not implemented"
+	return *new(SearchAttributes)
 }
 
 // GetString gets a value for the given key and whether it was present.
 func (sa SearchAttributes) GetString(key SearchAttributeKeyString) (string, bool) {
-	value, ok := sa.untypedValue[key]
-	if !ok || value == nil {
-		return "", false
-	}
-	return value.(string), true
+	_ = "STUB: not implemented"
+	return "", false
 }
 
 // GetKeyword gets a value for the given key and whether it was present.
 func (sa SearchAttributes) GetKeyword(key SearchAttributeKeyKeyword) (string, bool) {
-	value, ok := sa.untypedValue[key]
-	if !ok || value == nil {
-		return "", false
-	}
-	return value.(string), true
+	_ = "STUB: not implemented"
+	return "", false
 }
 
 // GetBool gets a value for the given key and whether it was present.
 func (sa SearchAttributes) GetBool(key SearchAttributeKeyBool) (bool, bool) {
-	value, ok := sa.untypedValue[key]
-	if !ok || value == nil {
-		return false, false
-	}
-	return value.(bool), true
+	_ = "STUB: not implemented"
+	return false, false
 }
 
 // GetInt64 gets a value for the given key and whether it was present.
 func (sa SearchAttributes) GetInt64(key SearchAttributeKeyInt64) (int64, bool) {
-	value, ok := sa.untypedValue[key]
-	if !ok || value == nil {
-		return 0, false
-	}
-	return value.(int64), true
+	_ = "STUB: not implemented"
+	return 0, false
 }
 
 // GetFloat64 gets a value for the given key and whether it was present.
 func (sa SearchAttributes) GetFloat64(key SearchAttributeKeyFloat64) (float64, bool) {
-	value, ok := sa.untypedValue[key]
-	if !ok || value == nil {
-		return 0.0, false
-	}
-	return value.(float64), true
+	_ = "STUB: not implemented"
+	return 0, false
 }
 
 // GetTime gets a value for the given key and whether it was present.
 func (sa SearchAttributes) GetTime(key SearchAttributeKeyTime) (time.Time, bool) {
-	value, ok := sa.untypedValue[key]
-	if !ok || value == nil {
-		return time.Time{}, false
-	}
-	return value.(time.Time), true
+	_ = "STUB: not implemented"
+	return *new(time.Time), false
 }
 
 // GetKeywordList gets a value for the given key and whether it was present.
 func (sa SearchAttributes) GetKeywordList(key SearchAttributeKeyKeywordList) ([]string, bool) {
-	value, ok := sa.untypedValue[key]
-	if !ok || value == nil {
-		return nil, false
-	}
-	result := value.([]string)
-	// Return a copy to prevent caller from mutating the underlying value
-	return append([]string(nil), result...), true
+	_ = "STUB: not implemented"
+	return nil, false
 }
+
+// Return a copy to prevent caller from mutating the underlying value
 
 // ContainsKey gets whether a key is present.
 func (sa SearchAttributes) ContainsKey(key SearchAttributeKey) bool {
-	val, ok := sa.untypedValue[key]
-	return ok && val != nil
+	_ = "STUB: not implemented"
+	return false
 }
 
 // Size gets the size of the attribute collection.
-func (sa SearchAttributes) Size() int {
-	return len(sa.GetUntypedValues())
-}
+func (sa SearchAttributes) Size() int { _ = "STUB: not implemented"; return 0 }
 
 // GetUntypedValues gets a copy of the collection with raw types.
 func (sa SearchAttributes) GetUntypedValues() map[SearchAttributeKey]interface{} {
-	untypedValueCopy := make(map[SearchAttributeKey]interface{}, len(sa.untypedValue))
-	for key, value := range sa.untypedValue {
-		// Filter out nil values
-		if value == nil {
-			continue
-		}
-		switch v := value.(type) {
-		case []string:
-			untypedValueCopy[key] = append([]string(nil), v...)
-		default:
-			untypedValueCopy[key] = v
-		}
-	}
-	return untypedValueCopy
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Filter out nil values
 
 // Copy creates an update that copies existing values.
 //
 //workflowcheck:ignore
 func (sa SearchAttributes) Copy() SearchAttributeUpdate {
-	return func(s *SearchAttributes) {
-		// GetUntypedValues returns a copy of the map without nil values
-		// so the copy won't delete any existing values
-		untypedValues := sa.GetUntypedValues()
-		for key, value := range untypedValues {
-			s.untypedValue[key] = value
-		}
-	}
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeUpdate)
 }
+
+// GetUntypedValues returns a copy of the map without nil values
+// so the copy won't delete any existing values
 
 func serializeUntypedSearchAttributes(input map[string]interface{}) (*commonpb.SearchAttributes, error) {
-	if input == nil {
-		return nil, nil
-	}
-
-	attr := make(map[string]*commonpb.Payload)
-	for k, v := range input {
-		// If search attribute value is already of Payload type, then use it directly.
-		// This allows to copy search attributes from workflow info to child workflow options.
-		if vp, ok := v.(*commonpb.Payload); ok {
-			attr[k] = vp
-			continue
-		}
-		var err error
-		attr[k], err = converter.GetDefaultDataConverter().ToPayload(v)
-		if err != nil {
-			return nil, fmt.Errorf("encode search attribute [%s] error: %v", k, err)
-		}
-	}
-	return &commonpb.SearchAttributes{IndexedFields: attr}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// If search attribute value is already of Payload type, then use it directly.
+// This allows to copy search attributes from workflow info to child workflow options.
 
 func serializeTypedSearchAttributes(searchAttributes map[SearchAttributeKey]interface{}) (*commonpb.SearchAttributes, error) {
-	if searchAttributes == nil {
-		return nil, nil
-	}
-
-	serializedAttr := make(map[string]*commonpb.Payload)
-	for k, v := range searchAttributes {
-		payload, err := converter.GetDefaultDataConverter().ToPayload(v)
-		if err != nil {
-			return nil, fmt.Errorf("encode search attribute [%s] error: %v", k, err)
-		}
-		// Server does not remove search attributes if they set a type
-		if payload.GetData() != nil {
-			payload.Metadata["type"] = []byte(k.GetValueType().String())
-		}
-		serializedAttr[k.GetName()] = payload
-	}
-	return &commonpb.SearchAttributes{IndexedFields: serializedAttr}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Server does not remove search attributes if they set a type
 
 func serializeSearchAttributes(
 	untypedAttributes map[string]interface{},
 	typedAttributes SearchAttributes,
 ) (*commonpb.SearchAttributes, error) {
-	var searchAttr *commonpb.SearchAttributes
-	var err error
-	if untypedAttributes != nil && typedAttributes.Size() != 0 {
-		return nil, fmt.Errorf("cannot specify both SearchAttributes and TypedSearchAttributes")
-	} else if untypedAttributes != nil {
-		searchAttr, err = serializeUntypedSearchAttributes(untypedAttributes)
-		if err != nil {
-			return nil, err
-		}
-	} else if typedAttributes.Size() != 0 {
-		searchAttr, err = serializeTypedSearchAttributes(typedAttributes.GetUntypedValues())
-		if err != nil {
-			return nil, err
-		}
-	}
-	return searchAttr, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func convertToTypedSearchAttributes(logger log.Logger, attributes map[string]*commonpb.Payload) SearchAttributes {
-	updates := make([]SearchAttributeUpdate, 0, len(attributes))
-	for key, payload := range attributes {
-		if payload.Data == nil {
-			continue
-		}
-		// The type metadata is usually in PascalCase (e.g. "KeywordList") but in
-		// rare cases may be in SCREAMING_SNAKE_CASE (e.g. "INDEXED_VALUE_TYPE_KEYWORD_LIST").
-		valueType, _ := enumspb.IndexedValueTypeFromString(string(payload.GetMetadata()["type"]))
-		// For TemporalChangeVersion, we imply the value type
-		if valueType == 0 && key == TemporalChangeVersion {
-			valueType = enumspb.INDEXED_VALUE_TYPE_KEYWORD_LIST
-		}
-		switch valueType {
-		case enumspb.INDEXED_VALUE_TYPE_BOOL:
-			attr := NewSearchAttributeKeyBool(key)
-			var value bool
-			err := converter.GetDefaultDataConverter().FromPayload(payload, &value)
-			if err != nil {
-				panic(err)
-			}
-			updates = append(updates, attr.ValueSet(value))
-		case enumspb.INDEXED_VALUE_TYPE_KEYWORD:
-			attr := NewSearchAttributeKeyKeyword(key)
-			var value string
-			err := converter.GetDefaultDataConverter().FromPayload(payload, &value)
-			if err != nil {
-				panic(err)
-			}
-			updates = append(updates, attr.ValueSet(value))
-		case enumspb.INDEXED_VALUE_TYPE_TEXT:
-			attr := NewSearchAttributeKeyString(key)
-			var value string
-			err := converter.GetDefaultDataConverter().FromPayload(payload, &value)
-			if err != nil {
-				panic(err)
-			}
-			updates = append(updates, attr.ValueSet(value))
-		case enumspb.INDEXED_VALUE_TYPE_INT:
-			attr := NewSearchAttributeKeyInt64(key)
-			var value int64
-			err := converter.GetDefaultDataConverter().FromPayload(payload, &value)
-			if err != nil {
-				panic(err)
-			}
-			updates = append(updates, attr.ValueSet(value))
-		case enumspb.INDEXED_VALUE_TYPE_DOUBLE:
-			attr := NewSearchAttributeKeyFloat64(key)
-			var value float64
-			err := converter.GetDefaultDataConverter().FromPayload(payload, &value)
-			if err != nil {
-				panic(err)
-			}
-			updates = append(updates, attr.ValueSet(value))
-		case enumspb.INDEXED_VALUE_TYPE_DATETIME:
-			attr := NewSearchAttributeKeyTime(key)
-			var value time.Time
-			err := converter.GetDefaultDataConverter().FromPayload(payload, &value)
-			if err != nil {
-				panic(err)
-			}
-			updates = append(updates, attr.ValueSet(value))
-		case enumspb.INDEXED_VALUE_TYPE_KEYWORD_LIST:
-			attr := NewSearchAttributeKeyKeywordList(key)
-			var value []string
-			err := converter.GetDefaultDataConverter().FromPayload(payload, &value)
-			if err != nil {
-				panic(err)
-			}
-			updates = append(updates, attr.ValueSet(value))
-		default:
-			logger.Warn("Unrecognized indexed value type on search attribute key", "key", key, "type", valueType)
-		}
-	}
-	return NewSearchAttributes(updates...)
+	_ = "STUB: not implemented"
+	return *new(SearchAttributes)
 }
+
+// The type metadata is usually in PascalCase (e.g. "KeywordList") but in
+// rare cases may be in SCREAMING_SNAKE_CASE (e.g. "INDEXED_VALUE_TYPE_KEYWORD_LIST").
+
+// For TemporalChangeVersion, we imply the value type

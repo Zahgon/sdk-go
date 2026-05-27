@@ -1,10 +1,7 @@
 package log
 
 import (
-	"fmt"
 	golog "log"
-	"os"
-	"strings"
 
 	"go.temporal.io/sdk/log"
 )
@@ -16,50 +13,34 @@ type DefaultLogger struct {
 }
 
 // NewDefaultLogger creates new instance of DefaultLogger.
-func NewDefaultLogger() *DefaultLogger {
-	return &DefaultLogger{logger: golog.New(os.Stdout, "", golog.LstdFlags)}
-}
+func NewDefaultLogger() *DefaultLogger { _ = "STUB: not implemented"; return nil }
 
 func (l *DefaultLogger) println(level, msg string, keyvals []interface{}) {
+	_ = "STUB: not implemented"
 	// To avoid extra space when globalKeyvals is not specified.
-	if l.globalKeyvals == "" {
-		l.logger.Println(append([]interface{}{level, msg}, keyvals...)...)
-	} else {
-		l.logger.Println(append([]interface{}{level, msg, l.globalKeyvals}, keyvals...)...)
-	}
+	return
 }
 
 // Debug writes message to the log.
 func (l *DefaultLogger) Debug(msg string, keyvals ...interface{}) {
-	l.println("DEBUG", msg, keyvals)
+	_ = "STUB: not implemented"
+	return
 }
 
 // Info writes message to the log.
-func (l *DefaultLogger) Info(msg string, keyvals ...interface{}) {
-	l.println("INFO ", msg, keyvals)
-}
+func (l *DefaultLogger) Info(msg string, keyvals ...interface{}) { _ = "STUB: not implemented"; return }
 
 // Warn writes message to the log.
-func (l *DefaultLogger) Warn(msg string, keyvals ...interface{}) {
-	l.println("WARN ", msg, keyvals)
-}
+func (l *DefaultLogger) Warn(msg string, keyvals ...interface{}) { _ = "STUB: not implemented"; return }
 
 // Error writes message to the log.
 func (l *DefaultLogger) Error(msg string, keyvals ...interface{}) {
-	l.println("ERROR", msg, keyvals)
+	_ = "STUB: not implemented"
+	return
 }
 
 // With returns new logger the prepend every log entry with keyvals.
 func (l *DefaultLogger) With(keyvals ...interface{}) log.Logger {
-	logger := &DefaultLogger{
-		logger: l.logger,
-	}
-
-	if l.globalKeyvals != "" {
-		logger.globalKeyvals = l.globalKeyvals + " "
-	}
-
-	logger.globalKeyvals += strings.TrimSuffix(fmt.Sprintln(keyvals...), "\n")
-
-	return logger
+	_ = "STUB: not implemented"
+	return *new(log.Logger)
 }

@@ -1,16 +1,8 @@
 package s3driver
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
-	"errors"
-	"fmt"
-	"net/url"
-
 	commonpb "go.temporal.io/api/common/v1"
 	"go.temporal.io/sdk/converter"
-	"golang.org/x/sync/errgroup"
-	"google.golang.org/protobuf/proto"
 )
 
 const (
@@ -35,9 +27,7 @@ type BucketFunc func(ctx converter.StorageDriverStoreContext, payload *commonpb.
 // StaticBucket returns a BucketFunc that always returns the given bucket name.
 //
 // NOTE: Experimental
-func StaticBucket(name string) BucketFunc {
-	return func(_ converter.StorageDriverStoreContext, _ *commonpb.Payload) string { return name }
-}
+func StaticBucket(name string) BucketFunc { _ = "STUB: not implemented"; return *new(BucketFunc) }
 
 // Options configures the S3 storage driver.
 //
@@ -75,36 +65,19 @@ var _ converter.StorageDriver = (*s3StorageDriver)(nil)
 //
 // NOTE: Experimental
 func NewDriver(opts Options) (converter.StorageDriver, error) {
-	if opts.Client == nil {
-		return nil, errors.New("Client is required")
-	}
-	if opts.Bucket == nil {
-		return nil, errors.New("Bucket is required")
-	}
-	name := opts.DriverName
-	if name == "" {
-		name = defaultDriverName
-	}
-	maxSize := opts.MaxPayloadSize
-	if maxSize == 0 {
-		maxSize = defaultMaxPayloadSize
-	}
-	if maxSize < 0 {
-		return nil, fmt.Errorf("MaxPayloadSize must be positive, got %d", maxSize)
-	}
-	return &s3StorageDriver{
-		client:         opts.Client,
-		bucketFunc:     opts.Bucket,
-		driverName:     name,
-		maxPayloadSize: maxSize,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(converter.StorageDriver), nil
 }
 
 // Name returns the unique identifier for this driver instance.
-func (d *s3StorageDriver) Name() string { return d.driverName }
+func (d *s3StorageDriver) Name() string {
+	_ = "STUB: not implemented"
 
-// Type returns the driver implementation type.
-func (d *s3StorageDriver) Type() string { return driverType }
+	// Type returns the driver implementation type.
+	return ""
+}
+
+func (d *s3StorageDriver) Type() string { _ = "STUB: not implemented"; return "" }
 
 type preparedPayload struct {
 	data      []byte
@@ -122,54 +95,8 @@ func (d *s3StorageDriver) Store(
 	ctx converter.StorageDriverStoreContext,
 	payloads []*commonpb.Payload,
 ) ([]converter.StorageDriverClaim, error) {
-	prepared := make([]preparedPayload, len(payloads))
-	for i, p := range payloads {
-		data, err := proto.Marshal(p)
-		if err != nil {
-			return nil, fmt.Errorf("failed to marshal payload: %w", err)
-		}
-		if len(data) > d.maxPayloadSize {
-			return nil, fmt.Errorf(
-				"payload size %d exceeds maximum %d",
-				len(data), d.maxPayloadSize,
-			)
-		}
-		prepared[i] = preparedPayload{
-			data:      data,
-			hexDigest: sha256Hex(data),
-			bucket:    d.bucketFunc(ctx, p),
-		}
-	}
-
-	claims := make([]converter.StorageDriverClaim, len(payloads))
-	g, gctx := errgroup.WithContext(ctx.Context)
-	for i, pp := range prepared {
-		g.Go(func() error {
-			key := objectKey(ctx.Target, pp.hexDigest)
-			exists, err := d.client.ObjectExists(gctx, pp.bucket, key)
-			if err != nil {
-				return fmt.Errorf("existence check failed [bucket=%s, key=%s%s]: %w", pp.bucket, key, describeClient(d.client), err)
-			}
-			if !exists {
-				if err := d.client.PutObject(gctx, pp.bucket, key, pp.data); err != nil {
-					return fmt.Errorf("upload failed [bucket=%s, key=%s%s]: %w", pp.bucket, key, describeClient(d.client), err)
-				}
-			}
-			claims[i] = converter.StorageDriverClaim{
-				ClaimData: map[string]string{
-					claimKeyBucket:        pp.bucket,
-					claimKeyKey:           key,
-					claimKeyHashAlgorithm: hashAlgorithm,
-					claimKeyHashValue:     pp.hexDigest,
-				},
-			}
-			return nil
-		})
-	}
-	if err := g.Wait(); err != nil {
-		return nil, err
-	}
-	return claims, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Retrieve downloads payloads from S3 using the given claims, verifies their
@@ -179,99 +106,19 @@ func (d *s3StorageDriver) Retrieve(
 	ctx converter.StorageDriverRetrieveContext,
 	claims []converter.StorageDriverClaim,
 ) ([]*commonpb.Payload, error) {
-	payloads := make([]*commonpb.Payload, len(claims))
-	g, gctx := errgroup.WithContext(ctx.Context)
-
-	for i, c := range claims {
-		g.Go(func() error {
-			bucket, ok := c.ClaimData[claimKeyBucket]
-			if !ok {
-				return fmt.Errorf("claim missing field %q", claimKeyBucket)
-			}
-			key, ok := c.ClaimData[claimKeyKey]
-			if !ok {
-				return fmt.Errorf("claim missing field %q", claimKeyKey)
-			}
-
-			data, err := d.client.GetObject(gctx, bucket, key)
-			if err != nil {
-				return fmt.Errorf("download failed [bucket=%s, key=%s%s]: %w", bucket, key, describeClient(d.client), err)
-			}
-
-			algo, ok := c.ClaimData[claimKeyHashAlgorithm]
-			if !ok {
-				return fmt.Errorf("claim missing field %q", claimKeyHashAlgorithm)
-			}
-			if algo != hashAlgorithm {
-				return fmt.Errorf("unsupported hash algorithm %q", algo)
-			}
-
-			expectedHash, ok := c.ClaimData[claimKeyHashValue]
-			if !ok {
-				return fmt.Errorf("claim missing field %q", claimKeyHashValue)
-			}
-			if actualHash := sha256Hex(data); actualHash != expectedHash {
-				return fmt.Errorf(
-					"integrity check failed [bucket=%s, key=%s]: expected hash %s, got %s",
-					bucket, key, expectedHash, actualHash,
-				)
-			}
-
-			var payload commonpb.Payload
-			if err := proto.Unmarshal(data, &payload); err != nil {
-				return fmt.Errorf("failed to unmarshal payload [bucket=%s, key=%s]: %w", bucket, key, err)
-			}
-			payloads[i] = &payload
-			return nil
-		})
-	}
-
-	if err := g.Wait(); err != nil {
-		return nil, err
-	}
-	return payloads, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func objectKey(target converter.StorageDriverTargetInfo, hexDigest string) string {
-	digestSegment := "/d/" + hashAlgorithm + "/" + hexDigest
-	switch t := target.(type) {
-	case converter.StorageDriverWorkflowInfo:
-		return keyVersion +
-			"/ns/" + pathEscape(t.Namespace) +
-			"/wt/" + pathEscape(t.WorkflowType) +
-			"/wi/" + pathEscape(t.WorkflowID) +
-			"/ri/" + pathEscape(t.RunID) +
-			digestSegment
-	case converter.StorageDriverActivityInfo:
-		return keyVersion +
-			"/ns/" + pathEscape(t.Namespace) +
-			"/at/" + pathEscape(t.ActivityType) +
-			"/ai/" + pathEscape(t.ActivityID) +
-			"/ri/" + pathEscape(t.RunID) +
-			digestSegment
-	default:
-		return keyVersion + digestSegment
-	}
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // describeClient returns ", k=v, k=v" diagnostic info from the client's
 // Describe method, or "" if Describe returns nil/empty.
-func describeClient(c Client) string {
-	var s string
-	for k, v := range c.Describe() {
-		s += ", " + k + "=" + v
-	}
-	return s
-}
+func describeClient(c Client) string { _ = "STUB: not implemented"; return "" }
 
-func pathEscape(s string) string {
-	if s == "" {
-		return "null"
-	}
-	return url.PathEscape(s)
-}
+func pathEscape(s string) string { _ = "STUB: not implemented"; return "" }
 
-func sha256Hex(data []byte) string {
-	h := sha256.Sum256(data)
-	return hex.EncodeToString(h[:])
-}
+func sha256Hex(data []byte) string { _ = "STUB: not implemented"; return "" }

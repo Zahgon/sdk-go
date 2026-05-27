@@ -75,9 +75,7 @@ type (
 //
 // might never return true unless some other event like a Signal or activity completion forces the condition evaluation.
 // For a time-based wait use workflow.AwaitWithTimeout function.
-func Await(ctx Context, condition func() bool) error {
-	return internal.Await(ctx, condition)
-}
+func Await(ctx Context, condition func() bool) error { _ = "STUB: not implemented"; return nil }
 
 // AwaitWithTimeout blocks the calling thread until condition() returns true
 // or blocking time exceeds the passed timeout value.
@@ -89,7 +87,8 @@ func Await(ctx Context, condition func() bool) error {
 //	  return count == 5
 //	})
 func AwaitWithTimeout(ctx Context, timeout time.Duration, condition func() bool) (ok bool, err error) {
-	return internal.AwaitWithTimeout(ctx, timeout, condition)
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 // AwaitWithOptions blocks the calling thread until condition() returns true
@@ -104,46 +103,45 @@ func AwaitWithTimeout(ctx Context, timeout time.Duration, condition func() bool)
 //
 // NOTE: Experimental
 func AwaitWithOptions(ctx Context, options AwaitOptions, condition func() bool) (ok bool, err error) {
-	return internal.AwaitWithOptions(ctx, options, condition)
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 // NewChannel creates a new Channel instance
-func NewChannel(ctx Context) Channel {
-	return internal.NewChannel(ctx)
-}
+func NewChannel(ctx Context) Channel { _ = "STUB: not implemented"; return *new(Channel) }
 
 // NewNamedChannel creates a new Channel instance with a given human-readable name.
 // The name appears in stack traces that are blocked on this channel.
 func NewNamedChannel(ctx Context, name string) Channel {
-	return internal.NewNamedChannel(ctx, name)
+	_ = "STUB: not implemented"
+	return *new(Channel)
 }
 
 // NewBufferedChannel creates a new buffered Channel instance
 func NewBufferedChannel(ctx Context, size int) Channel {
-	return internal.NewBufferedChannel(ctx, size)
+	_ = "STUB: not implemented"
+	return *new(Channel)
 }
 
 // NewNamedBufferedChannel creates a new BufferedChannel instance with a given human-readable name.
 // The name appears in stack traces that are blocked on this Channel.
 func NewNamedBufferedChannel(ctx Context, name string, size int) Channel {
-	return internal.NewNamedBufferedChannel(ctx, name, size)
+	_ = "STUB: not implemented"
+	return *new(Channel)
 }
 
 // NewSelector creates a new Selector instance.
-func NewSelector(ctx Context) Selector {
-	return internal.NewSelector(ctx)
-}
+func NewSelector(ctx Context) Selector { _ = "STUB: not implemented"; return *new(Selector) }
 
 // NewNamedSelector creates a new Selector instance with a given human-readable name.
 // The name appears in stack traces that are blocked on this Selector.
 func NewNamedSelector(ctx Context, name string) Selector {
-	return internal.NewNamedSelector(ctx, name)
+	_ = "STUB: not implemented"
+	return *new(Selector)
 }
 
 // NewWaitGroup creates a new WaitGroup instance.
-func NewWaitGroup(ctx Context) WaitGroup {
-	return internal.NewWaitGroup(ctx)
-}
+func NewWaitGroup(ctx Context) WaitGroup { _ = "STUB: not implemented"; return *new(WaitGroup) }
 
 // NewMutex creates a new Mutex instance. A mutex can be used
 // when you want to ensure only one coroutine in a workflow is executing a
@@ -151,47 +149,44 @@ func NewWaitGroup(ctx Context) WaitGroup {
 //
 // Note: In a workflow, only one coroutine is ever executing at a time. So
 // a mutex is not needed to simply protect shared data.
-func NewMutex(ctx Context) Mutex {
-	return internal.NewMutex(ctx)
-}
+func NewMutex(ctx Context) Mutex { _ = "STUB: not implemented"; return *new(Mutex) }
 
 // NewSemaphore creates a new Semaphore instance.
 func NewSemaphore(ctx Context, n int64) Semaphore {
-	return internal.NewSemaphore(ctx, n)
+	_ = "STUB: not implemented"
+	return *new(Semaphore)
 }
 
 // Go creates a new coroutine. It has similar semantics to a goroutine, but in the context of the workflow.
-func Go(ctx Context, f func(ctx Context)) {
-	internal.Go(ctx, f)
-}
+func Go(ctx Context, f func(ctx Context)) { _ = "STUB: not implemented"; return }
 
 // GoNamed creates a new coroutine with a given human-readable name.
 // It has similar semantics to a goroutine, but in the context of the workflow.
 // The name appears in stack traces that include this coroutine.
-func GoNamed(ctx Context, name string, f func(ctx Context)) {
-	internal.GoNamed(ctx, name, f)
-}
+func GoNamed(ctx Context, name string, f func(ctx Context)) { _ = "STUB: not implemented"; return }
 
 // NewFuture creates a new future as well as an associated Settable that is used to set its value.
 func NewFuture(ctx Context) (Future, Settable) {
-	return internal.NewFuture(ctx)
+	_ = "STUB: not implemented"
+	return *new(Future), *new(Settable)
 }
 
 // Now returns the time when the workflow task was first started, even during replay.
 // Workflows must use this Now() to get the wall clock time, instead of Go's time.Now().
 func Now(ctx Context) time.Time {
-	return internal.Now(ctx)
+	_ = "STUB: not implemented"
+	return *
+
+	// NewTimer returns immediately and the future becomes ready after the specified duration d. Workflows must use
+	// this NewTimer() to get the timer, instead of Go's timer.NewTimer(). You can cancel the pending
+	// timer by canceling the Context (using the context from workflow.WithCancel(ctx)) and that will cancel the timer. After the timer
+	// is canceled, the returned Future becomes ready, and Future.Get() will return *CanceledError.
+	//
+	// To be able to set options like timer summary, use [NewTimerWithOptions].
+	new(time.Time)
 }
 
-// NewTimer returns immediately and the future becomes ready after the specified duration d. Workflows must use
-// this NewTimer() to get the timer, instead of Go's timer.NewTimer(). You can cancel the pending
-// timer by canceling the Context (using the context from workflow.WithCancel(ctx)) and that will cancel the timer. After the timer
-// is canceled, the returned Future becomes ready, and Future.Get() will return *CanceledError.
-//
-// To be able to set options like timer summary, use [NewTimerWithOptions].
-func NewTimer(ctx Context, d time.Duration) Future {
-	return internal.NewTimer(ctx, d)
-}
+func NewTimer(ctx Context, d time.Duration) Future { _ = "STUB: not implemented"; return *new(Future) }
 
 // NewTimerWithOptions returns immediately and the future becomes ready after the specified duration d. Workflows must
 // use this NewTimerWithOptions() to get the timer, instead of Go's timer.NewTimer(). You can cancel the pending timer
@@ -200,7 +195,8 @@ func NewTimer(ctx Context, d time.Duration) Future {
 //
 // NOTE: Experimental
 func NewTimerWithOptions(ctx Context, d time.Duration, options TimerOptions) Future {
-	return internal.NewTimerWithOptions(ctx, d, options)
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
 
 // Sleep pauses the current workflow for at least the duration d. A negative or zero duration causes Sleep to return
@@ -211,6 +207,4 @@ func NewTimerWithOptions(ctx Context, d time.Duration, options TimerOptions) Fut
 // 2) your workflow itself was canceled by external request.
 //
 // To be able to set options like timer summary, use [NewTimerWithOptions] and wait on the future.
-func Sleep(ctx Context, d time.Duration) (err error) {
-	return internal.Sleep(ctx, d)
-}
+func Sleep(ctx Context, d time.Duration) (err error) { _ = "STUB: not implemented"; return nil }

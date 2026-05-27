@@ -3,23 +3,17 @@ package internal
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
 	"sync/atomic"
 	"time"
-
-	"github.com/google/uuid"
 
 	commonpb "go.temporal.io/api/common/v1"
 	enumspb "go.temporal.io/api/enums/v1"
 	"go.temporal.io/api/operatorservice/v1"
 	"go.temporal.io/api/workflowservice/v1"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 
 	"go.temporal.io/sdk/converter"
 	"go.temporal.io/sdk/internal/common/metrics"
-	"go.temporal.io/sdk/internal/extstore"
-	ilog "go.temporal.io/sdk/internal/log"
 	"go.temporal.io/sdk/log"
 )
 
@@ -1371,16 +1365,16 @@ type Credentials interface {
 //
 // Exposed as: [go.temporal.io/sdk/client.DialContext]
 func DialClient(ctx context.Context, options ClientOptions) (Client, error) {
-	options.ConnectionOptions.disableEagerConnection = false
-	return NewClient(ctx, options)
+	_ = "STUB: not implemented"
+	return *new(Client), nil
 }
 
 // NewLazyClient creates a client and does not attempt to connect to the server.
 //
 // Exposed as: [go.temporal.io/sdk/client.NewLazyClient]
 func NewLazyClient(options ClientOptions) (Client, error) {
-	options.ConnectionOptions.disableEagerConnection = true
-	return NewClient(context.Background(), options)
+	_ = "STUB: not implemented"
+	return *new(Client), nil
 }
 
 // NewClient creates an instance of a workflow client
@@ -1389,7 +1383,8 @@ func NewLazyClient(options ClientOptions) (Client, error) {
 //
 // Exposed as: [go.temporal.io/sdk/client.NewClient]
 func NewClient(ctx context.Context, options ClientOptions) (Client, error) {
-	return newClient(ctx, options, nil)
+	_ = "STUB: not implemented"
+	return *new(Client), nil
 }
 
 // NewClientFromExisting creates a new client using the same connection as the
@@ -1397,297 +1392,77 @@ func NewClient(ctx context.Context, options ClientOptions) (Client, error) {
 //
 // Exposed as: [go.temporal.io/sdk/client.NewClientFromExistingWithContext]
 func NewClientFromExisting(ctx context.Context, existingClient Client, options ClientOptions) (Client, error) {
-	return newClient(ctx, options, existingClient)
+	_ = "STUB: not implemented"
+	return *new(Client), nil
 }
 
 func newClient(ctx context.Context, options ClientOptions, existing Client) (Client, error) {
+	_ = "STUB: not implemented"
 	// Go over all plugins allowing them to configure the options
-	for _, plugin := range options.Plugins {
-		if err := plugin.ConfigureClient(ctx, ClientPluginConfigureClientOptions{ClientOptions: &options}); err != nil {
-			return nil, err
-		}
-	}
-
-	if options.Namespace == "" {
-		options.Namespace = DefaultNamespace
-	}
-
-	// Initialize root tags
-	if options.MetricsHandler == nil {
-		options.MetricsHandler = metrics.NopHandler
-	}
-	options.MetricsHandler = options.MetricsHandler.WithTags(metrics.RootTags(options.Namespace))
-
-	if options.HostPort == "" {
-		options.HostPort = LocalHostPort
-	}
-
-	if options.Logger == nil {
-		options.Logger = ilog.NewDefaultLogger()
-	}
-
-	// Validate mutually exclusive TLS options
-	if options.ConnectionOptions.TLS != nil && options.ConnectionOptions.TLSDisabled {
-		return nil, fmt.Errorf("cannot set both TLS and TLSDisabled in ConnectionOptions")
-	}
-
-	if options.Credentials != nil {
-		if err := options.Credentials.applyToOptions(&options.ConnectionOptions); err != nil {
-			return nil, err
-		}
-	}
-
-	// Go over each plugin in reverse, allowing it to wrap connect
-	var client Client
-	connect := func(ctx context.Context, options ClientPluginNewClientOptions) (err error) {
-		client, err = newClientPluginRoot(ctx, options)
-		return
-	}
-	for i := len(options.Plugins) - 1; i >= 0; i-- {
-		plugin := options.Plugins[i]
-		next := connect
-		connect = func(ctx context.Context, options ClientPluginNewClientOptions) error {
-			return plugin.NewClient(ctx, options, next)
-		}
-	}
-	// Invoke and confirm client was created
-	if err := connect(ctx, ClientPluginNewClientOptions{
-		ClientOptions: options,
-		Lazy:          options.ConnectionOptions.disableEagerConnection,
-		FromExisting:  existing,
-	}); err != nil {
-		return nil, err
-	} else if client == nil {
-		return nil, fmt.Errorf("client plugin did not call next to build the client")
-	}
-	return client, nil
+	return *new(Client), nil
 }
+
+// Initialize root tags
+
+// Validate mutually exclusive TLS options
+
+// Go over each plugin in reverse, allowing it to wrap connect
+
+// Invoke and confirm client was created
 
 func newClientPluginRoot(ctx context.Context, options ClientPluginNewClientOptions) (Client, error) {
+	_ = "STUB: not implemented"
 	// Dial or use existing connection
-	var connection *grpc.ClientConn
-	var err error
-	var existing *WorkflowClient
-	if options.FromExisting == nil {
-		options.ClientOptions.ConnectionOptions.excludeInternalFromRetry = &atomic.Bool{}
-		connection, err = dial(newDialParameters(
-			&options.ClientOptions, options.ClientOptions.ConnectionOptions.excludeInternalFromRetry))
-		if err != nil {
-			return nil, err
-		}
-	} else if existing, _ = options.FromExisting.(*WorkflowClient); existing != nil {
-		connection = existing.conn
-	} else if options.FromExisting != nil {
-		return nil, fmt.Errorf("existing client must have been created directly from a client package call")
-	}
-
-	client := NewServiceClient(workflowservice.NewWorkflowServiceClient(connection), connection, options.ClientOptions)
-
-	// If using existing connection, always load its capabilities and use them for
-	// the new connection. Otherwise, only load server capabilities eagerly if not
-	// disabled.
-	if existing != nil {
-		if client.capabilities, err = existing.loadCapabilities(ctx); err != nil {
-			return nil, err
-		}
-		client.unclosedClients = existing.unclosedClients
-	} else {
-		if !options.ClientOptions.ConnectionOptions.disableEagerConnection {
-			if _, err := client.loadCapabilities(ctx); err != nil {
-				client.Close()
-				return nil, err
-			}
-		}
-		var unclosedClients int32
-		client.unclosedClients = &unclosedClients
-	}
-	atomic.AddInt32(client.unclosedClients, 1)
-
-	return client, nil
+	return *new(Client), nil
 }
 
+// If using existing connection, always load its capabilities and use them for
+// the new connection. Otherwise, only load server capabilities eagerly if not
+// disabled.
+
 func newDialParameters(options *ClientOptions, excludeInternalFromRetry *atomic.Bool) dialParameters {
-	return dialParameters{
-		UserConnectionOptions: options.ConnectionOptions,
-		HostPort:              options.HostPort,
-		RequiredInterceptors:  requiredInterceptors(options, excludeInternalFromRetry),
-		DefaultServiceConfig:  defaultServiceConfig,
-	}
+	_ = "STUB: not implemented"
+	return *new(dialParameters)
 }
 
 // NewServiceClient creates workflow client from workflowservice.WorkflowServiceClient. Must be used internally in unit tests only.
 func NewServiceClient(workflowServiceClient workflowservice.WorkflowServiceClient, conn *grpc.ClientConn, options ClientOptions) *WorkflowClient {
+	_ = "STUB: not implemented"
 	// Namespace can be empty in unit tests.
-	if options.Namespace == "" {
-		options.Namespace = DefaultNamespace
-	}
-
-	if options.Identity == "" {
-		options.Identity = getWorkerIdentity("")
-	}
-
-	if options.DataConverter == nil {
-		options.DataConverter = converter.GetDefaultDataConverter()
-	}
-
-	if options.FailureConverter == nil {
-		options.FailureConverter = GetDefaultFailureConverter()
-	}
-
-	if options.MetricsHandler == nil {
-		options.MetricsHandler = metrics.NopHandler
-	}
-
-	if options.ConnectionOptions.excludeInternalFromRetry == nil {
-		options.ConnectionOptions.excludeInternalFromRetry = &atomic.Bool{}
-	}
-
-	if options.ConnectionOptions.GetSystemInfoTimeout == 0 {
-		options.ConnectionOptions.GetSystemInfoTimeout = defaultGetSystemInfoTimeout
-	}
-
-	// Collect set of applicable worker plugins and interceptors
-	var workerPlugins []WorkerPlugin
-	var clientPluginNames []string
-	for _, plugin := range options.Plugins {
-		clientPluginNames = append(clientPluginNames, plugin.Name())
-		if workerPlugin, _ := plugin.(WorkerPlugin); workerPlugin != nil {
-			workerPlugins = append(workerPlugins, workerPlugin)
-		}
-	}
-	var workerInterceptors []WorkerInterceptor
-	for _, interceptor := range options.Interceptors {
-		if workerInterceptor, _ := interceptor.(WorkerInterceptor); workerInterceptor != nil {
-			workerInterceptors = append(workerInterceptors, workerInterceptor)
-		}
-	}
-
-	var heartbeatInterval time.Duration
-	if options.WorkerHeartbeatInterval < 0 {
-		heartbeatInterval = 0
-	} else if options.WorkerHeartbeatInterval == 0 {
-		heartbeatInterval = 60 * time.Second
-	} else {
-		if options.WorkerHeartbeatInterval < time.Second || options.WorkerHeartbeatInterval > 60*time.Second {
-			panic("WorkerHeartbeatInterval must be between 1 second and 60 seconds")
-		}
-		heartbeatInterval = options.WorkerHeartbeatInterval
-	}
-
-	storageParams, err := extstore.ExternalStorageToParams(options.ExternalStorage)
-	if err != nil {
-		panic(fmt.Sprintf("invalid ExternalStorage options: %v", err))
-	}
-
-	storageDriverTypes := collectStorageDriverTypes(options.ExternalStorage.Drivers)
-
-	payloadWarningLimits, err := payloadLimitOptionsToLimits(options.PayloadLimits)
-	if err != nil {
-		panic(fmt.Sprintf("invalid PayloadLimits options: %v", err))
-	}
-
-	client := &WorkflowClient{
-		workflowService:          workflowServiceClient,
-		conn:                     conn,
-		namespace:                options.Namespace,
-		registry:                 newRegistry(),
-		metricsHandler:           options.MetricsHandler,
-		logger:                   options.Logger,
-		identity:                 options.Identity,
-		dataConverter:            options.DataConverter,
-		failureConverter:         options.FailureConverter,
-		contextPropagators:       options.ContextPropagators,
-		workerPlugins:            workerPlugins,
-		workerInterceptors:       workerInterceptors,
-		clientPluginNames:        clientPluginNames,
-		excludeInternalFromRetry: options.ConnectionOptions.excludeInternalFromRetry,
-		eagerDispatcher: &eagerWorkflowDispatcher{
-			workersByTaskQueue: make(map[string]map[eagerWorker]struct{}),
-		},
-		getSystemInfoTimeout:    options.ConnectionOptions.GetSystemInfoTimeout,
-		workerHeartbeatInterval: heartbeatInterval,
-		workerGroupingKey:       uuid.NewString(),
-		storageParams:           storageParams,
-		storageDriverTypes:      storageDriverTypes,
-		payloadWarningLimits:    payloadWarningLimits,
-	}
-
-	if heartbeatInterval > 0 {
-		client.heartbeatManager = newHeartbeatManager(client, heartbeatInterval, client.logger)
-	}
-
-	// Create outbound interceptor by wrapping backwards through chain
-	client.interceptor = &workflowClientInterceptor{
-		client:                 client,
-		inboundPayloadVisitor:  extstore.NewExternalRetrievalVisitor(storageParams),
-		outboundPayloadVisitor: client.newOutboundPayloadVisitor(),
-	}
-	for i := len(options.Interceptors) - 1; i >= 0; i-- {
-		client.interceptor = options.Interceptors[i].InterceptClient(client.interceptor)
-	}
-
-	return client
+	return nil
 }
 
+// Collect set of applicable worker plugins and interceptors
+
+// Create outbound interceptor by wrapping backwards through chain
+
 func (op *withStartWorkflowOperationImpl) Get(ctx context.Context) (WorkflowRun, error) {
-	select {
-	case <-op.doneCh:
-		return op.workflowRun, op.err
-	case <-ctx.Done():
-		if !op.executed.Load() {
-			return nil, fmt.Errorf("%w: %w", ctx.Err(), fmt.Errorf("operation was not executed"))
-		}
-		return nil, ctx.Err()
-	}
+	_ = "STUB: not implemented"
+	return *new(WorkflowRun), nil
 }
 
 func (op *withStartWorkflowOperationImpl) markExecuted() error {
-	if op.executed.Swap(true) {
-		return fmt.Errorf("was already executed")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (op *withStartWorkflowOperationImpl) set(workflowRun WorkflowRun, err error) {
-	op.workflowRun = workflowRun
-	op.err = err
-	close(op.doneCh)
+	_ = "STUB: not implemented"
+	return
 }
 
 // NewNamespaceClient creates an instance of a namespace client, to manager lifecycle of namespaces.
 //
 // Exposed as: [go.temporal.io/sdk/client.NewNamespaceClient]
 func NewNamespaceClient(options ClientOptions) (NamespaceClient, error) {
+	_ = "STUB: not implemented"
 	// Initialize root tags
-	if options.MetricsHandler == nil {
-		options.MetricsHandler = metrics.NopHandler
-	}
-	options.MetricsHandler = options.MetricsHandler.WithTags(metrics.RootTags(metrics.NoneTagValue))
-
-	if options.HostPort == "" {
-		options.HostPort = LocalHostPort
-	}
-
-	connection, err := dial(newDialParameters(&options, nil))
-	if err != nil {
-		return nil, err
-	}
-
-	return newNamespaceServiceClient(workflowservice.NewWorkflowServiceClient(connection), connection, options), nil
+	return *new(NamespaceClient), nil
 }
 
 func newNamespaceServiceClient(workflowServiceClient workflowservice.WorkflowServiceClient, clientConn *grpc.ClientConn, options ClientOptions) NamespaceClient {
-	if options.Identity == "" {
-		options.Identity = getWorkerIdentity("")
-	}
-
-	return &namespaceClient{
-		workflowService:  workflowServiceClient,
-		connectionCloser: clientConn,
-		metricsHandler:   options.MetricsHandler,
-		logger:           options.Logger,
-		identity:         options.Identity,
-	}
+	_ = "STUB: not implemented"
+	return *new(NamespaceClient)
 }
 
 // NewValue creates a new converter.EncodedValue which can be used to decode binary data returned by Temporal.  For example:
@@ -1700,7 +1475,8 @@ func newNamespaceServiceClient(workflowServiceClient workflowservice.WorkflowSer
 //
 // Exposed as: [go.temporal.io/sdk/client.NewValue]
 func NewValue(data *commonpb.Payloads) converter.EncodedValue {
-	return newEncodedValue(data, nil)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 // NewValues creates a new converter.EncodedValues which can be used to decode binary data returned by Temporal. For example:
@@ -1714,30 +1490,34 @@ func NewValue(data *commonpb.Payloads) converter.EncodedValue {
 //
 // Exposed as: [go.temporal.io/sdk/client.NewValues]
 func NewValues(data *commonpb.Payloads) converter.EncodedValues {
-	return newEncodedValues(data, nil)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValues)
 }
 
 type apiKeyCredentials func(context.Context) (string, error)
 
 // Exposed as: [go.temporal.io/sdk/client.NewAPIKeyStaticCredentials]
 func NewAPIKeyStaticCredentials(apiKey string) Credentials {
-	return NewAPIKeyDynamicCredentials(func(ctx context.Context) (string, error) { return apiKey, nil })
+	_ = "STUB: not implemented"
+	return *new(Credentials)
 }
 
 // Exposed as: [go.temporal.io/sdk/client.NewAPIKeyDynamicCredentials]
 func NewAPIKeyDynamicCredentials(apiKeyCallback func(context.Context) (string, error)) Credentials {
-	return apiKeyCredentials(apiKeyCallback)
+	_ = "STUB: not implemented"
+	return *new(Credentials)
 }
 
 func (apiKeyCredentials) applyToOptions(opts *ConnectionOptions) error {
+	_ = "STUB: not implemented"
 	// Auto-enable TLS when API key is provided and TLS is not explicitly set/disabled
-	if opts.TLS == nil && !opts.TLSDisabled {
-		opts.TLS = &tls.Config{}
-	}
 	return nil
 }
 
-func (a apiKeyCredentials) gRPCInterceptor() grpc.UnaryClientInterceptor { return a.gRPCIntercept }
+func (a apiKeyCredentials) gRPCInterceptor() grpc.UnaryClientInterceptor {
+	_ = "STUB: not implemented"
+	return *new(grpc.UnaryClientInterceptor)
+}
 
 func (a apiKeyCredentials) gRPCIntercept(
 	ctx context.Context,
@@ -1748,39 +1528,36 @@ func (a apiKeyCredentials) gRPCIntercept(
 	invoker grpc.UnaryInvoker,
 	opts ...grpc.CallOption,
 ) error {
-	if apiKey, err := a(ctx); err != nil {
-		return err
-	} else if apiKey != "" {
-		// Only add API key if it doesn't already exist
-		if md, _ := metadata.FromOutgoingContext(ctx); len(md.Get("authorization")) == 0 {
-			ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+apiKey)
-		}
-	}
-	return invoker(ctx, method, req, reply, cc, opts...)
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Only add API key if it doesn't already exist
 
 type mTLSCredentials tls.Certificate
 
 // Exposed as: [go.temporal.io/sdk/client.NewMTLSCredentials]
-func NewMTLSCredentials(certificate tls.Certificate) Credentials { return mTLSCredentials(certificate) }
+func NewMTLSCredentials(certificate tls.Certificate) Credentials {
+	_ = "STUB: not implemented"
+	return *new(Credentials)
+}
 
 func (m mTLSCredentials) applyToOptions(opts *ConnectionOptions) error {
-	if opts.TLS == nil {
-		opts.TLS = &tls.Config{}
-	} else if len(opts.TLS.Certificates) != 0 {
-		return fmt.Errorf("cannot apply mTLS credentials, certificates already exist on TLS options")
-	}
-	opts.TLS.Certificates = append(opts.TLS.Certificates, tls.Certificate(m))
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (mTLSCredentials) gRPCInterceptor() grpc.UnaryClientInterceptor { return nil }
+func (mTLSCredentials) gRPCInterceptor() grpc.UnaryClientInterceptor {
+	_ = "STUB: not implemented"
 
-// WorkflowUpdateServiceTimeoutOrCanceledError is an error that occurs when an update call times out or is cancelled.
-//
-// Note, this is not related to any general concept of timing out or cancelling a running update, this is only related to the client call itself.
-//
-// Exposed as: [go.temporal.io/sdk/client.WorkflowUpdateServiceTimeoutOrCanceledError]
+	// WorkflowUpdateServiceTimeoutOrCanceledError is an error that occurs when an update call times out or is cancelled.
+	//
+	// Note, this is not related to any general concept of timing out or cancelling a running update, this is only related to the client call itself.
+	//
+	// Exposed as: [go.temporal.io/sdk/client.WorkflowUpdateServiceTimeoutOrCanceledError]
+	return *new(grpc.UnaryClientInterceptor)
+}
+
 type WorkflowUpdateServiceTimeoutOrCanceledError struct {
 	cause error
 }
@@ -1789,69 +1566,61 @@ type WorkflowUpdateServiceTimeoutOrCanceledError struct {
 //
 // Exposed as: [go.temporal.io/sdk/client.NewWorkflowUpdateServiceTimeoutOrCanceledError]
 func NewWorkflowUpdateServiceTimeoutOrCanceledError(err error) *WorkflowUpdateServiceTimeoutOrCanceledError {
-	return &WorkflowUpdateServiceTimeoutOrCanceledError{
-		cause: err,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (e *WorkflowUpdateServiceTimeoutOrCanceledError) Error() string {
-	return fmt.Sprintf("Timeout or cancellation waiting for update: %v", e.cause)
+	_ = "STUB: not implemented"
+	return ""
 }
 
-func (e *WorkflowUpdateServiceTimeoutOrCanceledError) Unwrap() error { return e.cause }
+func (e *WorkflowUpdateServiceTimeoutOrCanceledError) Unwrap() error {
+	_ = "STUB: not implemented"
 
-// SetRequestIDOnStartWorkflowOptions is an internal only method for setting a requestID on StartWorkflowOptions.
-// RequestID is purposefully not exposed to users for the time being.
+	// SetRequestIDOnStartWorkflowOptions is an internal only method for setting a requestID on StartWorkflowOptions.
+	// RequestID is purposefully not exposed to users for the time being.
+	return nil
+}
+
 func SetRequestIDOnStartWorkflowOptions(opts *StartWorkflowOptions, requestID string) {
-	opts.requestID = requestID
+	_ = "STUB: not implemented"
+	return
 }
 
 // SetCallbacksOnStartWorkflowOptions is an internal only method for setting callbacks on StartWorkflowOptions.
 // Callbacks are purposefully not exposed to users for the time being.
 func SetCallbacksOnStartWorkflowOptions(opts *StartWorkflowOptions, callbacks []*commonpb.Callback) {
-	opts.callbacks = callbacks
+	_ = "STUB: not implemented"
+	return
 }
 
 // SetLinksOnStartWorkflowOptions is an internal only method for setting links on StartWorkflowOptions.
 // Links are purposefully not exposed to users for the time being.
 func SetLinksOnStartWorkflowOptions(opts *StartWorkflowOptions, links []*commonpb.Link) {
-	opts.links = links
+	_ = "STUB: not implemented"
+	return
+
+	// SetOnConflictOptionsOnStartWorkflowOptions is an internal only method for setting conflict
+	// options on StartWorkflowOptions.
+	// OnConflictOptions are purposefully not exposed to users for the time being.
 }
 
-// SetOnConflictOptionsOnStartWorkflowOptions is an internal only method for setting conflict
-// options on StartWorkflowOptions.
-// OnConflictOptions are purposefully not exposed to users for the time being.
 func SetOnConflictOptionsOnStartWorkflowOptions(opts *StartWorkflowOptions) {
-	opts.onConflictOptions = &OnConflictOptions{
-		AttachRequestID:           true,
-		AttachCompletionCallbacks: true,
-		AttachLinks:               true,
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // SetResponseInfoOnStartWorkflowOptions is an internal only method for setting start workflow
 // response info object pointer on StartWorkflowOptions and return the object pointer.
 // StartWorkflowResponseInfo is purposefully not exposed to users for the time being.
 func SetResponseInfoOnStartWorkflowOptions(opts *StartWorkflowOptions) *startWorkflowResponseInfo {
-	if opts.responseInfo == nil {
-		opts.responseInfo = &startWorkflowResponseInfo{}
-	}
-	return opts.responseInfo
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // collectStorageDriverTypes returns deduplicated driver types from the given drivers.
 func collectStorageDriverTypes(drivers []converter.StorageDriver) []string {
-	if len(drivers) == 0 {
-		return nil
-	}
-	seen := make(map[string]struct{}, len(drivers))
-	result := make([]string, 0, len(drivers))
-	for _, d := range drivers {
-		t := d.Type()
-		if _, found := seen[t]; !found {
-			seen[t] = struct{}{}
-			result = append(result, t)
-		}
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }

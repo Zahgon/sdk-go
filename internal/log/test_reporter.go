@@ -1,9 +1,6 @@
 package log
 
 import (
-	"fmt"
-	"os"
-
 	"go.temporal.io/sdk/log"
 )
 
@@ -13,17 +10,16 @@ type TestReporter struct {
 }
 
 // NewTestReporter creates new instance of TestReporter.
-func NewTestReporter(logger log.Logger) *TestReporter {
-	return &TestReporter{logger: logger}
-}
+func NewTestReporter(logger log.Logger) *TestReporter { _ = "STUB: not implemented"; return nil }
 
 // Errorf writes error to the log.
 func (t *TestReporter) Errorf(format string, args ...interface{}) {
-	t.logger.Error(fmt.Sprintf(format, args...))
+	_ = "STUB: not implemented"
+	return
 }
 
 // Fatalf writes error to the log and exits.
 func (t *TestReporter) Fatalf(format string, args ...interface{}) {
-	t.logger.Error(fmt.Sprintf(format, args...))
-	os.Exit(1)
+	_ = "STUB: not implemented"
+	return
 }

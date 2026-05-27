@@ -5,7 +5,6 @@ import (
 	"time"
 
 	deploymentpb "go.temporal.io/api/deployment/v1"
-	enumspb "go.temporal.io/api/enums/v1"
 )
 
 var (
@@ -461,9 +460,7 @@ const (
 const ReplayNamespace = "ReplayNamespace"
 
 // IsReplayNamespace checks if the namespace is from replay
-func IsReplayNamespace(dn string) bool {
-	return ReplayNamespace == dn
-}
+func IsReplayNamespace(dn string) bool { _ = "STUB: not implemented"; return false }
 
 // NewWorker creates an instance of worker for managing workflow and activity executions.
 // client   - client created with client.Dial() or client.NewLazyClient().
@@ -479,51 +476,40 @@ func NewWorker(
 	taskQueue string,
 	options WorkerOptions,
 ) *AggregatedWorker {
-	workflowClient, ok := client.(*WorkflowClient)
-	if !ok {
-		panic("Client must be created with client.Dial() or client.NewLazyClient()")
-	}
-	return NewAggregatedWorker(workflowClient, taskQueue, options)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func workerDeploymentOptionsToProto(useVersioning bool, version WorkerDeploymentVersion) *deploymentpb.WorkerDeploymentOptions {
-	if (version != WorkerDeploymentVersion{}) {
-		var workerVersioningMode enumspb.WorkerVersioningMode
-		if useVersioning {
-			workerVersioningMode = enumspb.WORKER_VERSIONING_MODE_VERSIONED
-		} else {
-			workerVersioningMode = enumspb.WORKER_VERSIONING_MODE_UNVERSIONED
-		}
-		return &deploymentpb.WorkerDeploymentOptions{
-			DeploymentName:       version.DeploymentName,
-			BuildId:              version.BuildID,
-			WorkerVersioningMode: workerVersioningMode,
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // isPollerBehavior implements PollerBehavior.
 func (p *pollerBehaviorSimpleMaximum) isPollerBehavior() {
+	_ = "STUB: not implemented"
+
+	// isPollerBehavior implements PollerBehavior.
+	return
 }
 
-// isPollerBehavior implements PollerBehavior.
 func (p *pollerBehaviorAutoscaling) isPollerBehavior() {
+	_ = "STUB: not implemented"
+
+	// NewPollerBehaviorSimpleMaximum creates a PollerBehavior that allows the worker to start up to a maximum number of pollers.
+	//
+	// Exposed as: [go.temporal.io/sdk/worker.NewPollerBehaviorSimpleMaximum]
+	return
 }
 
-// NewPollerBehaviorSimpleMaximum creates a PollerBehavior that allows the worker to start up to a maximum number of pollers.
-//
-// Exposed as: [go.temporal.io/sdk/worker.NewPollerBehaviorSimpleMaximum]
 func NewPollerBehaviorSimpleMaximum(
 	options PollerBehaviorSimpleMaximumOptions,
 ) PollerBehavior {
-	if options.MaximumNumberOfPollers <= 0 {
-		options.MaximumNumberOfPollers = defaultConcurrentPollRoutineSize // Default maximum number of pollers.
-	}
-	return &pollerBehaviorSimpleMaximum{
-		maximumNumberOfPollers: options.MaximumNumberOfPollers,
-	}
+	_ = "STUB: not implemented"
+	return *new(PollerBehavior)
 }
+
+// Default maximum number of pollers.
 
 // NewPollerBehaviorAutoscaling creates a PollerBehavior that allows the worker to scale the number of pollers within a given range.
 // based on the workflow and feedback from the server.
@@ -532,21 +518,12 @@ func NewPollerBehaviorSimpleMaximum(
 func NewPollerBehaviorAutoscaling(
 	options PollerBehaviorAutoscalingOptions,
 ) PollerBehavior {
-	initialNumberOfPollers := options.InitialNumberOfPollers
-	if initialNumberOfPollers <= 0 {
-		initialNumberOfPollers = defaultAutoscalingInitialNumberOfPollers // Default initial number of pollers.
-	}
-	minimumNumberOfPollers := options.MinimumNumberOfPollers
-	if minimumNumberOfPollers <= 0 {
-		minimumNumberOfPollers = defaultAutoscalingMinimumNumberOfPollers // Default minimum number of pollers.
-	}
-	maximumNumberOfPollers := options.MaximumNumberOfPollers
-	if maximumNumberOfPollers <= 0 {
-		maximumNumberOfPollers = defaultAutoscalingMaximumNumberOfPollers // Default maximum number of pollers.
-	}
-	return &pollerBehaviorAutoscaling{
-		initialNumberOfPollers: initialNumberOfPollers,
-		minimumNumberOfPollers: minimumNumberOfPollers,
-		maximumNumberOfPollers: maximumNumberOfPollers,
-	}
+	_ = "STUB: not implemented"
+	return *new(PollerBehavior)
 }
+
+// Default initial number of pollers.
+
+// Default minimum number of pollers.
+
+// Default maximum number of pollers.

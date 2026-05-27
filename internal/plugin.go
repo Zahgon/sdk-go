@@ -2,7 +2,6 @@ package internal
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/nexus-rpc/sdk-go/nexus"
 	historypb "go.temporal.io/api/history/v1"
@@ -312,7 +311,7 @@ type WorkerPluginReplayWorkflowOptions struct {
 
 type pluginNamePanicForTypeChecking struct{}
 
-func (pluginNamePanicForTypeChecking) Name() string { panic("unreachable") }
+func (pluginNamePanicForTypeChecking) Name() string { _ = "STUB: not implemented"; return "" }
 
 // SimplePlugin implements both [go.temporal.io/sdk/client.Plugin] and
 // [go.temporal.io/sdk/worker.Plugin] from a given set of options. Use
@@ -432,6 +431,7 @@ type SimplePluginRunContextAfterOptions struct {
 }
 
 func (ClientPluginBase) ConfigureClient(context.Context, ClientPluginConfigureClientOptions) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -440,13 +440,16 @@ func (ClientPluginBase) NewClient(
 	options ClientPluginNewClientOptions,
 	next func(context.Context, ClientPluginNewClientOptions) error,
 ) error {
-	return next(ctx, options)
+	_ = "STUB: not implemented"
+	return nil
+
+	//lint:ignore U1000 Intentionally unused
 }
 
-//lint:ignore U1000 Intentionally unused
-func (ClientPluginBase) mustEmbedClientPluginBase() {}
+func (ClientPluginBase) mustEmbedClientPluginBase() { _ = "STUB: not implemented"; return }
 
 func (WorkerPluginBase) ConfigureWorker(context.Context, WorkerPluginConfigureWorkerOptions) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -455,7 +458,8 @@ func (WorkerPluginBase) StartWorker(
 	options WorkerPluginStartWorkerOptions,
 	next func(context.Context, WorkerPluginStartWorkerOptions) error,
 ) error {
-	return next(ctx, options)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (WorkerPluginBase) StopWorker(
@@ -463,10 +467,12 @@ func (WorkerPluginBase) StopWorker(
 	options WorkerPluginStopWorkerOptions,
 	next func(context.Context, WorkerPluginStopWorkerOptions),
 ) {
-	next(ctx, options)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (WorkerPluginBase) ConfigureWorkflowReplayer(context.Context, WorkerPluginConfigureWorkflowReplayerOptions) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -475,46 +481,33 @@ func (WorkerPluginBase) ReplayWorkflow(
 	options WorkerPluginReplayWorkflowOptions,
 	next func(context.Context, WorkerPluginReplayWorkflowOptions) error,
 ) error {
-	return next(ctx, options)
+	_ = "STUB: not implemented"
+	return nil
+
+	//lint:ignore U1000 Intentionally unused
 }
 
-//lint:ignore U1000 Intentionally unused
-func (WorkerPluginBase) mustEmbedWorkerPluginBase() {}
+func (WorkerPluginBase) mustEmbedWorkerPluginBase() {
+	_ = "STUB: not implemented"
 
-// NewSimplePlugin creates a new SimplePlugin with the given options.
+	// NewSimplePlugin creates a new SimplePlugin with the given options.
+	return
+}
+
 func NewSimplePlugin(options SimplePluginOptions) (*SimplePlugin, error) {
-	if options.Name == "" {
-		return nil, fmt.Errorf("name required")
-	}
-	return &SimplePlugin{options}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // We impl these instead of embedding plugin base to force SimplePlugin to
 // explicitly account for new plugin things added
-func (*SimplePlugin) mustEmbedClientPluginBase() {}
-func (*SimplePlugin) mustEmbedWorkerPluginBase() {}
+func (*SimplePlugin) mustEmbedClientPluginBase() { _ = "STUB: not implemented"; return }
+func (*SimplePlugin) mustEmbedWorkerPluginBase() { _ = "STUB: not implemented"; return }
 
-func (s *SimplePlugin) Name() string { return s.options.Name }
+func (s *SimplePlugin) Name() string { _ = "STUB: not implemented"; return "" }
 
 func (s *SimplePlugin) ConfigureClient(ctx context.Context, options ClientPluginConfigureClientOptions) error {
-	if s.options.DataConverter != nil {
-		options.ClientOptions.DataConverter = s.options.DataConverter
-	}
-	if s.options.FailureConverter != nil {
-		options.ClientOptions.FailureConverter = s.options.FailureConverter
-	}
-	if len(s.options.ContextPropagators) > 0 {
-		options.ClientOptions.ContextPropagators =
-			append(options.ClientOptions.ContextPropagators, s.options.ContextPropagators...)
-	}
-	if len(s.options.ClientInterceptors) > 0 {
-		options.ClientOptions.Interceptors = append(options.ClientOptions.Interceptors, s.options.ClientInterceptors...)
-	}
-	if s.options.ConfigureClient != nil {
-		if err := s.options.ConfigureClient(ctx, options); err != nil {
-			return err
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -523,18 +516,12 @@ func (*SimplePlugin) NewClient(
 	options ClientPluginNewClientOptions,
 	next func(context.Context, ClientPluginNewClientOptions) error,
 ) error {
-	return next(ctx, options)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *SimplePlugin) ConfigureWorker(ctx context.Context, options WorkerPluginConfigureWorkerOptions) error {
-	if len(s.options.WorkerInterceptors) > 0 {
-		options.WorkerOptions.Interceptors = append(options.WorkerOptions.Interceptors, s.options.WorkerInterceptors...)
-	}
-	if s.options.ConfigureWorker != nil {
-		if err := s.options.ConfigureWorker(ctx, options); err != nil {
-			return err
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -543,18 +530,8 @@ func (s *SimplePlugin) StartWorker(
 	options WorkerPluginStartWorkerOptions,
 	next func(context.Context, WorkerPluginStartWorkerOptions) error,
 ) error {
-	if s.options.RunContextBefore != nil {
-		if err := s.options.RunContextBefore(
-			ctx,
-			SimplePluginRunContextBeforeOptions{
-				InstanceKey: options.WorkerInstanceKey,
-				Registry:    options.WorkerRegistry,
-			},
-		); err != nil {
-			return err
-		}
-	}
-	return next(ctx, options)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *SimplePlugin) StopWorker(
@@ -562,53 +539,19 @@ func (s *SimplePlugin) StopWorker(
 	options WorkerPluginStopWorkerOptions,
 	next func(context.Context, WorkerPluginStopWorkerOptions),
 ) {
-	if s.options.RunContextAfter != nil {
-		s.options.RunContextAfter(
-			ctx,
-			SimplePluginRunContextAfterOptions{InstanceKey: options.WorkerInstanceKey},
-		)
-	}
-	next(ctx, options)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *SimplePlugin) ConfigureWorkflowReplayer(
 	ctx context.Context,
 	options WorkerPluginConfigureWorkflowReplayerOptions,
 ) error {
-	if s.options.DataConverter != nil {
-		options.WorkflowReplayerOptions.DataConverter = s.options.DataConverter
-	}
-	if s.options.FailureConverter != nil {
-		options.WorkflowReplayerOptions.FailureConverter = s.options.FailureConverter
-	}
-	if len(s.options.ContextPropagators) > 0 {
-		options.WorkflowReplayerOptions.ContextPropagators = append(
-			options.WorkflowReplayerOptions.ContextPropagators,
-			s.options.ContextPropagators...,
-		)
-	}
-	// Go over every client interceptor and append if it's also a worker interceptor
-	for _, interceptor := range s.options.ClientInterceptors {
-		if workerInterceptor, _ := interceptor.(WorkerInterceptor); workerInterceptor != nil {
-			options.WorkflowReplayerOptions.Interceptors = append(
-				options.WorkflowReplayerOptions.Interceptors,
-				workerInterceptor,
-			)
-		}
-	}
-	if len(s.options.WorkerInterceptors) > 0 {
-		options.WorkflowReplayerOptions.Interceptors = append(
-			options.WorkflowReplayerOptions.Interceptors,
-			s.options.WorkerInterceptors...,
-		)
-	}
-	if s.options.ConfigureWorkflowReplayer != nil {
-		if err := s.options.ConfigureWorkflowReplayer(ctx, options); err != nil {
-			return err
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Go over every client interceptor and append if it's also a worker interceptor
 
 type simplePluginWorkflowReplayerRegistry struct {
 	registerWorkflowWithOptions func(any, RegisterWorkflowOptions)
@@ -616,23 +559,31 @@ type simplePluginWorkflowReplayerRegistry struct {
 }
 
 func (s simplePluginWorkflowReplayerRegistry) RegisterWorkflowWithOptions(w any, options RegisterWorkflowOptions) {
-	s.registerWorkflowWithOptions(w, options)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s simplePluginWorkflowReplayerRegistry) RegisterDynamicWorkflow(w any, options DynamicRegisterWorkflowOptions) {
-	s.registerDynamicWorkflow(w, options)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (simplePluginWorkflowReplayerRegistry) RegisterActivityWithOptions(any, RegisterActivityOptions) {
+	_ = "STUB: not implemented"
 	// No-op
+	return
 }
 
 func (simplePluginWorkflowReplayerRegistry) RegisterDynamicActivity(any, DynamicRegisterActivityOptions) {
+	_ = "STUB: not implemented"
 	// No-op
+	return
 }
 
 func (simplePluginWorkflowReplayerRegistry) RegisterNexusService(*nexus.Service) {
+	_ = "STUB: not implemented"
 	// No-op
+	return
 }
 
 func (s *SimplePlugin) ReplayWorkflow(
@@ -640,28 +591,6 @@ func (s *SimplePlugin) ReplayWorkflow(
 	options WorkerPluginReplayWorkflowOptions,
 	next func(context.Context, WorkerPluginReplayWorkflowOptions) error,
 ) error {
-	if s.options.RunContextBefore != nil {
-		if err := s.options.RunContextBefore(
-			ctx,
-			SimplePluginRunContextBeforeOptions{
-				InstanceKey:      options.WorkflowReplayerInstanceKey,
-				WorkflowReplayer: true,
-				Registry: simplePluginWorkflowReplayerRegistry{
-					registerWorkflowWithOptions: options.WorkflowReplayRegistry.RegisterWorkflowWithOptions,
-					registerDynamicWorkflow:     options.WorkflowReplayRegistry.RegisterDynamicWorkflow,
-				},
-			},
-		); err != nil {
-			return err
-		}
-	}
-	if s.options.RunContextAfter != nil {
-		defer s.options.RunContextAfter(
-			ctx,
-			SimplePluginRunContextAfterOptions{
-				InstanceKey: options.WorkflowReplayerInstanceKey,
-			},
-		)
-	}
-	return next(ctx, options)
+	_ = "STUB: not implemented"
+	return nil
 }

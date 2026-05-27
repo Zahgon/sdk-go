@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"errors"
 	"time"
 
 	"go.temporal.io/api/common/v1"
@@ -289,240 +288,87 @@ type (
 )
 
 func (o *DescribeTaskQueueEnhancedOptions) validateAndConvertToProto(namespace string) (*workflowservice.DescribeTaskQueueRequest, error) {
-	if namespace == "" {
-		return nil, errors.New("missing namespace argument")
-	}
-
-	if o.TaskQueue == "" {
-		return nil, errors.New("missing task queue field")
-	}
-
-	taskQueueTypes := make([]enumspb.TaskQueueType, len(o.TaskQueueTypes))
-	for i, t := range o.TaskQueueTypes {
-		taskQueueTypes[i] = taskQueueTypeToProto(t)
-	}
-
-	opt := &workflowservice.DescribeTaskQueueRequest{
-		Namespace: namespace,
-		TaskQueue: &taskqueuepb.TaskQueue{
-			// Sticky queues not supported
-			Name: o.TaskQueue,
-		},
-		ApiMode:                enumspb.DESCRIBE_TASK_QUEUE_MODE_ENHANCED,
-		Versions:               taskQueueVersionSelectionToProto(o.Versions),
-		TaskQueueTypes:         taskQueueTypes,
-		ReportPollers:          o.ReportPollers,
-		ReportTaskReachability: o.ReportTaskReachability,
-		ReportStats:            o.ReportStats,
-	}
-
-	return opt, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Sticky queues not supported
 
 func workerVersionCapabilitiesFromResponse(response *common.WorkerVersionCapabilities) *WorkerVersionCapabilities {
-	if response == nil {
-		return nil
-	}
-
-	return &WorkerVersionCapabilities{
-		BuildID:              response.GetBuildId(),
-		UseVersioning:        response.GetUseVersioning(),
-		DeploymentSeriesName: response.GetDeploymentSeriesName(),
-	}
-}
-
-func workerDeploymentPollerOptionsFromResponse(options *deployment.WorkerDeploymentOptions) *WorkerDeploymentPollerOptions {
-	if options == nil {
-		return nil
-	}
-
-	return &WorkerDeploymentPollerOptions{
-		DeploymentName:       options.DeploymentName,
-		BuildID:              options.BuildId,
-		WorkerVersioningMode: WorkerVersioningMode(options.WorkerVersioningMode),
-	}
-}
-
-func pollerInfoFromResponse(response *taskqueuepb.PollerInfo) TaskQueuePollerInfo {
-	if response == nil {
-		return TaskQueuePollerInfo{}
-	}
-
-	lastAccessTime := time.Time{}
-	if response.GetLastAccessTime() != nil {
-		lastAccessTime = response.GetLastAccessTime().AsTime()
-	}
-
-	return TaskQueuePollerInfo{
-		LastAccessTime: lastAccessTime,
-		Identity:       response.GetIdentity(),
-		RatePerSecond:  response.GetRatePerSecond(),
-		//lint:ignore SA1019 ignore deprecated versioning APIs
-		WorkerVersionCapabilities:     workerVersionCapabilitiesFromResponse(response.GetWorkerVersionCapabilities()),
-		WorkerDeploymentPollerOptions: workerDeploymentPollerOptionsFromResponse(response.GetDeploymentOptions()),
-	}
-}
-
-func taskQueueTypeInfoFromResponse(response *taskqueuepb.TaskQueueTypeInfo) TaskQueueTypeInfo {
-	if response == nil {
-		return TaskQueueTypeInfo{}
-	}
-
-	pollers := make([]TaskQueuePollerInfo, len(response.GetPollers()))
-	for i, pInfo := range response.GetPollers() {
-		pollers[i] = pollerInfoFromResponse(pInfo)
-	}
-
-	return TaskQueueTypeInfo{
-		Pollers: pollers,
-		Stats:   statsFromResponse(response.Stats),
-	}
-}
-
-func statsFromResponse(stats *taskqueuepb.TaskQueueStats) *TaskQueueStats {
-	if stats == nil {
-		return nil
-	}
-
-	return &TaskQueueStats{
-		ApproximateBacklogCount: stats.GetApproximateBacklogCount(),
-		ApproximateBacklogAge:   stats.GetApproximateBacklogAge().AsDuration(),
-		TasksAddRate:            stats.TasksAddRate,
-		TasksDispatchRate:       stats.TasksDispatchRate,
-		BacklogIncreaseRate:     stats.TasksAddRate - stats.TasksDispatchRate,
-	}
-}
-
-func taskQueueVersionInfoFromResponse(response *taskqueuepb.TaskQueueVersionInfo) TaskQueueVersionInfo {
-	if response == nil {
-		return TaskQueueVersionInfo{}
-	}
-
-	typesInfo := make(map[TaskQueueType]TaskQueueTypeInfo, len(response.GetTypesInfo()))
-	for taskType, tInfo := range response.GetTypesInfo() {
-		typesInfo[taskQueueTypeFromProto(enumspb.TaskQueueType(taskType))] = taskQueueTypeInfoFromResponse(tInfo)
-	}
-
-	return TaskQueueVersionInfo{
-		TypesInfo:        typesInfo,
-		TaskReachability: buildIDTaskReachabilityFromProto(response.GetTaskReachability()),
-	}
-}
-
-func detectTaskQueueEnhancedNotSupported(response *workflowservice.DescribeTaskQueueResponse) error {
-	// A server before 1.24 returns a non-enhanced proto, which only fills `pollers` and `taskQueueStatus` fields
-	//lint:ignore SA1019 ignore deprecated old versioning APIs
-	if len(response.GetVersionsInfo()) == 0 &&
-		//lint:ignore SA1019 ignore deprecated old versioning APIs
-		(len(response.GetPollers()) > 0 || response.GetTaskQueueStatus() != nil) {
-		return errors.New("server does not support `DescribeTaskQueueEnhanced`")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func taskQueueVersioningInfoFromResponse(info *taskqueuepb.TaskQueueVersioningInfo) *TaskQueueVersioningInfo {
-	if info == nil {
-		return nil
-	}
-	var currentVersion *WorkerDeploymentVersion
-	if info.GetCurrentDeploymentVersion() != nil {
-		p := workerDeploymentVersionFromProto(info.GetCurrentDeploymentVersion())
-		currentVersion = &p
-	}
-	if currentVersion == nil {
-		//lint:ignore SA1019 ignore deprecated versioning APIs
-		currentVersion = workerDeploymentVersionFromString(info.CurrentVersion)
-	}
-
-	var rampingVersion *WorkerDeploymentVersion
-	if info.GetRampingDeploymentVersion() != nil {
-		p := workerDeploymentVersionFromProto(info.GetRampingDeploymentVersion())
-		rampingVersion = &p
-	}
-	if rampingVersion == nil {
-		//lint:ignore SA1019 ignore deprecated versioning APIs
-		rampingVersion = workerDeploymentVersionFromString(info.RampingVersion)
-	}
-
-	return &TaskQueueVersioningInfo{
-		CurrentVersion:           currentVersion,
-		RampingVersion:           rampingVersion,
-		RampingVersionPercentage: info.RampingVersionPercentage,
-		UpdateTime:               info.UpdateTime.AsTime(),
-	}
+func workerDeploymentPollerOptionsFromResponse(options *deployment.WorkerDeploymentOptions) *WorkerDeploymentPollerOptions {
+	_ = "STUB: not implemented"
+	return nil
 }
+
+func pollerInfoFromResponse(response *taskqueuepb.PollerInfo) TaskQueuePollerInfo {
+	_ = "STUB: not implemented"
+	return *new(TaskQueuePollerInfo)
+}
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+func taskQueueTypeInfoFromResponse(response *taskqueuepb.TaskQueueTypeInfo) TaskQueueTypeInfo {
+	_ = "STUB: not implemented"
+	return *new(TaskQueueTypeInfo)
+}
+
+func statsFromResponse(stats *taskqueuepb.TaskQueueStats) *TaskQueueStats {
+	_ = "STUB: not implemented"
+	return nil
+}
+
+func taskQueueVersionInfoFromResponse(response *taskqueuepb.TaskQueueVersionInfo) TaskQueueVersionInfo {
+	_ = "STUB: not implemented"
+	return *new(TaskQueueVersionInfo)
+}
+
+func detectTaskQueueEnhancedNotSupported(response *workflowservice.DescribeTaskQueueResponse) error {
+	_ = "STUB: not implemented"
+	// A server before 1.24 returns a non-enhanced proto, which only fills `pollers` and `taskQueueStatus` fields
+	//lint:ignore SA1019 ignore deprecated old versioning APIs
+	return nil
+}
+
+//lint:ignore SA1019 ignore deprecated old versioning APIs
+
+func taskQueueVersioningInfoFromResponse(info *taskqueuepb.TaskQueueVersioningInfo) *TaskQueueVersioningInfo {
+	_ = "STUB: not implemented"
+	return nil
+}
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
+
+//lint:ignore SA1019 ignore deprecated versioning APIs
 
 func taskQueueDescriptionFromResponse(response *workflowservice.DescribeTaskQueueResponse) TaskQueueDescription {
-	if response == nil {
-		return TaskQueueDescription{}
-	}
-
-	//lint:ignore SA1019 ignore deprecated old versioning APIs
-	versionsInfo := make(map[string]TaskQueueVersionInfo, len(response.GetVersionsInfo()))
-	//lint:ignore SA1019 ignore deprecated old versioning APIs
-	for buildID, vInfo := range response.GetVersionsInfo() {
-		versionsInfo[buildID] = taskQueueVersionInfoFromResponse(vInfo)
-	}
-
-	return TaskQueueDescription{
-		VersionsInfo:   versionsInfo,
-		VersioningInfo: taskQueueVersioningInfoFromResponse(response.GetVersioningInfo()),
-	}
+	_ = "STUB: not implemented"
+	return *new(TaskQueueDescription)
 }
 
-func taskQueueVersionSelectionToProto(s *TaskQueueVersionSelection) *taskqueuepb.TaskQueueVersionSelection {
-	if s == nil {
-		return nil
-	}
+//lint:ignore SA1019 ignore deprecated old versioning APIs
 
-	return &taskqueuepb.TaskQueueVersionSelection{
-		BuildIds:    s.BuildIDs,
-		Unversioned: s.Unversioned,
-		AllActive:   s.AllActive,
-	}
+//lint:ignore SA1019 ignore deprecated old versioning APIs
+
+func taskQueueVersionSelectionToProto(s *TaskQueueVersionSelection) *taskqueuepb.TaskQueueVersionSelection {
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func taskQueueTypeToProto(t TaskQueueType) enumspb.TaskQueueType {
-	switch t {
-	case TaskQueueTypeUnspecified:
-		return enumspb.TASK_QUEUE_TYPE_UNSPECIFIED
-	case TaskQueueTypeWorkflow:
-		return enumspb.TASK_QUEUE_TYPE_WORKFLOW
-	case TaskQueueTypeActivity:
-		return enumspb.TASK_QUEUE_TYPE_ACTIVITY
-	case TaskQueueTypeNexus:
-		return enumspb.TASK_QUEUE_TYPE_NEXUS
-	default:
-		panic("unknown task queue type")
-	}
+	_ = "STUB: not implemented"
+	return *new(enumspb.TaskQueueType)
 }
 
 func taskQueueTypeFromProto(t enumspb.TaskQueueType) TaskQueueType {
-	switch t {
-	case enumspb.TASK_QUEUE_TYPE_UNSPECIFIED:
-		return TaskQueueTypeUnspecified
-	case enumspb.TASK_QUEUE_TYPE_WORKFLOW:
-		return TaskQueueTypeWorkflow
-	case enumspb.TASK_QUEUE_TYPE_ACTIVITY:
-		return TaskQueueTypeActivity
-	case enumspb.TASK_QUEUE_TYPE_NEXUS:
-		return TaskQueueTypeNexus
-	default:
-		panic("unknown task queue type from proto")
-	}
+	_ = "STUB: not implemented"
+	return *new(TaskQueueType)
 }
 
 func buildIDTaskReachabilityFromProto(r enumspb.BuildIdTaskReachability) BuildIDTaskReachability {
-	switch r {
-	case enumspb.BUILD_ID_TASK_REACHABILITY_UNSPECIFIED:
-		return BuildIDTaskReachabilityUnspecified
-	case enumspb.BUILD_ID_TASK_REACHABILITY_REACHABLE:
-		return BuildIDTaskReachabilityReachable
-	case enumspb.BUILD_ID_TASK_REACHABILITY_CLOSED_WORKFLOWS_ONLY:
-		return BuildIDTaskReachabilityClosedWorkflowsOnly
-	case enumspb.BUILD_ID_TASK_REACHABILITY_UNREACHABLE:
-		return BuildIDTaskReachabilityUnreachable
-	default:
-		panic("unknown task queue reachability")
-	}
+	_ = "STUB: not implemented"
+	return *new(BuildIDTaskReachability)
 }

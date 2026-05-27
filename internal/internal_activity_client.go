@@ -2,20 +2,13 @@ package internal
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"iter"
 	"time"
 
-	"github.com/google/uuid"
 	activitypb "go.temporal.io/api/activity/v1"
-	commonpb "go.temporal.io/api/common/v1"
 	enumspb "go.temporal.io/api/enums/v1"
-	taskqueuepb "go.temporal.io/api/taskqueue/v1"
 	"go.temporal.io/api/workflowservice/v1"
 	"go.temporal.io/sdk/converter"
-	"go.temporal.io/sdk/internal/extstore"
-	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 const pollActivityTimeout = 60 * time.Second
@@ -293,510 +286,142 @@ type (
 
 // HasHeartbeatDetails returns whether heartbeat details are present. Use GetHeartbeatDetails to retrieve them.
 func (d *ClientActivityExecutionDescription) HasHeartbeatDetails() bool {
-	return len(d.RawExecutionInfo.GetHeartbeatDetails().GetPayloads()) > 0
+	_ = "STUB: not implemented"
+	return false
 }
 
 // GetHeartbeatDetails retrieves heartbeat details. Returns ErrNoData if heartbeat details are not present.
 // The details are deserialized into provided pointers using the data converter of the client used to make the Describe call.
 // Returns error if data conversion fails.
 func (d *ClientActivityExecutionDescription) GetHeartbeatDetails(valuePtrs ...any) error {
-	details := d.RawExecutionInfo.GetHeartbeatDetails()
-	if details == nil {
-		return ErrNoData
-	}
-	if err := visitProtoPayloads(context.Background(), d.inboundPayloadVisitor, details, 0); err != nil {
-		return err
-	}
-	return d.dataConverter.FromPayloads(details, valuePtrs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetLastFailure returns the last failure of the activity execution, using the failure converter of the client used to
 // make the Describe call. Returns nil if there was no failure.
 func (d *ClientActivityExecutionDescription) GetLastFailure() error {
-	failure := d.RawExecutionInfo.GetLastFailure()
-	if failure == nil {
-		return nil
-	}
-	if err := visitProtoPayloads(context.Background(), d.inboundPayloadVisitor, failure, 0); err != nil {
-		return err
-	}
-	return d.failureConverter.FailureToError(failure)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetSummary returns summary of the activity. See ClientStartActivityOptions.Summary. Returns empty string if there is no summary.
 // Uses the data converter of the client used to make the Describe call. Returns error if data conversion fails.
 func (d *ClientActivityExecutionDescription) GetSummary() (string, error) {
-	if d.summary != "" {
-		return d.summary, nil
-	}
-	payload := d.RawExecutionInfo.GetUserMetadata().GetSummary()
-	if payload == nil {
-		return "", nil
-	}
-	var err error
-	if payload, err = visitPayload(context.Background(), d.inboundPayloadVisitor, payload); err != nil {
-		return "", err
-	}
-	var summary string
-	err = d.dataConverter.FromPayload(payload, &summary)
-	if err != nil {
-		return "", err
-	}
-	d.summary = summary
-	return summary, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 // GetDetails returns details of the activity. See ClientStartActivityOptions.Details. Returns empty string if there are no details.
 // Uses the data converter of the client used to make the Describe call. Returns error if data conversion fails.
 func (d *ClientActivityExecutionDescription) GetDetails() (string, error) {
-	if d.details != "" {
-		return d.details, nil
-	}
-	payload := d.RawExecutionInfo.GetUserMetadata().GetDetails()
-	if payload == nil {
-		return "", nil
-	}
-	var err error
-	if payload, err = visitPayload(context.Background(), d.inboundPayloadVisitor, payload); err != nil {
-		return "", err
-	}
-	var details string
-	err = d.dataConverter.FromPayload(payload, &details)
-	if err != nil {
-		return "", err
-	}
-	d.details = details
-	return details, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func (h *clientActivityHandleImpl) GetID() string {
-	return h.id
-}
+func (h *clientActivityHandleImpl) GetID() string { _ = "STUB: not implemented"; return "" }
 
-func (h *clientActivityHandleImpl) GetRunID() string {
-	return h.runID
-}
+func (h *clientActivityHandleImpl) GetRunID() string { _ = "STUB: not implemented"; return "" }
 
 func (h *clientActivityHandleImpl) Get(ctx context.Context, valuePtr any) error {
-	if h.result != nil {
-		if h.result.Error != nil {
-			return h.result.Error
-		}
-		if h.result.Result != nil {
-			if valuePtr == nil {
-				return nil
-			}
-			return h.result.Result.Get(valuePtr)
-		}
-	}
-	if err := h.client.ensureInitialized(ctx); err != nil {
-		return err
-	}
-
-	// repeatedly poll, the loop repeats until there's an outcome
-	for {
-		resp, err := h.client.interceptor.PollActivityResult(ctx, &ClientPollActivityResultInput{
-			ActivityID: h.id,
-			RunID:      h.runID,
-		})
-		if err != nil {
-			return err
-		}
-		if resp.Error != nil {
-			h.result = &ClientPollActivityResultOutput{Error: resp.Error}
-			return resp.Error
-		}
-		if resp.Result != nil {
-			if valuePtr == nil {
-				return nil
-			}
-			h.result = &ClientPollActivityResultOutput{Result: resp.Result}
-			return resp.Result.Get(valuePtr)
-		}
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// repeatedly poll, the loop repeats until there's an outcome
+
 func (h *clientActivityHandleImpl) Describe(ctx context.Context, options ClientDescribeActivityOptions) (*ClientActivityExecutionDescription, error) {
-	if err := h.client.ensureInitialized(ctx); err != nil {
-		return nil, err
-	}
-	out, err := h.client.interceptor.DescribeActivity(ctx, &ClientDescribeActivityInput{
-		ActivityID: h.id,
-		RunID:      h.runID,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return out.Description, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (h *clientActivityHandleImpl) Cancel(ctx context.Context, options ClientCancelActivityOptions) error {
-	if err := h.client.ensureInitialized(ctx); err != nil {
-		return err
-	}
-	return h.client.interceptor.CancelActivity(ctx, &ClientCancelActivityInput{
-		ActivityID: h.id,
-		RunID:      h.runID,
-		Reason:     options.Reason,
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (h *clientActivityHandleImpl) Terminate(ctx context.Context, options ClientTerminateActivityOptions) error {
-	if err := h.client.ensureInitialized(ctx); err != nil {
-		return err
-	}
-	return h.client.interceptor.TerminateActivity(ctx, &ClientTerminateActivityInput{
-		ActivityID: h.id,
-		RunID:      h.runID,
-		Reason:     options.Reason,
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wc *WorkflowClient) ExecuteActivity(ctx context.Context, options ClientStartActivityOptions, activity any, args ...any) (ClientActivityHandle, error) {
-	if err := wc.ensureInitialized(ctx); err != nil {
-		return nil, err
-	}
-
-	activityType, err := getValidatedActivityFunction(activity, args, wc.registry)
-	if err != nil {
-		return nil, err
-	}
-
-	// Set header before interceptor run so interceptors can access it
-	ctx = contextWithNewHeader(ctx)
-
-	return wc.interceptor.ExecuteActivity(ctx, &ClientExecuteActivityInput{
-		Options:      &options,
-		ActivityType: activityType.Name,
-		Args:         args,
-	})
+	_ = "STUB: not implemented"
+	return *new(ClientActivityHandle), nil
 }
 
+// Set header before interceptor run so interceptors can access it
+
 func (wc *WorkflowClient) GetActivityHandle(options ClientGetActivityHandleOptions) ClientActivityHandle {
-	return wc.interceptor.GetActivityHandle((*ClientGetActivityHandleInput)(&options))
+	_ = "STUB: not implemented"
+	return *new(ClientActivityHandle)
 }
 
 func (wc *WorkflowClient) ListActivities(ctx context.Context, options ClientListActivitiesOptions) (ClientListActivitiesResult, error) {
-	return ClientListActivitiesResult{
-		Results: func(yield func(*ClientActivityExecutionInfo, error) bool) {
-			if err := wc.ensureInitialized(ctx); err != nil {
-				yield(nil, err)
-				return
-			}
-
-			request := &workflowservice.ListActivityExecutionsRequest{
-				Namespace: wc.namespace,
-				Query:     options.Query,
-			}
-
-			for {
-				resp, err := wc.getListActivitiesPage(ctx, request)
-				if err != nil {
-					yield(nil, err)
-					return
-				}
-
-				for _, ex := range resp.Executions {
-					if !yield(&ClientActivityExecutionInfo{
-						RawExecutionListInfo:  ex,
-						ActivityID:            ex.ActivityId,
-						ActivityRunID:         ex.RunId,
-						ActivityType:          ex.ActivityType.GetName(),
-						ScheduleTime:          ex.ScheduleTime.AsTime(),
-						CloseTime:             ex.CloseTime.AsTime(),
-						Status:                ex.Status,
-						TypedSearchAttributes: convertToTypedSearchAttributes(wc.logger, ex.SearchAttributes.IndexedFields),
-						TaskQueue:             ex.TaskQueue,
-						ExecutionDuration:     ex.ExecutionDuration.AsDuration(),
-					}, nil) {
-						return
-					}
-				}
-
-				if resp.NextPageToken != nil {
-					request.NextPageToken = resp.NextPageToken
-				} else {
-					return
-				}
-			}
-		},
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(ClientListActivitiesResult), nil
 }
 
 func (wc *WorkflowClient) getListActivitiesPage(ctx context.Context, request *workflowservice.ListActivityExecutionsRequest) (*workflowservice.ListActivityExecutionsResponse, error) {
-	grpcCtx, cancel := newGRPCContext(ctx, defaultGrpcRetryParameters(ctx))
-	defer cancel()
-
-	return wc.WorkflowService().ListActivityExecutions(grpcCtx, request)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (wc *WorkflowClient) CountActivities(ctx context.Context, options ClientCountActivitiesOptions) (*ClientCountActivitiesResult, error) {
-	grpcCtx, cancel := newGRPCContext(ctx, defaultGrpcRetryParameters(ctx))
-	defer cancel()
-
-	request := &workflowservice.CountActivityExecutionsRequest{
-		Namespace: wc.namespace,
-		Query:     options.Query,
-	}
-	resp, err := wc.WorkflowService().CountActivityExecutions(grpcCtx, request)
-	if err != nil {
-		return nil, err
-	}
-
-	groups := make([]ClientCountActivitiesAggregationGroup, len(resp.Groups))
-	for i, group := range resp.Groups {
-		groupValues := make([]any, len(group.GroupValues))
-		for j, groupValue := range group.GroupValues {
-			// should never fail, and if it does, leaving nil behind
-			_ = converter.GetDefaultDataConverter().FromPayload(groupValue, &groupValues[j])
-		}
-		groups[i] = ClientCountActivitiesAggregationGroup{
-			GroupValues: groupValues,
-			Count:       group.Count,
-		}
-	}
-
-	return &ClientCountActivitiesResult{
-		Count:  resp.Count,
-		Groups: groups,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// should never fail, and if it does, leaving nil behind
 
 func (w *workflowClientInterceptor) ExecuteActivity(
 	ctx context.Context,
 	in *ClientExecuteActivityInput,
 ) (ClientActivityHandle, error) {
-	dataConverter := WithContext(ctx, w.client.dataConverter)
-	if dataConverter == nil {
-		dataConverter = converter.GetDefaultDataConverter()
-	}
-
-	request := &workflowservice.StartActivityExecutionRequest{
-		Namespace:    w.client.namespace,
-		Identity:     w.client.identity,
-		RequestId:    uuid.NewString(),
-		ActivityType: &commonpb.ActivityType{Name: in.ActivityType},
-	}
-	var err error
-	if err = in.Options.validateAndSetInRequest(request, dataConverter); err != nil {
-		return nil, err
-	}
-	if request.Input, err = encodeArgs(dataConverter, in.Args); err != nil {
-		return nil, err
-	}
-	if request.Header, err = headerPropagated(ctx, w.client.contextPropagators); err != nil {
-		return nil, err
-	}
-
-	storeCtx := extstore.WithStorageTarget(ctx, extstore.StorageDriverActivityInfo{
-		Namespace:    w.client.namespace,
-		ActivityID:   request.ActivityId,
-		ActivityType: in.ActivityType,
-	})
-	if err := visitProtoPayloads(storeCtx, w.outboundPayloadVisitor, request, 0); err != nil {
-		return nil, err
-	}
-
-	grpcCtx, cancel := newGRPCContext(ctx, defaultGrpcRetryParameters(ctx))
-	defer cancel()
-
-	resp, err := w.client.WorkflowService().StartActivityExecution(grpcCtx, request)
-
-	var runID string
-	if err != nil {
-		return nil, err
-	} else {
-		runID = resp.RunId
-	}
-
-	return &clientActivityHandleImpl{
-		client: w.client,
-		id:     in.Options.ID,
-		runID:  runID,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(ClientActivityHandle), nil
 }
 
 func (options *ClientStartActivityOptions) validateAndSetInRequest(request *workflowservice.StartActivityExecutionRequest, dataConverter converter.DataConverter) error {
-	if options.ID == "" {
-		return errors.New("activity ID is required")
-	}
-	if options.TaskQueue == "" {
-		return errors.New("task queue is required")
-	}
-	if options.ScheduleToCloseTimeout < 0 {
-		return errors.New("negative ScheduleToCloseTimeout")
-	}
-	if options.StartToCloseTimeout < 0 {
-		return errors.New("negative StartToCloseTimeout")
-	}
-	if options.StartToCloseTimeout == 0 && options.ScheduleToCloseTimeout == 0 {
-		return errors.New("at least one of ScheduleToCloseTimeout and StartToCloseTimeout is required")
-	}
-	searchAttrs, err := serializeTypedSearchAttributes(options.TypedSearchAttributes.GetUntypedValues())
-	if err != nil {
-		return err
-	}
-	userMetadata, err := buildUserMetadata(options.Summary, options.Details, dataConverter)
-	if err != nil {
-		return err
-	}
-
-	request.ActivityId = options.ID
-	request.TaskQueue = &taskqueuepb.TaskQueue{Name: options.TaskQueue}
-	request.ScheduleToCloseTimeout = durationpb.New(options.ScheduleToCloseTimeout)
-	request.ScheduleToStartTimeout = durationpb.New(options.ScheduleToStartTimeout)
-	request.StartToCloseTimeout = durationpb.New(options.StartToCloseTimeout)
-	request.HeartbeatTimeout = durationpb.New(options.HeartbeatTimeout)
-	request.RetryPolicy = convertToPBRetryPolicy(options.RetryPolicy)
-	request.IdReusePolicy = options.ActivityIDReusePolicy
-	request.IdConflictPolicy = options.ActivityIDConflictPolicy
-	request.SearchAttributes = searchAttrs
-	request.UserMetadata = userMetadata
-	request.Priority = convertToPBPriority(options.Priority)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (w *workflowClientInterceptor) GetActivityHandle(
 	in *ClientGetActivityHandleInput,
 ) ClientActivityHandle {
-	return &clientActivityHandleImpl{
-		client: w.client,
-		id:     in.ActivityID,
-		runID:  in.RunID,
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientActivityHandle)
 }
 
 func (w *workflowClientInterceptor) PollActivityResult(
 	ctx context.Context,
 	in *ClientPollActivityResultInput,
 ) (*ClientPollActivityResultOutput, error) {
-	request := &workflowservice.PollActivityExecutionRequest{
-		Namespace:  w.client.namespace,
-		ActivityId: in.ActivityID,
-		RunId:      in.RunID,
-	}
-
-	var resp *workflowservice.PollActivityExecutionResponse
-	for resp.GetOutcome() == nil {
-		grpcCtx, cancel := newGRPCContext(ctx, grpcLongPoll(true), grpcTimeout(pollActivityTimeout), defaultGrpcRetryParameters(ctx))
-		var err error
-		resp, err = w.client.WorkflowService().PollActivityExecution(grpcCtx, request)
-		cancel()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if err := visitProtoPayloads(ctx, w.inboundPayloadVisitor, resp, 0); err != nil {
-		return nil, err
-	}
-
-	switch v := resp.GetOutcome().GetValue().(type) {
-	case *activitypb.ActivityExecutionOutcome_Result:
-		return &ClientPollActivityResultOutput{Result: newEncodedValue(v.Result, w.client.dataConverter)}, nil
-	case *activitypb.ActivityExecutionOutcome_Failure:
-		return &ClientPollActivityResultOutput{Error: w.client.failureConverter.FailureToError(v.Failure)}, nil
-	default:
-		return nil, fmt.Errorf("unexpected activity outcome type: %T", v)
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (w *workflowClientInterceptor) DescribeActivity(
 	ctx context.Context,
 	in *ClientDescribeActivityInput,
 ) (*ClientDescribeActivityOutput, error) {
-	grpcCtx, cancel := newGRPCContext(ctx, defaultGrpcRetryParameters(ctx))
-	defer cancel()
-
-	request := &workflowservice.DescribeActivityExecutionRequest{
-		Namespace:  w.client.namespace,
-		ActivityId: in.ActivityID,
-		RunId:      in.RunID,
-	}
-	resp, err := w.client.WorkflowService().DescribeActivityExecution(grpcCtx, request)
-	if err != nil {
-		return nil, err
-	}
-	info := resp.GetInfo()
-	if info == nil {
-		return nil, errors.New("DescribeActivityExecution response doesn't contain info")
-	}
-
-	var lastDeploymentVersion *WorkerDeploymentVersion
-	if info.LastDeploymentVersion != nil {
-		v := workerDeploymentVersionFromProto(info.LastDeploymentVersion)
-		lastDeploymentVersion = &v
-	}
-
-	return &ClientDescribeActivityOutput{
-		Description: &ClientActivityExecutionDescription{
-			ClientActivityExecutionInfo: ClientActivityExecutionInfo{
-				RawExecutionListInfo:  nil,
-				ActivityID:            info.ActivityId,
-				ActivityRunID:         info.RunId,
-				ActivityType:          info.ActivityType.GetName(),
-				ScheduleTime:          info.ScheduleTime.AsTime(),
-				CloseTime:             info.CloseTime.AsTime(),
-				Status:                info.Status,
-				TypedSearchAttributes: convertToTypedSearchAttributes(w.client.logger, info.SearchAttributes.IndexedFields),
-				TaskQueue:             info.TaskQueue,
-				ExecutionDuration:     info.ExecutionDuration.AsDuration(),
-			},
-			RawExecutionInfo:        info,
-			RunState:                info.RunState,
-			LastHeartbeatTime:       info.LastHeartbeatTime.AsTime(),
-			LastStartedTime:         info.LastStartedTime.AsTime(),
-			Attempt:                 info.Attempt,
-			RetryPolicy:             convertFromPBRetryPolicy(info.RetryPolicy),
-			ExpirationTime:          info.ExpirationTime.AsTime(),
-			LastWorkerIdentity:      info.LastWorkerIdentity,
-			CurrentRetryInterval:    info.CurrentRetryInterval.AsDuration(),
-			LastAttemptCompleteTime: info.LastAttemptCompleteTime.AsTime(),
-			NextAttemptScheduleTime: info.NextAttemptScheduleTime.AsTime(),
-			LastDeploymentVersion:   lastDeploymentVersion,
-			Priority:                convertFromPBPriority(info.Priority),
-			CanceledReason:          info.CanceledReason,
-			dataConverter:           WithContext(ctx, w.client.dataConverter),
-			failureConverter:        w.client.failureConverter,
-			inboundPayloadVisitor:   w.inboundPayloadVisitor,
-		},
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (w *workflowClientInterceptor) CancelActivity(
 	ctx context.Context,
 	in *ClientCancelActivityInput,
 ) error {
-	grpcCtx, cancel := newGRPCContext(ctx, defaultGrpcRetryParameters(ctx))
-	defer cancel()
-
-	request := &workflowservice.RequestCancelActivityExecutionRequest{
-		Namespace:  w.client.namespace,
-		ActivityId: in.ActivityID,
-		RunId:      in.RunID,
-		Identity:   w.client.identity,
-		RequestId:  uuid.NewString(),
-		Reason:     in.Reason,
-	}
-	_, err := w.client.WorkflowService().RequestCancelActivityExecution(grpcCtx, request)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (w *workflowClientInterceptor) TerminateActivity(
 	ctx context.Context,
 	in *ClientTerminateActivityInput,
 ) error {
-	grpcCtx, cancel := newGRPCContext(ctx, defaultGrpcRetryParameters(ctx))
-	defer cancel()
-
-	request := &workflowservice.TerminateActivityExecutionRequest{
-		Namespace:  w.client.namespace,
-		ActivityId: in.ActivityID,
-		RunId:      in.RunID,
-		Identity:   w.client.identity,
-		RequestId:  uuid.NewString(),
-		Reason:     in.Reason,
-	}
-	_, err := w.client.WorkflowService().TerminateActivityExecution(grpcCtx, request)
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }

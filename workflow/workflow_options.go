@@ -10,55 +10,64 @@ import (
 
 // WithChildOptions adds all workflow options to the context.
 func WithChildOptions(ctx Context, cwo ChildWorkflowOptions) Context {
-	return internal.WithChildWorkflowOptions(ctx, cwo)
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithWorkflowNamespace adds a namespace to the context.
 //
 // Deprecated: Cross-namespace operations are disabled by default as of server 1.30.1.
 func WithWorkflowNamespace(ctx Context, name string) Context {
-	return internal.WithWorkflowNamespace(ctx, name)
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithWorkflowTaskQueue adds a task queue to the context.
 func WithWorkflowTaskQueue(ctx Context, name string) Context {
-	return internal.WithWorkflowTaskQueue(ctx, name)
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithWorkflowID adds a workflowID to the context.
 func WithWorkflowID(ctx Context, workflowID string) Context {
-	return internal.WithWorkflowID(ctx, workflowID)
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithWorkflowRunTimeout adds a run timeout to the context.
 // The current timeout resolution implementation is in seconds and uses math.Ceil(d.Seconds()) as the duration. But is
 // subjected to change in the future.
 func WithWorkflowRunTimeout(ctx Context, d time.Duration) Context {
-	return internal.WithWorkflowRunTimeout(ctx, d)
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithWorkflowTaskTimeout adds a workflow task timeout to the context.
 // The current timeout resolution implementation is in seconds and uses math.Ceil(d.Seconds()) as the duration. But is
 // subjected to change in the future.
 func WithWorkflowTaskTimeout(ctx Context, d time.Duration) Context {
-	return internal.WithWorkflowTaskTimeout(ctx, d)
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithDataConverter adds DataConverter to the context.
 func WithDataConverter(ctx Context, dc converter.DataConverter) Context {
-	return internal.WithDataConverter(ctx, dc)
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithWorkflowPriority adds a priority to the context.
 //
 // WARNING: Task queue priority is currently experimental.
 func WithWorkflowPriority(ctx Context, priority internal.Priority) Context {
-	return internal.WithWorkflowPriority(ctx, priority)
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // GetChildWorkflowOptions returns all workflow options present on the context.
 func GetChildWorkflowOptions(ctx Context) ChildWorkflowOptions {
-	return internal.GetChildWorkflowOptions(ctx)
+	_ = "STUB: not implemented"
+	return *new(ChildWorkflowOptions)
 }
 
 // WithWorkflowVersioningIntent is used to set the VersioningIntent before constructing a
@@ -66,5 +75,6 @@ func GetChildWorkflowOptions(ctx Context) ChildWorkflowOptions {
 //
 // Deprecated: Build-id based versioning is deprecated in favor of worker deployment based versioning and will be removed soon.
 func WithWorkflowVersioningIntent(ctx Context, intent temporal.VersioningIntent) Context {
-	return internal.WithWorkflowVersioningIntent(ctx, intent)
+	_ = "STUB: not implemented"
+	return *new(Context)
 }

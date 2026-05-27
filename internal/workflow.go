@@ -2,17 +2,8 @@ package internal
 
 import (
 	"cmp"
-	"context"
 	"errors"
-	"fmt"
-	"reflect"
-	"slices"
-	"strings"
 	"time"
-
-	"github.com/nexus-rpc/sdk-go/nexus"
-
-	"google.golang.org/protobuf/types/known/durationpb"
 
 	commonpb "go.temporal.io/api/common/v1"
 	enumspb "go.temporal.io/api/enums/v1"
@@ -708,81 +699,34 @@ type (
 // Returns CanceledError if the ctx is canceled.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.Await]
-func Await(ctx Context, condition func() bool) error {
-	assertNotInReadOnlyState(ctx)
-	state := getState(ctx)
-	return state.dispatcher.interceptor.Await(ctx, condition)
-}
+func Await(ctx Context, condition func() bool) error { _ = "STUB: not implemented"; return nil }
 
 func (wc *workflowEnvironmentInterceptor) Await(ctx Context, condition func() bool) error {
-	state := getState(ctx)
-	defer state.unblocked()
-
-	for !condition() {
-		doneCh := ctx.Done()
-		// TODO: Consider always returning a channel
-		if doneCh != nil {
-			if _, more := doneCh.ReceiveAsyncWithMoreFlag(nil); !more {
-				return NewCanceledError("Await context canceled")
-			}
-		}
-		state.yield("Await")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// TODO: Consider always returning a channel
+
 func (wc *workflowEnvironmentInterceptor) awaitWithOptions(ctx Context, options AwaitOptions, condition func() bool, functionName string) (ok bool, err error) {
-	state := getState(ctx)
-	defer state.unblocked()
-
-	cancelTimerOnCondition := wc.env.TryUse(SDKFlagCancelAwaitTimerOnCondition)
-	if cancelTimerOnCondition && condition() {
-		return true, nil
-	}
-
-	timerCtx := ctx
-	var cancelTimer func()
-	if cancelTimerOnCondition {
-		timerCtx, cancelTimer = WithCancel(ctx)
-	}
-	timer := NewTimerWithOptions(timerCtx, options.Timeout, options.TimerOptions)
-
-	for {
-		doneCh := ctx.Done()
-		// TODO: Consider always returning a channel
-		if doneCh != nil {
-			if _, more := doneCh.ReceiveAsyncWithMoreFlag(nil); !more {
-				return false, NewCanceledError("%s context canceled", functionName)
-			}
-		}
-		if timer.IsReady() {
-			return false, nil
-		}
-		state.yield(functionName)
-		if condition() {
-			break
-		}
-	}
-
-	if cancelTimer != nil {
-		cancelTimer()
-	}
-	return true, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
+
+// TODO: Consider always returning a channel
 
 // AwaitWithTimeout blocks the calling thread until condition() returns true
 // Returns ok equals to false if timed out and err equals to CanceledError if the ctx is canceled.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.AwaitWithTimeout]
 func AwaitWithTimeout(ctx Context, timeout time.Duration, condition func() bool) (ok bool, err error) {
-	assertNotInReadOnlyState(ctx)
-	state := getState(ctx)
-	return state.dispatcher.interceptor.AwaitWithTimeout(ctx, timeout, condition)
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 func (wc *workflowEnvironmentInterceptor) AwaitWithTimeout(ctx Context, timeout time.Duration, condition func() bool) (ok bool, err error) {
-	options := AwaitOptions{Timeout: timeout, TimerOptions: TimerOptions{Summary: "AwaitWithTimeout"}}
-	return wc.awaitWithOptions(ctx, options, condition, "AwaitWithTimeout")
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 // AwaitWithOptions blocks the calling thread until condition() returns true
@@ -790,41 +734,35 @@ func (wc *workflowEnvironmentInterceptor) AwaitWithTimeout(ctx Context, timeout 
 //
 // Exposed as: [go.temporal.io/sdk/workflow.AwaitWithOptions]
 func AwaitWithOptions(ctx Context, options AwaitOptions, condition func() bool) (ok bool, err error) {
-	assertNotInReadOnlyState(ctx)
-	state := getState(ctx)
-	return state.dispatcher.interceptor.AwaitWithOptions(ctx, options, condition)
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 func (wc *workflowEnvironmentInterceptor) AwaitWithOptions(ctx Context, options AwaitOptions, condition func() bool) (ok bool, err error) {
-	return wc.awaitWithOptions(ctx, options, condition, "AwaitWithOptions")
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 // NewChannel create new Channel instance
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewChannel]
-func NewChannel(ctx Context) Channel {
-	state := getState(ctx)
-	state.dispatcher.channelSequence++
-	return NewNamedChannel(ctx, fmt.Sprintf("chan-%v", state.dispatcher.channelSequence))
-}
+func NewChannel(ctx Context) Channel { _ = "STUB: not implemented"; return *new(Channel) }
 
 // NewNamedChannel create new Channel instance with a given human readable name.
 // Name appears in stack traces that are blocked on this channel.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewNamedChannel]
 func NewNamedChannel(ctx Context, name string) Channel {
-	env := getWorkflowEnvironment(ctx)
-	dc := getDataConverterFromWorkflowContext(ctx)
-	return &channelImpl{name: name, dataConverter: dc, env: env}
+	_ = "STUB: not implemented"
+	return *new(Channel)
 }
 
 // NewBufferedChannel create new buffered Channel instance
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewBufferedChannel]
 func NewBufferedChannel(ctx Context, size int) Channel {
-	env := getWorkflowEnvironment(ctx)
-	dc := getDataConverterFromWorkflowContext(ctx)
-	return &channelImpl{size: size, dataConverter: dc, env: env}
+	_ = "STUB: not implemented"
+	return *new(Channel)
 }
 
 // NewNamedBufferedChannel create new BufferedChannel instance with a given human readable name.
@@ -832,150 +770,98 @@ func NewBufferedChannel(ctx Context, size int) Channel {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewNamedBufferedChannel]
 func NewNamedBufferedChannel(ctx Context, name string, size int) Channel {
-	env := getWorkflowEnvironment(ctx)
-	dc := getDataConverterFromWorkflowContext(ctx)
-	return &channelImpl{name: name, size: size, dataConverter: dc, env: env}
+	_ = "STUB: not implemented"
+	return *new(Channel)
 }
 
 // NewSelector creates a new Selector instance.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewSelector]
-func NewSelector(ctx Context) Selector {
-	state := getState(ctx)
-	state.dispatcher.selectorSequence++
-	return NewNamedSelector(ctx, fmt.Sprintf("selector-%v", state.dispatcher.selectorSequence))
-}
+func NewSelector(ctx Context) Selector { _ = "STUB: not implemented"; return *new(Selector) }
 
 // NewNamedSelector creates a new Selector instance with a given human readable name.
 // Name appears in stack traces that are blocked on this Selector.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewNamedSelector]
 func NewNamedSelector(ctx Context, name string) Selector {
-	assertNotInReadOnlyState(ctx)
-	return &selectorImpl{name: name}
+	_ = "STUB: not implemented"
+	return *new(Selector)
 }
 
 // NewWaitGroup creates a new WaitGroup instance.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewWaitGroup]
-func NewWaitGroup(ctx Context) WaitGroup {
-	assertNotInReadOnlyState(ctx)
-	f, s := NewFuture(ctx)
-	return &waitGroupImpl{future: f, settable: s}
-}
+func NewWaitGroup(ctx Context) WaitGroup { _ = "STUB: not implemented"; return *new(WaitGroup) }
 
 // NewMutex creates a new Mutex instance.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewMutex]
-func NewMutex(ctx Context) Mutex {
-	assertNotInReadOnlyState(ctx)
-	return &mutexImpl{}
-}
+func NewMutex(ctx Context) Mutex { _ = "STUB: not implemented"; return *new(Mutex) }
 
 // NewSemaphore creates a new Semaphore instance with an initial weight.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewSemaphore]
 func NewSemaphore(ctx Context, n int64) Semaphore {
-	assertNotInReadOnlyState(ctx)
-	return &semaphoreImpl{size: n}
+	_ = "STUB: not implemented"
+	return *new(Semaphore)
 }
 
 // Go creates a new coroutine in workflow code. It has similar semantics to native goroutines, which must not be
 // used in workflow code.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.Go]
-func Go(ctx Context, f func(ctx Context)) {
-	assertNotInReadOnlyState(ctx)
-	state := getState(ctx)
-	state.dispatcher.interceptor.Go(ctx, "", f)
-}
+func Go(ctx Context, f func(ctx Context)) { _ = "STUB: not implemented"; return }
 
 // GoNamed creates a new coroutine in workflow code, with a given human-readable name. It has similar semantics to
 // native goroutines, which must not be used in workflow code. name appears in stack traces that are blocked on this
 // Channel.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.GoNamed]
-func GoNamed(ctx Context, name string, f func(ctx Context)) {
-	assertNotInReadOnlyState(ctx)
-	state := getState(ctx)
-	state.dispatcher.interceptor.Go(ctx, name, f)
-}
+func GoNamed(ctx Context, name string, f func(ctx Context)) { _ = "STUB: not implemented"; return }
 
 // NewFuture creates a new future as well as associated Settable that is used to set its value.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewFuture]
 func NewFuture(ctx Context) (Future, Settable) {
-	assertNotInReadOnlyState(ctx)
-	impl := &futureImpl{channel: NewChannel(ctx).(*channelImpl)}
-	return impl, impl
+	_ = "STUB: not implemented"
+	return *new(Future), *new(Settable)
 }
 
 func (wc *workflowEnvironmentInterceptor) HandleSignal(ctx Context, in *HandleSignalInput) error {
+	_ = "STUB: not implemented"
 	// Remove header from the context
-	ctx = workflowContextWithoutHeader(ctx)
-
-	eo := getWorkflowEnvOptions(ctx)
-	// We don't want this code to be blocked ever, using sendAsync().
-	ch := eo.getSignalChannel(ctx, in.SignalName).(*channelImpl)
-	if !ch.SendAsync(in.Arg) {
-		return fmt.Errorf("exceeded channel buffer size for signal: %v", in.SignalName)
-	}
 	return nil
 }
 
-func (wc *workflowEnvironmentInterceptor) ValidateUpdate(ctx Context, in *UpdateInput) error {
-	eo := getWorkflowEnvOptions(ctx)
+// We don't want this code to be blocked ever, using sendAsync().
 
-	handler, ok := eo.updateHandlers[in.Name]
-	if !ok {
-		keys := make([]string, 0, len(eo.updateHandlers))
-		for k := range eo.updateHandlers {
-			keys = append(keys, k)
-		}
-		return fmt.Errorf("unknown update %v. KnownUpdates=%v", in.Name, keys)
-	}
-	return handler.validate(ctx, in.Args)
+func (wc *workflowEnvironmentInterceptor) ValidateUpdate(ctx Context, in *UpdateInput) error {
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wc *workflowEnvironmentInterceptor) ExecuteUpdate(ctx Context, in *UpdateInput) (interface{}, error) {
-	eo := getWorkflowEnvOptions(ctx)
-
-	handler, ok := eo.updateHandlers[in.Name]
-	if !ok {
-		keys := make([]string, 0, len(eo.updateHandlers))
-		for k := range eo.updateHandlers {
-			keys = append(keys, k)
-		}
-		return nil, fmt.Errorf("unknown update %v. KnownUpdates=%v", in.Name, keys)
-	}
-	return handler.execute(ctx, in.Args)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (wc *workflowEnvironmentInterceptor) HandleQuery(ctx Context, in *HandleQueryInput) (interface{}, error) {
-	eo := getWorkflowEnvOptions(ctx)
-	handler, ok := eo.queryHandlers[in.QueryType]
-	// Should never happen because its presence is checked before this call too
-	if !ok {
-		keys := []string{QueryTypeStackTrace, QueryTypeOpenSessions, QueryTypeWorkflowMetadata}
-		for k := range eo.queryHandlers {
-			keys = append(keys, k)
-		}
-		return nil, fmt.Errorf("unknown queryType %v. KnownQueryTypes=%v", in.QueryType, keys)
-	}
-	return handler.execute(in.Args)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Should never happen because its presence is checked before this call too
 
 func (wc *workflowEnvironmentInterceptor) ExecuteWorkflow(ctx Context, in *ExecuteWorkflowInput) (interface{}, error) {
+	_ = "STUB: not implemented"
 	// Remove header from the context
-	ctx = workflowContextWithoutHeader(ctx)
-
-	// Always put the context first
-	args := append([]interface{}{ctx}, in.Args...)
-	return executeFunction(wc.fn, args)
+	return nil, nil
 }
 
+// Always put the context first
+
 func (wc *workflowEnvironmentInterceptor) Init(outbound WorkflowOutboundInterceptor) error {
-	wc.outboundInterceptor = outbound
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -1012,117 +898,29 @@ func (wc *workflowEnvironmentInterceptor) Init(outbound WorkflowOutboundIntercep
 //
 // Exposed as: [go.temporal.io/sdk/workflow.ExecuteActivity]
 func ExecuteActivity(ctx Context, activity interface{}, args ...interface{}) Future {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	registry := getRegistryFromWorkflowContext(ctx)
-	activityType := getActivityFunctionName(registry, activity)
-	// Put header on context before executing
-	ctx = workflowContextWithNewHeader(ctx)
-	return i.ExecuteActivity(ctx, activityType, args...)
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
+
+// Put header on context before executing
 
 func (wc *workflowEnvironmentInterceptor) ExecuteActivity(ctx Context, typeName string, args ...interface{}) Future {
+	_ = "STUB: not implemented"
 	// Validate type and its arguments.
-	registry := getRegistryFromWorkflowContext(ctx)
-	future, settable := newDecodeFuture(ctx, typeName)
-	activityType, err := getValidatedActivityFunction(typeName, args, registry)
-	if err != nil {
-		settable.Set(nil, err)
-		return future
-	}
-	// Validate context options.
-	options := getActivityOptions(ctx)
-
-	// Validate session state.
-	if sessionInfo := getSessionInfo(ctx); sessionInfo != nil {
-		isCreationActivity := isSessionCreationActivity(typeName)
-		if sessionInfo.SessionState == SessionStateFailed && !isCreationActivity {
-			settable.Set(nil, ErrSessionFailed)
-			return future
-		}
-		if sessionInfo.SessionState == SessionStateOpen && !isCreationActivity {
-			// Use session taskqueue
-			oldTaskQueueName := options.TaskQueueName
-			options.TaskQueueName = sessionInfo.taskqueue
-			defer func() {
-				options.TaskQueueName = oldTaskQueueName
-			}()
-		}
-	}
-
-	// Retrieve headers from context to pass them on
-	envOptions := getWorkflowEnvOptions(ctx)
-	header, err := workflowHeaderPropagated(ctx, envOptions.ContextPropagators)
-	if err != nil {
-		settable.Set(nil, err)
-		return future
-	}
-
-	env := getWorkflowEnvironment(ctx)
-	// Generate activity ID before serialization so it's available to context-aware data converters
-	scheduleID := env.GenerateSequence()
-	var activityID string
-	if options.ActivityID != "" {
-		activityID = options.ActivityID
-	} else {
-		activityID = getStringID(scheduleID)
-	}
-	wfInfo := env.WorkflowInfo()
-	actCtx := converter.ActivitySerializationContext{
-		Namespace:    wfInfo.Namespace,
-		WorkflowID:   wfInfo.WorkflowExecution.ID,
-		WorkflowType: wfInfo.WorkflowType.Name,
-		ActivityType: activityType.Name,
-		TaskQueue:    cmp.Or(options.TaskQueueName, wfInfo.TaskQueueName),
-		IsLocal:      false,
-	}
-	dataConverter := converter.WithDataConverterSerializationContext(
-		getDataConverterFromWorkflowContext(ctx),
-		actCtx,
-	)
-	future.(*decodeFutureImpl).dataConverter = dataConverter
-
-	input, err := encodeArgs(dataConverter, args)
-	if err != nil {
-		panic(err)
-	}
-
-	params := ExecuteActivityParams{
-		ExecuteActivityOptions: *options,
-		ActivityType:           *activityType,
-		Input:                  input,
-		DataConverter:          dataConverter,
-		FailureConverter:       converter.WithFailureConverterSerializationContext(wc.env.GetFailureConverter(), actCtx),
-		Header:                 header,
-	}
-	params.ActivityID = activityID
-	params.ScheduleID = scheduleID
-
-	ctxDone, cancellable := ctx.Done().(*channelImpl)
-	cancellationCallback := &receiveCallback{}
-	a := getWorkflowEnvironment(ctx).ExecuteActivity(params, func(r *commonpb.Payloads, e error) {
-		settable.Set(r, e)
-		if cancellable {
-			// future is done, we don't need the cancellation callback anymore.
-			ctxDone.removeReceiveCallback(cancellationCallback)
-		}
-	})
-
-	if cancellable {
-		cancellationCallback.fn = func(v interface{}, more bool) bool {
-			assertNotInReadOnlyStateCancellation(ctx)
-			if ctx.Err() == ErrCanceled {
-				wc.env.RequestCancelActivity(a)
-			}
-			return false
-		}
-		_, ok, more := ctxDone.receiveAsyncImpl(cancellationCallback)
-		if ok || !more {
-			cancellationCallback.fn(nil, more)
-		}
-	}
-	return future
+	return *new(Future)
 }
+
+// Validate context options.
+
+// Validate session state.
+
+// Use session taskqueue
+
+// Retrieve headers from context to pass them on
+
+// Generate activity ID before serialization so it's available to context-aware data converters
+
+// future is done, we don't need the cancellation callback anymore.
 
 // ExecuteLocalActivity requests to run a local activity. A local activity is like a regular activity with some key
 // differences:
@@ -1162,183 +960,49 @@ func (wc *workflowEnvironmentInterceptor) ExecuteActivity(ctx Context, typeName 
 //
 // Exposed as: [go.temporal.io/sdk/workflow.ExecuteLocalActivity]
 func ExecuteLocalActivity(ctx Context, activity interface{}, args ...interface{}) Future {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	env := getWorkflowEnvironment(ctx)
-	activityType, isMethod := getFunctionName(activity)
-	if alias, ok := env.GetRegistry().getActivityAlias(activityType); ok {
-		activityType = alias
-	}
-	var fn interface{}
-	if _, ok := activity.(string); ok {
-		fn = nil
-	} else {
-		fn = activity
-	}
-	localCtx := &localActivityContext{
-		fn:       fn,
-		isMethod: isMethod,
-	}
-	ctx = WithValue(ctx, localActivityFnContextKey, localCtx)
-	// Put header on context before executing
-	ctx = workflowContextWithNewHeader(ctx)
-	return i.ExecuteLocalActivity(ctx, activityType, args...)
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
+
+// Put header on context before executing
 
 func (wc *workflowEnvironmentInterceptor) ExecuteLocalActivity(ctx Context, typeName string, args ...interface{}) Future {
-	future, settable := newDecodeFuture(ctx, typeName)
-
-	envOptions := getWorkflowEnvOptions(ctx)
-	header, err := workflowHeaderPropagated(ctx, envOptions.ContextPropagators)
-	if err != nil {
-		settable.Set(nil, err)
-		return future
-	}
-
-	var activityFn interface{}
-	localCtx := ctx.Value(localActivityFnContextKey).(*localActivityContext)
-	if localCtx == nil {
-		panic("ExecuteLocalActivity: Expected context key " + localActivityFnContextKey + " is missing")
-	}
-
-	if localCtx.isMethod {
-		registry := getRegistryFromWorkflowContext(ctx)
-		activity, ok := registry.GetActivity(typeName)
-		// Uses registered function if found as the registration is required with a nil receiver.
-		// Calls function directly if not registered. It is to support legacy applications
-		// that called local activities using non nil receiver.
-		if ok {
-			activityFn = activity.GetFunction()
-		} else {
-			if err := validateFunctionArgs(localCtx.fn, args, false); err != nil {
-				settable.Set(nil, err)
-				return future
-			}
-			activityFn = localCtx.fn
-		}
-	} else if localCtx.fn == nil {
-		registry := getRegistryFromWorkflowContext(ctx)
-		activityType, err := getValidatedActivityFunction(typeName, args, registry)
-		if err != nil {
-			settable.Set(nil, err)
-			return future
-		}
-		activity, ok := registry.GetActivity(activityType.Name)
-		if ok {
-			activityFn = activity.GetFunction()
-		} else if IsReplayNamespace(GetWorkflowInfo(ctx).Namespace) {
-			// When running the replayer (but not necessarily during all replays), we
-			// don't require the activities to be registered, so use a dummy function
-			activityFn = func(context.Context) error { panic("dummy replayer function") }
-		} else {
-			settable.Set(nil, fmt.Errorf("local activity %s is not registered by the worker", activityType.Name))
-			return future
-		}
-	} else {
-		if err := validateFunctionArgs(localCtx.fn, args, false); err != nil {
-			settable.Set(nil, err)
-			return future
-		}
-
-		activityFn = localCtx.fn
-	}
-
-	options, err := getValidatedLocalActivityOptions(ctx)
-	if err != nil {
-		settable.Set(nil, err)
-		return future
-	}
-
-	env := getWorkflowEnvironment(ctx)
-	wfInfo := env.WorkflowInfo()
-	actCtx := converter.ActivitySerializationContext{
-		Namespace:    wfInfo.Namespace,
-		WorkflowID:   wfInfo.WorkflowExecution.ID,
-		WorkflowType: wfInfo.WorkflowType.Name,
-		ActivityType: typeName,
-		TaskQueue:    wfInfo.TaskQueueName,
-		IsLocal:      true,
-	}
-
-	params := &ExecuteLocalActivityParams{
-		ExecuteLocalActivityOptions: *options,
-		ActivityFn:                  activityFn,
-		ActivityType:                typeName,
-		InputArgs:                   args,
-		WorkflowInfo:                wfInfo,
-		DataConverter:               converter.WithDataConverterSerializationContext(getDataConverterFromWorkflowContext(ctx), actCtx),
-		FailureConverter:            converter.WithFailureConverterSerializationContext(wc.env.GetFailureConverter(), actCtx),
-		ScheduledTime:               Now(ctx), // initial scheduled time
-		Header:                      header,
-		Attempt:                     1, // Attempts always start at one
-	}
-
-	Go(ctx, func(ctx Context) {
-		for {
-			f := wc.scheduleLocalActivity(ctx, params)
-			var result *commonpb.Payloads
-			err := f.Get(ctx, &result)
-			if retryErr, ok := err.(*needRetryError); ok && retryErr.Backoff > 0 {
-				// Backoff for retry
-				_ = Sleep(ctx, retryErr.Backoff)
-				// increase the attempt, and retry the local activity
-				params.Attempt = retryErr.Attempt + 1
-				continue
-			}
-
-			// not more retry, return whatever is received.
-			settable.Set(result, err)
-			return
-		}
-	})
-
-	return future
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
+
+// Uses registered function if found as the registration is required with a nil receiver.
+// Calls function directly if not registered. It is to support legacy applications
+// that called local activities using non nil receiver.
+
+// When running the replayer (but not necessarily during all replays), we
+// don't require the activities to be registered, so use a dummy function
+
+// initial scheduled time
+
+// Attempts always start at one
+
+// Backoff for retry
+
+// increase the attempt, and retry the local activity
+
+// not more retry, return whatever is received.
 
 type needRetryError struct {
 	Backoff time.Duration
 	Attempt int32
 }
 
-func (e *needRetryError) Error() string {
-	return fmt.Sprintf("Retry backoff: %v, Attempt: %v", e.Backoff, e.Attempt)
-}
+func (e *needRetryError) Error() string { _ = "STUB: not implemented"; return "" }
 
 func (wc *workflowEnvironmentInterceptor) scheduleLocalActivity(ctx Context, params *ExecuteLocalActivityParams) Future {
-	f := &futureImpl{channel: NewChannel(ctx).(*channelImpl)}
-	ctxDone, cancellable := ctx.Done().(*channelImpl)
-	cancellationCallback := &receiveCallback{}
-	la := wc.env.ExecuteLocalActivity(*params, func(lar *LocalActivityResultWrapper) {
-		if cancellable {
-			// future is done, we don't need cancellation anymore
-			ctxDone.removeReceiveCallback(cancellationCallback)
-		}
-
-		if lar.Err == nil || IsCanceledError(lar.Err) || lar.Backoff <= 0 {
-			f.Set(lar.Result, lar.Err)
-			return
-		}
-
-		// set retry error, and it will be handled by workflow.ExecuteLocalActivity().
-		f.Set(nil, &needRetryError{Backoff: lar.Backoff, Attempt: lar.Attempt})
-	})
-
-	if cancellable {
-		cancellationCallback.fn = func(v interface{}, more bool) bool {
-			assertNotInReadOnlyStateCancellation(ctx)
-			if ctx.Err() == ErrCanceled {
-				getWorkflowEnvironment(ctx).RequestCancelLocalActivity(la)
-			}
-			return false
-		}
-		_, ok, more := ctxDone.receiveAsyncImpl(cancellationCallback)
-		if ok || !more {
-			cancellationCallback.fn(nil, more)
-		}
-	}
-
-	return f
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
+
+// future is done, we don't need cancellation anymore
+
+// set retry error, and it will be handled by workflow.ExecuteLocalActivity().
 
 // ExecuteChildWorkflow requests child workflow execution in the context of a workflow.
 // Context can be used to pass the settings for the child workflow.
@@ -1366,130 +1030,36 @@ func (wc *workflowEnvironmentInterceptor) scheduleLocalActivity(ctx Context, par
 //
 // Exposed as: [go.temporal.io/sdk/workflow.ExecuteChildWorkflow]
 func ExecuteChildWorkflow(ctx Context, childWorkflow interface{}, args ...interface{}) ChildWorkflowFuture {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	env := getWorkflowEnvironment(ctx)
-	workflowType, err := getWorkflowFunctionName(env.GetRegistry(), childWorkflow)
-	if err != nil {
-		panic(err)
-	}
-	// Put header on context before executing
-	ctx = workflowContextWithNewHeader(ctx)
-	return i.ExecuteChildWorkflow(ctx, workflowType, args...)
+	_ = "STUB: not implemented"
+	return *new(ChildWorkflowFuture)
 }
+
+// Put header on context before executing
 
 func (wc *workflowEnvironmentInterceptor) ExecuteChildWorkflow(ctx Context, childWorkflowType string, args ...interface{}) ChildWorkflowFuture {
-	mainFuture, mainSettable := newDecodeFuture(ctx, childWorkflowType)
-	executionFuture, executionSettable := NewFuture(ctx)
-	result := &childWorkflowFutureImpl{
-		decodeFutureImpl: mainFuture.(*decodeFutureImpl),
-		executionFuture:  executionFuture.(*futureImpl),
-	}
-
-	// Immediately return if the context has an error without spawning the child workflow
-	if ctx.Err() != nil {
-		executionSettable.Set(nil, ctx.Err())
-		mainSettable.Set(nil, ctx.Err())
-		return result
-	}
-
-	workflowOptionsFromCtx := getWorkflowEnvOptions(ctx)
-	env := getWorkflowEnvironment(ctx)
-
-	// Generate child workflow ID before serialization so it's available to context-aware data converters
-	var childWorkflowID string
-	if workflowOptionsFromCtx.WorkflowID != "" {
-		childWorkflowID = workflowOptionsFromCtx.WorkflowID
-	} else {
-		childWorkflowID = env.WorkflowInfo().currentRunID + "_" + getStringID(env.GenerateSequence())
-	}
-	wfInfo := env.WorkflowInfo()
-	childWfCtx := converter.WorkflowSerializationContext{
-		// Use target namespace for cross-namespace child workflows, otherwise default to parent's.
-		Namespace:  cmp.Or(workflowOptionsFromCtx.Namespace, wfInfo.Namespace),
-		WorkflowID: childWorkflowID,
-	}
-	dc := converter.WithDataConverterSerializationContext(getDataConverterFromWorkflowContext(ctx), childWfCtx)
-	result.decodeFutureImpl.dataConverter = dc
-
-	wfType, input, err := getValidatedWorkflowFunction(childWorkflowType, args, dc, env.GetRegistry())
-	if err != nil {
-		executionSettable.Set(nil, err)
-		mainSettable.Set(nil, err)
-		return result
-	}
-
-	// Copy workflow options so we don't mutate the shared pointer on ctx,
-	// which would cause subsequent child workflow launches from the same ctx
-	// to reuse this child's WorkflowID instead of generating a new one.
-	optionsCopy := *getWorkflowEnvOptions(ctx)
-	options := &optionsCopy
-	options.DataConverter = dc
-	options.ContextPropagators = workflowOptionsFromCtx.ContextPropagators
-	options.Memo = workflowOptionsFromCtx.Memo
-	options.SearchAttributes = workflowOptionsFromCtx.SearchAttributes
-	options.TypedSearchAttributes = workflowOptionsFromCtx.TypedSearchAttributes
-	options.VersioningIntent = workflowOptionsFromCtx.VersioningIntent
-	options.StaticDetails = workflowOptionsFromCtx.StaticDetails
-	options.StaticSummary = workflowOptionsFromCtx.StaticSummary
-	options.WorkflowID = childWorkflowID
-	header, err := workflowHeaderPropagated(ctx, options.ContextPropagators)
-	if err != nil {
-		executionSettable.Set(nil, err)
-		mainSettable.Set(nil, err)
-		return result
-	}
-
-	failureConverter := converter.WithFailureConverterSerializationContext(
-		wc.env.GetFailureConverter(),
-		childWfCtx,
-	)
-
-	params := ExecuteWorkflowParams{
-		WorkflowOptions:  *options,
-		Input:            input,
-		WorkflowType:     wfType,
-		Header:           header,
-		scheduledTime:    Now(ctx), /* this is needed for test framework, and is not send to server */
-		attempt:          1,
-		dataConverter:    dc,
-		failureConverter: failureConverter,
-	}
-
-	ctxDone, cancellable := ctx.Done().(*channelImpl)
-	cancellationCallback := &receiveCallback{}
-	getWorkflowEnvironment(ctx).ExecuteChildWorkflow(params, func(r *commonpb.Payloads, e error) {
-		mainSettable.Set(r, e)
-		if cancellable {
-			// future is done, we don't need cancellation anymore
-			ctxDone.removeReceiveCallback(cancellationCallback)
-		}
-	}, func(r WorkflowExecution, e error) {
-		if e == nil {
-			// We must wait for Workflow initiation to finish before registering the cancellation handler.
-			// Otherwise, we risk firing the cancel handler and then having the workflow "initiate" afterwards,
-			// which would result in an uncanceled workflow.
-			if cancellable {
-				cancellationCallback.fn = func(v interface{}, _ bool) bool {
-					assertNotInReadOnlyStateCancellation(ctx)
-					if ctx.Err() == ErrCanceled && !mainFuture.IsReady() {
-						// child workflow started, and ctx canceled
-						getWorkflowEnvironment(ctx).RequestCancelChildWorkflow(options.Namespace, r.ID)
-					}
-					return false
-				}
-				_, ok, more := ctxDone.receiveAsyncImpl(cancellationCallback)
-				if ok || !more {
-					cancellationCallback.fn(nil, more)
-				}
-			}
-		}
-
-		executionSettable.Set(r, e)
-	})
-
-	return result
+	_ = "STUB: not implemented"
+	return *new(ChildWorkflowFuture)
 }
+
+// Immediately return if the context has an error without spawning the child workflow
+
+// Generate child workflow ID before serialization so it's available to context-aware data converters
+
+// Use target namespace for cross-namespace child workflows, otherwise default to parent's.
+
+// Copy workflow options so we don't mutate the shared pointer on ctx,
+// which would cause subsequent child workflow launches from the same ctx
+// to reuse this child's WorkflowID instead of generating a new one.
+
+/* this is needed for test framework, and is not send to server */
+
+// future is done, we don't need cancellation anymore
+
+// We must wait for Workflow initiation to finish before registering the cancellation handler.
+// Otherwise, we risk firing the cancel handler and then having the workflow "initiate" afterwards,
+// which would result in an uncanceled workflow.
+
+// child workflow started, and ctx canceled
 
 // WorkflowInfo information about currently executing workflow
 //
@@ -1560,39 +1130,29 @@ type UpdateInfo struct {
 
 // GetBinaryChecksum returns the binary checksum of the last worker to complete a task for this
 // workflow, or if this is the first task, this worker's checksum.
-func (wInfo *WorkflowInfo) GetBinaryChecksum() string {
-	if wInfo.BinaryChecksum == "" {
-		return getBinaryChecksum()
-	}
-	return wInfo.BinaryChecksum
-}
+func (wInfo *WorkflowInfo) GetBinaryChecksum() string { _ = "STUB: not implemented"; return "" }
 
 // GetCurrentBuildID returns the Build ID of the worker that processed this task, which may be
 // empty. During replay this id may not equal the id of the replaying worker. If not replaying and
 // this worker has a defined Build ID, it will equal that ID. It is safe to use for branching.
 // When used inside a query, the ID of the worker that processed the task which last affected
 // the workflow will be returned.
-func (wInfo *WorkflowInfo) GetCurrentBuildID() string {
-	return wInfo.currentTaskBuildID
-}
+func (wInfo *WorkflowInfo) GetCurrentBuildID() string { _ = "STUB: not implemented"; return "" }
 
 // GetCurrentHistoryLength returns the current length of history when called.
 // This value may change throughout the life of the workflow.
-func (wInfo *WorkflowInfo) GetCurrentHistoryLength() int {
-	return wInfo.currentHistoryLength
-}
+func (wInfo *WorkflowInfo) GetCurrentHistoryLength() int { _ = "STUB: not implemented"; return 0 }
 
 // GetCurrentHistorySize returns the current byte size of history when called.
 // This value may change throughout the life of the workflow.
-func (wInfo *WorkflowInfo) GetCurrentHistorySize() int {
-	return wInfo.currentHistorySize
-}
+func (wInfo *WorkflowInfo) GetCurrentHistorySize() int { _ = "STUB: not implemented"; return 0 }
 
 // GetContinueAsNewSuggested returns true if the server is configured to suggest continue as new
 // and it is suggested.
 // This value may change throughout the life of the workflow.
 func (wInfo *WorkflowInfo) GetContinueAsNewSuggested() bool {
-	return wInfo.continueAsNewSuggested
+	_ = "STUB: not implemented"
+	return false
 }
 
 // GetContinueAsNewSuggestedReasons returns a list of reasons why continue as new is suggested,
@@ -1601,7 +1161,8 @@ func (wInfo *WorkflowInfo) GetContinueAsNewSuggested() bool {
 //
 // Note: ContinueAsNewSuggestedReasons are currently experimental.
 func (wInfo *WorkflowInfo) GetContinueAsNewSuggestedReasons() []ContinueAsNewSuggestedReason {
-	return wInfo.continueAsNewSuggestedReasons
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetTargetWorkerDeploymentVersionChanged returns whether the target worker deployment
@@ -1609,104 +1170,88 @@ func (wInfo *WorkflowInfo) GetContinueAsNewSuggestedReasons() []ContinueAsNewSug
 //
 // Note: Upgrade-on-Continue-as-New is currently experimental.
 func (wInfo *WorkflowInfo) GetTargetWorkerDeploymentVersionChanged() bool {
-	return wInfo.targetWorkerDeploymentVersionChanged
+	_ = "STUB: not implemented"
+	return false
 }
 
 // GetWorkflowInfo extracts info of a current workflow from a context.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.GetInfo]
-func GetWorkflowInfo(ctx Context) *WorkflowInfo {
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.GetInfo(ctx)
-}
+func GetWorkflowInfo(ctx Context) *WorkflowInfo { _ = "STUB: not implemented"; return nil }
 
 func (wc *workflowEnvironmentInterceptor) GetInfo(ctx Context) *WorkflowInfo {
-	return wc.env.WorkflowInfo()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Exposed as: [go.temporal.io/sdk/workflow.GetTypedSearchAttributes]
 func GetTypedSearchAttributes(ctx Context) SearchAttributes {
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.GetTypedSearchAttributes(ctx)
+	_ = "STUB: not implemented"
+	return *new(SearchAttributes)
 }
 
 func (wc *workflowEnvironmentInterceptor) GetTypedSearchAttributes(ctx Context) SearchAttributes {
-	return wc.env.TypedSearchAttributes()
+	_ = "STUB: not implemented"
+	return *new(SearchAttributes)
 }
 
 // GetUpdateInfo extracts info of a currently running update from a context.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.GetCurrentUpdateInfo]
-func GetCurrentUpdateInfo(ctx Context) *UpdateInfo {
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.GetCurrentUpdateInfo(ctx)
-}
+func GetCurrentUpdateInfo(ctx Context) *UpdateInfo { _ = "STUB: not implemented"; return nil }
 
 func (wc *workflowEnvironmentInterceptor) GetCurrentUpdateInfo(ctx Context) *UpdateInfo {
-	uc := ctx.Value(updateInfoContextKey)
-	if uc == nil {
-		panic("getWorkflowOutboundInterceptor: No update associated with this context")
-	}
-	return uc.(*UpdateInfo)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetLogger returns a logger to be used in workflow's context
 //
 // Exposed as: [go.temporal.io/sdk/workflow.GetLogger]
-func GetLogger(ctx Context) log.Logger {
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.GetLogger(ctx)
-}
+func GetLogger(ctx Context) log.Logger { _ = "STUB: not implemented"; return *new(log.Logger) }
 
 func (wc *workflowEnvironmentInterceptor) GetLogger(ctx Context) log.Logger {
-	logger := wc.env.GetLogger()
-	// Add update info to the logger if available
-	uc := ctx.Value(updateInfoContextKey)
-	if uc == nil {
-		return logger
-	}
-	updateInfo := uc.(*UpdateInfo)
-	return log.With(logger, tagUpdateID, updateInfo.ID, tagUpdateName, updateInfo.Name)
+	_ = "STUB: not implemented"
+	return *new(log.Logger)
 }
+
+// Add update info to the logger if available
 
 // GetMetricsHandler returns a metrics handler to be used in workflow's context
 //
 // Exposed as: [go.temporal.io/sdk/workflow.GetMetricsHandler]
 func GetMetricsHandler(ctx Context) metrics.Handler {
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.GetMetricsHandler(ctx)
+	_ = "STUB: not implemented"
+	return *new(metrics.Handler)
 }
 
 func (wc *workflowEnvironmentInterceptor) GetMetricsHandler(ctx Context) metrics.Handler {
-	return wc.env.GetMetricsHandler()
+	_ = "STUB: not implemented"
+	return *new(metrics.Handler)
 }
 
 // Now returns the current time in UTC. It corresponds to the time when the workflow task is started or replayed.
 // Workflow needs to use this method to get the wall clock time instead of the one from the golang library.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.Now]
-func Now(ctx Context) time.Time {
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.Now(ctx).UTC()
-}
+func Now(ctx Context) time.Time { _ = "STUB: not implemented"; return *new(time.Time) }
 
 func (wc *workflowEnvironmentInterceptor) Now(ctx Context) time.Time {
-	return wc.env.Now()
+	_ = "STUB: not implemented"
+	return *
+
+	// NewTimer returns immediately and the future becomes ready after the specified duration d. The workflow needs to use
+	// this NewTimer() to get the timer instead of the Go lang library one(timer.NewTimer()). You can cancel the pending
+	// timer by cancel the Context (using context from workflow.WithCancel(ctx)) and that will cancel the timer. After timer
+	// is canceled, the returned Future become ready, and Future.Get() will return *CanceledError.
+	//
+	// To be able to set options like timer summary, use [NewTimerWithOptions].
+	//
+	// Exposed as: [go.temporal.io/sdk/workflow.NewTimer]
+	new(time.Time)
 }
 
-// NewTimer returns immediately and the future becomes ready after the specified duration d. The workflow needs to use
-// this NewTimer() to get the timer instead of the Go lang library one(timer.NewTimer()). You can cancel the pending
-// timer by cancel the Context (using context from workflow.WithCancel(ctx)) and that will cancel the timer. After timer
-// is canceled, the returned Future become ready, and Future.Get() will return *CanceledError.
-//
-// To be able to set options like timer summary, use [NewTimerWithOptions].
-//
-// Exposed as: [go.temporal.io/sdk/workflow.NewTimer]
-func NewTimer(ctx Context, d time.Duration) Future {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.NewTimer(ctx, d)
-}
+func NewTimer(ctx Context, d time.Duration) Future { _ = "STUB: not implemented"; return *new(Future) }
 
 // NewTimerWithOptions returns immediately and the future becomes ready after the specified duration d. The workflow
 // needs to use this NewTimerWithOptions() to get the timer instead of the Go lang library one(timer.NewTimer()). You
@@ -1715,13 +1260,13 @@ func NewTimer(ctx Context, d time.Duration) Future {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewTimerWithOptions]
 func NewTimerWithOptions(ctx Context, d time.Duration, options TimerOptions) Future {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.NewTimerWithOptions(ctx, d, options)
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
 
 func (wc *workflowEnvironmentInterceptor) NewTimer(ctx Context, d time.Duration) Future {
-	return wc.NewTimerWithOptions(ctx, d, TimerOptions{})
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
 
 func (wc *workflowEnvironmentInterceptor) NewTimerWithOptions(
@@ -1729,37 +1274,11 @@ func (wc *workflowEnvironmentInterceptor) NewTimerWithOptions(
 	d time.Duration,
 	options TimerOptions,
 ) Future {
-	future, settable := NewFuture(ctx)
-	if d <= 0 {
-		settable.Set(true, nil)
-		return future
-	}
-
-	ctxDone, cancellable := ctx.Done().(*channelImpl)
-	cancellationCallback := &receiveCallback{}
-	timerID := wc.env.NewTimer(d, options, func(r *commonpb.Payloads, e error) {
-		settable.Set(nil, e)
-		if cancellable {
-			// future is done, we don't need cancellation anymore
-			ctxDone.removeReceiveCallback(cancellationCallback)
-		}
-	})
-
-	if timerID != nil && cancellable {
-		cancellationCallback.fn = func(v interface{}, more bool) bool {
-			assertNotInReadOnlyStateCancellation(ctx)
-			if !future.IsReady() {
-				wc.env.RequestCancelTimer(*timerID)
-			}
-			return false
-		}
-		_, ok, more := ctxDone.receiveAsyncImpl(cancellationCallback)
-		if ok || !more {
-			cancellationCallback.fn(nil, more)
-		}
-	}
-	return future
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
+
+// future is done, we don't need cancellation anymore
 
 // Sleep pauses the current workflow for at least the duration d. A negative or zero duration causes Sleep to return
 // immediately. Workflow code needs to use this Sleep() to sleep instead of the Go lang library one(timer.Sleep()).
@@ -1769,16 +1288,11 @@ func (wc *workflowEnvironmentInterceptor) NewTimerWithOptions(
 // 2) your workflow itself is canceled by external request.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.Sleep]
-func Sleep(ctx Context, d time.Duration) (err error) {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.Sleep(ctx, d)
-}
+func Sleep(ctx Context, d time.Duration) (err error) { _ = "STUB: not implemented"; return nil }
 
 func (wc *workflowEnvironmentInterceptor) Sleep(ctx Context, d time.Duration) (err error) {
-	t := NewTimerWithOptions(ctx, d, TimerOptions{Summary: "Sleep"})
-	err = t.Get(ctx, nil)
-	return
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RequestCancelExternalWorkflow can be used to request cancellation of an external workflow.
@@ -1794,33 +1308,13 @@ func (wc *workflowEnvironmentInterceptor) Sleep(ctx Context, d time.Duration) (e
 //
 // Exposed as: [go.temporal.io/sdk/workflow.RequestCancelExternalWorkflow]
 func RequestCancelExternalWorkflow(ctx Context, workflowID, runID string) Future {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.RequestCancelExternalWorkflow(ctx, workflowID, runID)
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
 
 func (wc *workflowEnvironmentInterceptor) RequestCancelExternalWorkflow(ctx Context, workflowID, runID string) Future {
-	ctx1 := setWorkflowEnvOptionsIfNotExist(ctx)
-	options := getWorkflowEnvOptions(ctx1)
-	future, settable := NewFuture(ctx1)
-
-	if workflowID == "" {
-		settable.Set(nil, errWorkflowIDNotSet)
-		return future
-	}
-
-	resultCallback := func(result *commonpb.Payloads, err error) {
-		settable.Set(result, err)
-	}
-
-	wc.env.RequestCancelExternalWorkflow(
-		options.Namespace,
-		workflowID,
-		runID,
-		resultCallback,
-	)
-
-	return future
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
 
 // SignalExternalWorkflow can be used to send signal info to an external workflow.
@@ -1836,73 +1330,35 @@ func (wc *workflowEnvironmentInterceptor) RequestCancelExternalWorkflow(ctx Cont
 //
 // Exposed as: [go.temporal.io/sdk/workflow.SignalExternalWorkflow]
 func SignalExternalWorkflow(ctx Context, workflowID, runID, signalName string, arg interface{}) Future {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	// Put header on context before executing
-	ctx = workflowContextWithNewHeader(ctx)
-	return i.SignalExternalWorkflow(ctx, workflowID, runID, signalName, arg)
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
+
+// Put header on context before executing
 
 func (wc *workflowEnvironmentInterceptor) SignalExternalWorkflow(ctx Context, workflowID, runID, signalName string, arg interface{}) Future {
-	const childWorkflowOnly = false // this means we are not limited to child workflow
-	return signalExternalWorkflow(ctx, workflowID, runID, signalName, arg, childWorkflowOnly)
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
+
+// this means we are not limited to child workflow
 
 func (wc *workflowEnvironmentInterceptor) SignalChildWorkflow(ctx Context, workflowID, signalName string, arg interface{}) Future {
-	const childWorkflowOnly = true // this means we are limited to child workflow
-	// Empty run ID to indicate current one
-	return signalExternalWorkflow(ctx, workflowID, "", signalName, arg, childWorkflowOnly)
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
+
+// this means we are limited to child workflow
+// Empty run ID to indicate current one
 
 func signalExternalWorkflow(ctx Context, workflowID, runID, signalName string, arg interface{}, childWorkflowOnly bool) Future {
-	env := getWorkflowEnvironment(ctx)
-	ctx1 := setWorkflowEnvOptionsIfNotExist(ctx)
-	options := getWorkflowEnvOptions(ctx1)
-	future, settable := NewFuture(ctx1)
-
-	if workflowID == "" {
-		settable.Set(nil, errWorkflowIDNotSet)
-		return future
-	}
-
-	wfInfo := env.WorkflowInfo()
-	dataConverter := converter.WithDataConverterSerializationContext(
-		getDataConverterFromWorkflowContext(ctx),
-		converter.WorkflowSerializationContext{
-			// Use target namespace for cross-namespace signals, otherwise default to current workflow's.
-			Namespace:  cmp.Or(options.Namespace, wfInfo.Namespace),
-			WorkflowID: workflowID,
-		})
-	input, err := encodeArg(dataConverter, arg)
-	if err != nil {
-		settable.Set(nil, err)
-		return future
-	}
-
-	// Get header
-	header, err := workflowHeaderPropagated(ctx, options.ContextPropagators)
-	if err != nil {
-		settable.Set(nil, err)
-		return future
-	}
-
-	resultCallback := func(result *commonpb.Payloads, err error) {
-		settable.Set(result, err)
-	}
-	env.SignalExternalWorkflow(
-		options.Namespace,
-		workflowID,
-		runID,
-		signalName,
-		input,
-		arg,
-		header,
-		childWorkflowOnly,
-		resultCallback,
-	)
-
-	return future
+	_ = "STUB: not implemented"
+	return *new(Future)
 }
+
+// Use target namespace for cross-namespace signals, otherwise default to current workflow's.
+
+// Get header
 
 // UpsertSearchAttributes is used to add or update workflow search attributes.
 // The search attributes can be used in query of List/Scan/Count workflow APIs.
@@ -1940,33 +1396,24 @@ func signalExternalWorkflow(ctx Context, workflowID, runID, signalName string, a
 //
 // [Visibility]: https://docs.temporal.io/visibility
 func UpsertSearchAttributes(ctx Context, attributes map[string]interface{}) error {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.UpsertSearchAttributes(ctx, attributes)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wc *workflowEnvironmentInterceptor) UpsertSearchAttributes(ctx Context, attributes map[string]interface{}) error {
-	if _, ok := attributes[TemporalChangeVersion]; ok {
-		return errors.New("TemporalChangeVersion is a reserved key that cannot be set, please use other key")
-	}
-	return wc.env.UpsertSearchAttributes(attributes)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Exposed as: [go.temporal.io/sdk/workflow.UpsertTypedSearchAttributes]
 func UpsertTypedSearchAttributes(ctx Context, attributes ...SearchAttributeUpdate) error {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.UpsertTypedSearchAttributes(ctx, attributes...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wc *workflowEnvironmentInterceptor) UpsertTypedSearchAttributes(ctx Context, attributes ...SearchAttributeUpdate) error {
-	sa := SearchAttributes{
-		untypedValue: make(map[SearchAttributeKey]interface{}),
-	}
-	for _, attribute := range attributes {
-		attribute(&sa)
-	}
-	return wc.env.UpsertTypedSearchAttributes(sa)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // UpsertMemo is used to add or update workflow memo.
@@ -1998,13 +1445,13 @@ func (wc *workflowEnvironmentInterceptor) UpsertTypedSearchAttributes(ctx Contex
 //
 // Exposed as: [go.temporal.io/sdk/workflow.UpsertMemo]
 func UpsertMemo(ctx Context, memo map[string]interface{}) error {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.UpsertMemo(ctx, memo)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wc *workflowEnvironmentInterceptor) UpsertMemo(ctx Context, memo map[string]interface{}) error {
-	return wc.env.UpsertMemo(memo)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // WithChildWorkflowOptions adds all workflow options to the context.
@@ -2013,62 +1460,16 @@ func (wc *workflowEnvironmentInterceptor) UpsertMemo(ctx Context, memo map[strin
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithChildOptions]
 func WithChildWorkflowOptions(ctx Context, cwo ChildWorkflowOptions) Context {
-	ctx1 := setWorkflowEnvOptionsIfNotExist(ctx)
-	wfOptions := getWorkflowEnvOptions(ctx1)
-	if len(cwo.Namespace) > 0 {
-		wfOptions.Namespace = cwo.Namespace
-	}
-	if len(cwo.TaskQueue) > 0 {
-		wfOptions.TaskQueueName = cwo.TaskQueue
-	}
-	wfOptions.WorkflowID = cwo.WorkflowID
-	wfOptions.WorkflowExecutionTimeout = cwo.WorkflowExecutionTimeout
-	wfOptions.WorkflowRunTimeout = cwo.WorkflowRunTimeout
-	wfOptions.WorkflowTaskTimeout = cwo.WorkflowTaskTimeout
-	wfOptions.WaitForCancellation = cwo.WaitForCancellation
-	wfOptions.WorkflowIDReusePolicy = cwo.WorkflowIDReusePolicy
-	wfOptions.RetryPolicy = convertToPBRetryPolicy(cwo.RetryPolicy)
-	wfOptions.CronSchedule = cwo.CronSchedule
-	wfOptions.Memo = cwo.Memo
-	wfOptions.SearchAttributes = cwo.SearchAttributes
-	wfOptions.TypedSearchAttributes = cwo.TypedSearchAttributes
-	wfOptions.ParentClosePolicy = cwo.ParentClosePolicy
-	wfOptions.VersioningIntent = cwo.VersioningIntent
-	wfOptions.StaticSummary = cwo.StaticSummary
-	wfOptions.StaticDetails = cwo.StaticDetails
-	wfOptions.Priority = convertToPBPriority(cwo.Priority)
-
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // GetChildWorkflowOptions returns all workflow options present on the context.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.GetChildWorkflowOptions]
 func GetChildWorkflowOptions(ctx Context) ChildWorkflowOptions {
-	opts := getWorkflowEnvOptions(ctx)
-	if opts == nil {
-		return ChildWorkflowOptions{}
-	}
-	return ChildWorkflowOptions{
-		Namespace:                opts.Namespace,
-		WorkflowID:               opts.WorkflowID,
-		TaskQueue:                opts.TaskQueueName,
-		WorkflowExecutionTimeout: opts.WorkflowExecutionTimeout,
-		WorkflowRunTimeout:       opts.WorkflowRunTimeout,
-		WorkflowTaskTimeout:      opts.WorkflowTaskTimeout,
-		WaitForCancellation:      opts.WaitForCancellation,
-		WorkflowIDReusePolicy:    opts.WorkflowIDReusePolicy,
-		RetryPolicy:              convertFromPBRetryPolicy(opts.RetryPolicy),
-		Priority:                 convertFromPBPriority(opts.Priority),
-		CronSchedule:             opts.CronSchedule,
-		Memo:                     opts.Memo,
-		SearchAttributes:         opts.SearchAttributes,
-		TypedSearchAttributes:    opts.TypedSearchAttributes,
-		ParentClosePolicy:        opts.ParentClosePolicy,
-		VersioningIntent:         opts.VersioningIntent,
-		StaticSummary:            opts.StaticSummary,
-		StaticDetails:            opts.StaticDetails,
-	}
+	_ = "STUB: not implemented"
+	return *new(ChildWorkflowOptions)
 }
 
 // WithWorkflowNamespace adds a namespace to the context.
@@ -2077,37 +1478,30 @@ func GetChildWorkflowOptions(ctx Context) ChildWorkflowOptions {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithWorkflowNamespace]
 func WithWorkflowNamespace(ctx Context, name string) Context {
-	ctx1 := setWorkflowEnvOptionsIfNotExist(ctx)
-	getWorkflowEnvOptions(ctx1).Namespace = name
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithWorkflowTaskQueue adds a task queue to the context.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithWorkflowTaskQueue]
 func WithWorkflowTaskQueue(ctx Context, name string) Context {
-	if name == "" {
-		panic("empty task queue name")
-	}
-	ctx1 := setWorkflowEnvOptionsIfNotExist(ctx)
-	getWorkflowEnvOptions(ctx1).TaskQueueName = name
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithWorkflowID adds a workflowID to the context.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithWorkflowID]
 func WithWorkflowID(ctx Context, workflowID string) Context {
-	ctx1 := setWorkflowEnvOptionsIfNotExist(ctx)
-	getWorkflowEnvOptions(ctx1).WorkflowID = workflowID
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithTypedSearchAttributes add these search attribute to the context
 func WithTypedSearchAttributes(ctx Context, searchAttributes SearchAttributes) Context {
-	ctx1 := setWorkflowEnvOptionsIfNotExist(ctx)
-	getWorkflowEnvOptions(ctx1).TypedSearchAttributes = searchAttributes
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithWorkflowRunTimeout adds a run timeout to the context.
@@ -2116,9 +1510,8 @@ func WithTypedSearchAttributes(ctx Context, searchAttributes SearchAttributes) C
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithWorkflowRunTimeout]
 func WithWorkflowRunTimeout(ctx Context, d time.Duration) Context {
-	ctx1 := setWorkflowEnvOptionsIfNotExist(ctx)
-	getWorkflowEnvOptions(ctx1).WorkflowRunTimeout = d
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithWorkflowTaskTimeout adds a workflow task timeout to the context.
@@ -2127,30 +1520,24 @@ func WithWorkflowRunTimeout(ctx Context, d time.Duration) Context {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithWorkflowTaskTimeout]
 func WithWorkflowTaskTimeout(ctx Context, d time.Duration) Context {
-	ctx1 := setWorkflowEnvOptionsIfNotExist(ctx)
-	getWorkflowEnvOptions(ctx1).WorkflowTaskTimeout = d
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithDataConverter adds DataConverter to the context.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithDataConverter]
 func WithDataConverter(ctx Context, dc converter.DataConverter) Context {
-	if dc == nil {
-		panic("data converter is nil for WithDataConverter")
-	}
-	ctx1 := setWorkflowEnvOptionsIfNotExist(ctx)
-	getWorkflowEnvOptions(ctx1).DataConverter = dc
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithPriority adds a priority to the context.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithWorkflowPriority]
 func WithWorkflowPriority(ctx Context, priority Priority) Context {
-	ctx1 := setWorkflowEnvOptionsIfNotExist(ctx)
-	getWorkflowEnvOptions(ctx1).Priority = convertToPBPriority(priority)
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithWorkflowVersioningIntent is used to set the VersioningIntent before constructing a
@@ -2159,25 +1546,22 @@ func WithWorkflowPriority(ctx Context, priority Priority) Context {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithWorkflowVersioningIntent]
 func WithWorkflowVersioningIntent(ctx Context, intent VersioningIntent) Context {
-	ctx1 := setWorkflowEnvOptionsIfNotExist(ctx)
-	getWorkflowEnvOptions(ctx1).VersioningIntent = intent
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // withContextPropagators adds ContextPropagators to the context.
 func withContextPropagators(ctx Context, contextPropagators []ContextPropagator) Context {
-	ctx1 := setWorkflowEnvOptionsIfNotExist(ctx)
-	getWorkflowEnvOptions(ctx1).ContextPropagators = contextPropagators
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // GetSignalChannel returns channel corresponding to the signal name.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.GetSignalChannel]
 func GetSignalChannel(ctx Context, signalName string) ReceiveChannel {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.GetSignalChannel(ctx, signalName)
+	_ = "STUB: not implemented"
+	return *new(ReceiveChannel)
 }
 
 // GetSignalChannelWithOptions returns channel corresponding to the signal name.
@@ -2186,13 +1570,13 @@ func GetSignalChannel(ctx Context, signalName string) ReceiveChannel {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.GetSignalChannelWithOptions]
 func GetSignalChannelWithOptions(ctx Context, signalName string, options SignalChannelOptions) ReceiveChannel {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.GetSignalChannelWithOptions(ctx, signalName, options)
+	_ = "STUB: not implemented"
+	return *new(ReceiveChannel)
 }
 
 func (wc *workflowEnvironmentInterceptor) GetSignalChannel(ctx Context, signalName string) ReceiveChannel {
-	return wc.GetSignalChannelWithOptions(ctx, signalName, SignalChannelOptions{})
+	_ = "STUB: not implemented"
+	return *new(ReceiveChannel)
 }
 
 func (wc *workflowEnvironmentInterceptor) GetSignalChannelWithOptions(
@@ -2200,37 +1584,22 @@ func (wc *workflowEnvironmentInterceptor) GetSignalChannelWithOptions(
 	signalName string,
 	options SignalChannelOptions,
 ) ReceiveChannel {
-	if strings.HasPrefix(signalName, temporalPrefix) {
-		panic(temporalPrefixError)
-	}
-	eo := getWorkflowEnvOptions(ctx)
-	ch := eo.getSignalChannel(ctx, signalName)
-	// Add as a requested channel if not already done
-	if eo.requestedSignalChannels[signalName] == nil {
-		eo.requestedSignalChannels[signalName] = &requestedSignalChannel{options: options}
-	}
-	return ch
+	_ = "STUB: not implemented"
+	return *new(ReceiveChannel)
 }
 
+// Add as a requested channel if not already done
+
 func newEncodedValue(value *commonpb.Payloads, dc converter.DataConverter) converter.EncodedValue {
-	if dc == nil {
-		dc = converter.GetDefaultDataConverter()
-	}
-	return &EncodedValue{value, dc}
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 // Get extract data from encoded data to desired value type. valuePtr is pointer to the actual value type.
-func (b EncodedValue) Get(valuePtr interface{}) error {
-	if !b.HasValue() {
-		return ErrNoData
-	}
-	return decodeArg(b.dataConverter, b.value, valuePtr)
-}
+func (b EncodedValue) Get(valuePtr interface{}) error { _ = "STUB: not implemented"; return nil }
 
 // HasValue return whether there is value
-func (b EncodedValue) HasValue() bool {
-	return b.value != nil
-}
+func (b EncodedValue) HasValue() bool { _ = "STUB: not implemented"; return false }
 
 // SideEffect executes the provided function once, records its result into the workflow history. The recorded result on
 // history will be returned without executing the provided function during replay. This guarantees the deterministic
@@ -2274,9 +1643,8 @@ func (b EncodedValue) HasValue() bool {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.SideEffect]
 func SideEffect(ctx Context, f func(ctx Context) interface{}) converter.EncodedValue {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.SideEffect(ctx, f)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 // SideEffectWithOptions executes the provided function once, records its result into the workflow history.
@@ -2290,34 +1658,18 @@ func SideEffect(ctx Context, f func(ctx Context) interface{}) converter.EncodedV
 //
 // Exposed as: [go.temporal.io/sdk/workflow.SideEffectWithOptions]
 func SideEffectWithOptions(ctx Context, options SideEffectOptions, f func(ctx Context) interface{}) converter.EncodedValue {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.SideEffectWithOptions(ctx, options, f)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 func (wc *workflowEnvironmentInterceptor) SideEffect(ctx Context, f func(ctx Context) interface{}) converter.EncodedValue {
-	return wc.SideEffectWithOptions(ctx, SideEffectOptions{}, f)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 func (wc *workflowEnvironmentInterceptor) SideEffectWithOptions(ctx Context, options SideEffectOptions, f func(ctx Context) interface{}) converter.EncodedValue {
-	dc := getDataConverterFromWorkflowContext(ctx)
-	future, settable := NewFuture(ctx)
-	wrapperFunc := func() (*commonpb.Payloads, error) {
-		coroutineState := getState(ctx)
-		defer coroutineState.dispatcher.setIsReadOnly(false)
-		coroutineState.dispatcher.setIsReadOnly(true)
-		r := f(ctx)
-		return encodeArg(dc, r)
-	}
-	resultCallback := func(result *commonpb.Payloads, err error) {
-		settable.Set(EncodedValue{result, dc}, err)
-	}
-	wc.env.SideEffect(wrapperFunc, resultCallback, options.Summary)
-	var encoded EncodedValue
-	if err := future.Get(ctx, &encoded); err != nil {
-		panic(err)
-	}
-	return encoded
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 // MutableSideEffect executes the provided function once, then it looks up the history for the value with the given id.
@@ -2339,9 +1691,8 @@ func (wc *workflowEnvironmentInterceptor) SideEffectWithOptions(ctx Context, opt
 //
 // Exposed as: [go.temporal.io/sdk/workflow.MutableSideEffect]
 func MutableSideEffect(ctx Context, id string, f func(ctx Context) interface{}, equals func(a, b interface{}) bool) converter.EncodedValue {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.MutableSideEffect(ctx, id, f, equals)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 // MutableSideEffectWithOptions executes the provided function once, then it looks up the history for the value with the given id.
@@ -2354,23 +1705,18 @@ func MutableSideEffect(ctx Context, id string, f func(ctx Context) interface{}, 
 //
 // Exposed as: [go.temporal.io/sdk/workflow.MutableSideEffectWithOptions]
 func MutableSideEffectWithOptions(ctx Context, id string, options MutableSideEffectOptions, f func(ctx Context) interface{}, equals func(a, b interface{}) bool) converter.EncodedValue {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.MutableSideEffectWithOptions(ctx, id, options, f, equals)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 func (wc *workflowEnvironmentInterceptor) MutableSideEffect(ctx Context, id string, f func(ctx Context) interface{}, equals func(a, b interface{}) bool) converter.EncodedValue {
-	return wc.MutableSideEffectWithOptions(ctx, id, MutableSideEffectOptions{}, f, equals)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 func (wc *workflowEnvironmentInterceptor) MutableSideEffectWithOptions(ctx Context, id string, options MutableSideEffectOptions, f func(ctx Context) interface{}, equals func(a, b interface{}) bool) converter.EncodedValue {
-	wrapperFunc := func() interface{} {
-		coroutineState := getState(ctx)
-		defer coroutineState.dispatcher.setIsReadOnly(false)
-		coroutineState.dispatcher.setIsReadOnly(true)
-		return f(ctx)
-	}
-	return wc.env.MutableSideEffect(id, wrapperFunc, equals, options.Summary)
+	_ = "STUB: not implemented"
+	return *new(converter.EncodedValue)
 }
 
 // DefaultVersion is a version returned by GetVersion for code that wasn't versioned before
@@ -2449,13 +1795,13 @@ const TemporalChangeVersion = "TemporalChangeVersion"
 //
 // Exposed as: [go.temporal.io/sdk/workflow.GetVersion]
 func GetVersion(ctx Context, changeID string, minSupported, maxSupported Version) Version {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.GetVersion(ctx, changeID, minSupported, maxSupported)
+	_ = "STUB: not implemented"
+	return *new(Version)
 }
 
 func (wc *workflowEnvironmentInterceptor) GetVersion(ctx Context, changeID string, minSupported, maxSupported Version) Version {
-	return wc.env.GetVersion(changeID, minSupported, maxSupported)
+	_ = "STUB: not implemented"
+	return *new(Version)
 }
 
 // SetQueryHandler sets the query handler to handle workflow query. The queryType specify which query type this handler
@@ -2502,9 +1848,8 @@ func (wc *workflowEnvironmentInterceptor) GetVersion(ctx Context, changeID strin
 //
 // Exposed as: [go.temporal.io/sdk/workflow.SetQueryHandler]
 func SetQueryHandler(ctx Context, queryType string, handler interface{}) error {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.SetQueryHandler(ctx, queryType, handler)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SetQueryHandlerWithOptions is [SetQueryHandler] with extra options. See
@@ -2514,13 +1859,13 @@ func SetQueryHandler(ctx Context, queryType string, handler interface{}) error {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.SetQueryHandlerWithOptions]
 func SetQueryHandlerWithOptions(ctx Context, queryType string, handler interface{}, options QueryHandlerOptions) error {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.SetQueryHandlerWithOptions(ctx, queryType, handler, options)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wc *workflowEnvironmentInterceptor) SetQueryHandler(ctx Context, queryType string, handler interface{}) error {
-	return wc.SetQueryHandlerWithOptions(ctx, queryType, handler, QueryHandlerOptions{})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wc *workflowEnvironmentInterceptor) SetQueryHandlerWithOptions(
@@ -2529,10 +1874,8 @@ func (wc *workflowEnvironmentInterceptor) SetQueryHandlerWithOptions(
 	handler interface{},
 	options QueryHandlerOptions,
 ) error {
-	if strings.HasPrefix(queryType, "__") {
-		return errors.New("queryType starts with '__' is reserved for internal use")
-	}
-	return setQueryHandler(ctx, queryType, handler, options)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // SetUpdateHandler binds an update handler function to the specified
@@ -2560,16 +1903,13 @@ func (wc *workflowEnvironmentInterceptor) SetQueryHandlerWithOptions(
 //
 // Exposed as: [go.temporal.io/sdk/workflow.SetUpdateHandlerWithOptions]
 func SetUpdateHandler(ctx Context, updateName string, handler interface{}, opts UpdateHandlerOptions) error {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.SetUpdateHandler(ctx, updateName, handler, opts)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wc *workflowEnvironmentInterceptor) SetUpdateHandler(ctx Context, name string, handler interface{}, opts UpdateHandlerOptions) error {
-	if strings.HasPrefix(name, "__") {
-		return errors.New("update names starting with '__' are reserved for internal use")
-	}
-	return setUpdateHandler(ctx, name, handler, opts)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // IsReplaying returns whether the current workflow code is replaying.
@@ -2588,30 +1928,26 @@ func (wc *workflowEnvironmentInterceptor) SetUpdateHandler(ctx Context, name str
 // workflow causes workflow task to fail and temporal server will rescheduled later to retry.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.IsReplaying]
-func IsReplaying(ctx Context) bool {
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.IsReplaying(ctx)
-}
+func IsReplaying(ctx Context) bool { _ = "STUB: not implemented"; return false }
 
 func (wc *workflowEnvironmentInterceptor) IsReplaying(ctx Context) bool {
-	return wc.env.IsReplaying()
+	_ = "STUB: not implemented"
+	return false
+
+	// HasLastCompletionResult checks if there is completion result from previous runs.
+	// This is used in combination with cron schedule. A workflow can be started with an optional cron schedule.
+	// If a cron workflow wants to pass some data to next schedule, it can return any data and that data will become
+	// available when next run starts.
+	// This HasLastCompletionResult() checks if there is such data available passing down from previous successful run.
+	//
+	// Exposed as: [go.temporal.io/sdk/workflow.HasLastCompletionResult]
 }
 
-// HasLastCompletionResult checks if there is completion result from previous runs.
-// This is used in combination with cron schedule. A workflow can be started with an optional cron schedule.
-// If a cron workflow wants to pass some data to next schedule, it can return any data and that data will become
-// available when next run starts.
-// This HasLastCompletionResult() checks if there is such data available passing down from previous successful run.
-//
-// Exposed as: [go.temporal.io/sdk/workflow.HasLastCompletionResult]
-func HasLastCompletionResult(ctx Context) bool {
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.HasLastCompletionResult(ctx)
-}
+func HasLastCompletionResult(ctx Context) bool { _ = "STUB: not implemented"; return false }
 
 func (wc *workflowEnvironmentInterceptor) HasLastCompletionResult(ctx Context) bool {
-	info := wc.GetInfo(ctx)
-	return info.lastCompletionResult != nil
+	_ = "STUB: not implemented"
+	return false
 }
 
 // GetLastCompletionResult extract last completion result from previous run for this cron workflow.
@@ -2626,18 +1962,13 @@ func (wc *workflowEnvironmentInterceptor) HasLastCompletionResult(ctx Context) b
 //
 // Exposed as: [go.temporal.io/sdk/workflow.GetLastCompletionResult]
 func GetLastCompletionResult(ctx Context, d ...interface{}) error {
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.GetLastCompletionResult(ctx, d...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wc *workflowEnvironmentInterceptor) GetLastCompletionResult(ctx Context, d ...interface{}) error {
-	info := wc.GetInfo(ctx)
-	if info.lastCompletionResult == nil {
-		return ErrNoData
-	}
-
-	encodedVal := newEncodedValues(info.lastCompletionResult, getDataConverterFromWorkflowContext(ctx))
-	return encodedVal.Get(d...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetLastError extracts the latest failure from any from previous run for this workflow, if one has failed. If none
@@ -2646,46 +1977,35 @@ func (wc *workflowEnvironmentInterceptor) GetLastCompletionResult(ctx Context, d
 // See TestWorkflowEnvironment.SetLastError() for unit test support.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.GetLastError]
-func GetLastError(ctx Context) error {
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.GetLastError(ctx)
-}
+func GetLastError(ctx Context) error { _ = "STUB: not implemented"; return nil }
 
 func (wc *workflowEnvironmentInterceptor) GetLastError(ctx Context) error {
-	info := wc.GetInfo(ctx)
-	return wc.env.GetFailureConverter().FailureToError(info.lastFailure)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Needed so this can properly be considered an inbound interceptor
-func (*workflowEnvironmentInterceptor) mustEmbedWorkflowInboundInterceptorBase() {}
+func (*workflowEnvironmentInterceptor) mustEmbedWorkflowInboundInterceptorBase() {
+	_ = "STUB: not implemented"
 
-// Needed so this can properly be considered an outbound interceptor
-func (*workflowEnvironmentInterceptor) mustEmbedWorkflowOutboundInterceptorBase() {}
+	// Needed so this can properly be considered an outbound interceptor
+	return
+}
 
-// WithActivityOptions adds all options to the copy of the context.
-// The current timeout resolution implementation is in seconds and uses math.Ceil(d.Seconds()) as the duration. But is
-// subjected to change in the future.
-//
-// Exposed as: [go.temporal.io/sdk/workflow.WithActivityOptions]
+func (*workflowEnvironmentInterceptor) mustEmbedWorkflowOutboundInterceptorBase() {
+	_ = "STUB: not implemented"
+
+	// WithActivityOptions adds all options to the copy of the context.
+	// The current timeout resolution implementation is in seconds and uses math.Ceil(d.Seconds()) as the duration. But is
+	// subjected to change in the future.
+	//
+	// Exposed as: [go.temporal.io/sdk/workflow.WithActivityOptions]
+	return
+}
+
 func WithActivityOptions(ctx Context, options ActivityOptions) Context {
-	ctx1 := setActivityParametersIfNotExist(ctx)
-	eap := getActivityOptions(ctx1)
-
-	if len(options.TaskQueue) > 0 {
-		eap.TaskQueueName = options.TaskQueue
-	}
-	eap.ScheduleToCloseTimeout = options.ScheduleToCloseTimeout
-	eap.StartToCloseTimeout = options.StartToCloseTimeout
-	eap.ScheduleToStartTimeout = options.ScheduleToStartTimeout
-	eap.HeartbeatTimeout = options.HeartbeatTimeout
-	eap.WaitForCancellation = options.WaitForCancellation
-	eap.ActivityID = options.ActivityID
-	eap.RetryPolicy = convertToPBRetryPolicy(options.RetryPolicy)
-	eap.DisableEagerExecution = options.DisableEagerExecution
-	eap.VersioningIntent = options.VersioningIntent
-	eap.Priority = convertToPBPriority(options.Priority)
-	eap.Summary = options.Summary
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithLocalActivityOptions adds local activity options to the copy of the context.
@@ -2694,79 +2014,37 @@ func WithActivityOptions(ctx Context, options ActivityOptions) Context {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithLocalActivityOptions]
 func WithLocalActivityOptions(ctx Context, options LocalActivityOptions) Context {
-	ctx1 := setLocalActivityParametersIfNotExist(ctx)
-	opts := getLocalActivityOptions(ctx1)
-
-	opts.ScheduleToCloseTimeout = options.ScheduleToCloseTimeout
-	opts.StartToCloseTimeout = options.StartToCloseTimeout
-	opts.RetryPolicy = applyRetryPolicyDefaultsForLocalActivity(options.RetryPolicy)
-	opts.Summary = options.Summary
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 func applyRetryPolicyDefaultsForLocalActivity(policy *RetryPolicy) *RetryPolicy {
-	if policy == nil {
-		policy = &RetryPolicy{}
-	}
-	if policy.BackoffCoefficient == 0 {
-		policy.BackoffCoefficient = 2
-	}
-	if policy.InitialInterval == 0 {
-		policy.InitialInterval = 1 * time.Second
-	}
-	if policy.MaximumInterval == 0 {
-		policy.MaximumInterval = policy.InitialInterval * 100
-	}
-	return policy
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // WithTaskQueue adds a task queue to the copy of the context.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithTaskQueue]
 func WithTaskQueue(ctx Context, name string) Context {
-	ctx1 := setActivityParametersIfNotExist(ctx)
-	getActivityOptions(ctx1).TaskQueueName = name
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // GetActivityOptions returns all activity options present on the context.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.GetActivityOptions]
 func GetActivityOptions(ctx Context) ActivityOptions {
-	opts := getActivityOptions(ctx)
-	if opts == nil {
-		return ActivityOptions{}
-	}
-	return ActivityOptions{
-		TaskQueue:              opts.TaskQueueName,
-		ScheduleToCloseTimeout: opts.ScheduleToCloseTimeout,
-		ScheduleToStartTimeout: opts.ScheduleToStartTimeout,
-		StartToCloseTimeout:    opts.StartToCloseTimeout,
-		HeartbeatTimeout:       opts.HeartbeatTimeout,
-		WaitForCancellation:    opts.WaitForCancellation,
-		ActivityID:             opts.ActivityID,
-		RetryPolicy:            convertFromPBRetryPolicy(opts.RetryPolicy),
-		DisableEagerExecution:  opts.DisableEagerExecution,
-		VersioningIntent:       opts.VersioningIntent,
-		Priority:               convertFromPBPriority(opts.Priority),
-		Summary:                opts.Summary,
-	}
+	_ = "STUB: not implemented"
+	return *new(ActivityOptions)
 }
 
 // GetLocalActivityOptions returns all local activity options present on the context.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.GetLocalActivityOptions]
 func GetLocalActivityOptions(ctx Context) LocalActivityOptions {
-	opts := getLocalActivityOptions(ctx)
-	if opts == nil {
-		return LocalActivityOptions{}
-	}
-	return LocalActivityOptions{
-		ScheduleToCloseTimeout: opts.ScheduleToCloseTimeout,
-		StartToCloseTimeout:    opts.StartToCloseTimeout,
-		RetryPolicy:            opts.RetryPolicy,
-		Summary:                opts.Summary,
-	}
+	_ = "STUB: not implemented"
+	return *new(LocalActivityOptions)
 }
 
 // WithScheduleToCloseTimeout adds a timeout to the copy of the context.
@@ -2775,9 +2053,8 @@ func GetLocalActivityOptions(ctx Context) LocalActivityOptions {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithScheduleToCloseTimeout]
 func WithScheduleToCloseTimeout(ctx Context, d time.Duration) Context {
-	ctx1 := setActivityParametersIfNotExist(ctx)
-	getActivityOptions(ctx1).ScheduleToCloseTimeout = d
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithScheduleToStartTimeout adds a timeout to the copy of the context.
@@ -2786,9 +2063,8 @@ func WithScheduleToCloseTimeout(ctx Context, d time.Duration) Context {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithScheduleToStartTimeout]
 func WithScheduleToStartTimeout(ctx Context, d time.Duration) Context {
-	ctx1 := setActivityParametersIfNotExist(ctx)
-	getActivityOptions(ctx1).ScheduleToStartTimeout = d
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithStartToCloseTimeout adds a timeout to the copy of the context.
@@ -2797,9 +2073,8 @@ func WithScheduleToStartTimeout(ctx Context, d time.Duration) Context {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithStartToCloseTimeout]
 func WithStartToCloseTimeout(ctx Context, d time.Duration) Context {
-	ctx1 := setActivityParametersIfNotExist(ctx)
-	getActivityOptions(ctx1).StartToCloseTimeout = d
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithHeartbeatTimeout adds a timeout to the copy of the context.
@@ -2808,132 +2083,80 @@ func WithStartToCloseTimeout(ctx Context, d time.Duration) Context {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithHeartbeatTimeout]
 func WithHeartbeatTimeout(ctx Context, d time.Duration) Context {
-	ctx1 := setActivityParametersIfNotExist(ctx)
-	getActivityOptions(ctx1).HeartbeatTimeout = d
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithWaitForCancellation adds wait for the cancellation to the copy of the context.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithWaitForCancellation]
 func WithWaitForCancellation(ctx Context, wait bool) Context {
-	ctx1 := setActivityParametersIfNotExist(ctx)
-	getActivityOptions(ctx1).WaitForCancellation = wait
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithRetryPolicy adds retry policy to the copy of the context
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithRetryPolicy]
 func WithRetryPolicy(ctx Context, retryPolicy RetryPolicy) Context {
-	ctx1 := setActivityParametersIfNotExist(ctx)
-	getActivityOptions(ctx1).RetryPolicy = convertToPBRetryPolicy(&retryPolicy)
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // WithPriority adds priority to the copy of the context.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.WithPriority]
 func WithPriority(ctx Context, priority Priority) Context {
-	ctx1 := setActivityParametersIfNotExist(ctx)
-	getActivityOptions(ctx1).Priority = convertToPBPriority(priority)
-	return ctx1
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 func convertToPBRetryPolicy(retryPolicy *RetryPolicy) *commonpb.RetryPolicy {
-	if retryPolicy == nil {
-		return nil
-	}
-
-	return &commonpb.RetryPolicy{
-		MaximumInterval:        durationpb.New(retryPolicy.MaximumInterval),
-		InitialInterval:        durationpb.New(retryPolicy.InitialInterval),
-		BackoffCoefficient:     retryPolicy.BackoffCoefficient,
-		MaximumAttempts:        retryPolicy.MaximumAttempts,
-		NonRetryableErrorTypes: retryPolicy.NonRetryableErrorTypes,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func convertFromPBRetryPolicy(retryPolicy *commonpb.RetryPolicy) *RetryPolicy {
-	if retryPolicy == nil {
-		return nil
-	}
-
-	p := RetryPolicy{
-		BackoffCoefficient:     retryPolicy.BackoffCoefficient,
-		MaximumAttempts:        retryPolicy.MaximumAttempts,
-		NonRetryableErrorTypes: retryPolicy.NonRetryableErrorTypes,
-	}
-
-	p.MaximumInterval = retryPolicy.MaximumInterval.AsDuration()
-	p.InitialInterval = retryPolicy.InitialInterval.AsDuration()
-
-	return &p
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func convertToPBPriority(priority Priority) *commonpb.Priority {
+	_ = "STUB: not implemented"
 	// If the priority only contains default values, return nil instead
 	// - since there's no need to send the default values to the server.
 	//
 	// Exposed as: [go.temporal.io/sdk/temporal.Priority]
-	var defaultPriority Priority
-	if priority == defaultPriority {
-		return nil
-	}
-
-	return &commonpb.Priority{
-		PriorityKey:    int32(priority.PriorityKey),
-		FairnessKey:    priority.FairnessKey,
-		FairnessWeight: priority.FairnessWeight,
-	}
+	return nil
 }
 
 func convertFromPBPriority(priority *commonpb.Priority) Priority {
+	_ = "STUB: not implemented"
 	// If the priority is nil, return the default value.
-	if priority == nil {
-		return Priority{}
-	}
-
-	return Priority{
-		PriorityKey:    int(priority.PriorityKey),
-		FairnessKey:    priority.FairnessKey,
-		FairnessWeight: priority.FairnessWeight,
-	}
+	return *new(Priority)
 }
 
 // GetLastCompletionResultFromWorkflowInfo returns value of last completion result.
 func GetLastCompletionResultFromWorkflowInfo(info *WorkflowInfo) *commonpb.Payloads {
-	return info.lastCompletionResult
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // DeterministicKeys returns the keys of a map in deterministic (sorted) order. To be used in for
 // loops in workflows for deterministic iteration.
-func DeterministicKeys[K cmp.Ordered, V any](m map[K]V) []K {
-	r := make([]K, 0, len(m))
-	for k := range m {
-		r = append(r, k)
-	}
-	slices.Sort(r)
-	return r
-}
+func DeterministicKeys[K cmp.Ordered, V any](m map[K]V) []K { _ = "STUB: not implemented"; return nil }
 
 // DeterministicKeysFunc returns the keys of a map in a deterministic (sorted) order.
 // cmp(a, b) should return a negative number when a < b, a positive number when
 // a > b and zero when a == b. Keys are sorted by cmp.
 // To be used in for loops in workflows for deterministic iteration.
 func DeterministicKeysFunc[K comparable, V any](m map[K]V, cmp func(a K, b K) int) []K {
-	r := make([]K, 0, len(m))
-	for k := range m {
-		r = append(r, k)
-	}
-	slices.SortStableFunc(r, cmp)
-	return r
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Exposed as: [go.temporal.io/sdk/workflow.AllHandlersFinished]
-func AllHandlersFinished(ctx Context) bool {
-	return len(getWorkflowEnvOptions(ctx).getRunningUpdateHandles()) == 0
-}
+func AllHandlersFinished(ctx Context) bool { _ = "STUB: not implemented"; return false }
 
 // NexusOperationOptions are options for starting a Nexus Operation from a Workflow.
 //
@@ -3027,178 +2250,50 @@ type nexusClient struct {
 //
 // Exposed as: [go.temporal.io/sdk/workflow.NewNexusClient]
 func NewNexusClient(endpoint, service string) NexusClient {
-	if endpoint == "" {
-		panic("endpoint must not be empty")
-	}
-	if service == "" {
-		panic("service must not be empty")
-	}
-	if strings.HasPrefix(endpoint, temporalPrefix) {
-		panic("endpoint cannot use reserved __temporal_ prefix")
-	}
-	if strings.HasPrefix(service, temporalPrefix) {
-		panic("service cannot use reserved __temporal_ prefix")
-	}
-	return nexusClient{endpoint, service}
+	_ = "STUB: not implemented"
+	return *new(NexusClient)
 }
 
-func (c nexusClient) Endpoint() string {
-	return c.endpoint
-}
+func (c nexusClient) Endpoint() string { _ = "STUB: not implemented"; return "" }
 
-func (c nexusClient) Service() string {
-	return c.service
-}
+func (c nexusClient) Service() string { _ = "STUB: not implemented"; return "" }
 
 func (c nexusClient) ExecuteOperation(ctx Context, operation any, input any, options NexusOperationOptions) NexusOperationFuture {
-	assertNotInReadOnlyState(ctx)
-	i := getWorkflowOutboundInterceptor(ctx)
-	return i.ExecuteNexusOperation(ctx, ExecuteNexusOperationInput{
-		Client:      c,
-		Operation:   operation,
-		Input:       input,
-		Options:     options,
-		NexusHeader: nexus.Header{},
-	})
+	_ = "STUB: not implemented"
+	return *new(NexusOperationFuture)
 }
 
 func (wc *workflowEnvironmentInterceptor) prepareNexusOperationParams(ctx Context, input ExecuteNexusOperationInput) (ExecuteNexusOperationParams, error) {
-	dc := WithWorkflowContext(ctx, wc.env.GetDataConverter())
-
-	var ok bool
-	var operationName string
-	if operationName, ok = input.Operation.(string); ok {
-	} else if regOp, ok := input.Operation.(interface {
-		Name() string
-		InputType() reflect.Type
-	}); ok {
-		operationName = regOp.Name()
-		inputType := reflect.TypeOf(input.Input)
-		if inputType != nil && !inputType.AssignableTo(regOp.InputType()) {
-			return ExecuteNexusOperationParams{}, fmt.Errorf("cannot assign argument of type %q to type %q for operation %q", inputType, regOp.InputType(), operationName)
-		}
-	} else {
-		return ExecuteNexusOperationParams{}, fmt.Errorf("invalid 'operation' parameter, must be an OperationReference or a string")
-	}
-
-	payload, err := dc.ToPayload(input.Input)
-	if err != nil {
-		return ExecuteNexusOperationParams{}, err
-	}
-
-	if input.Options.CancellationType == NexusOperationCancellationTypeUnspecified {
-		input.Options.CancellationType = NexusOperationCancellationTypeWaitCompleted
-	}
-
-	return ExecuteNexusOperationParams{
-		client:      input.Client,
-		operation:   operationName,
-		input:       payload,
-		options:     input.Options,
-		nexusHeader: input.NexusHeader,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(ExecuteNexusOperationParams), nil
 }
 
 func (wc *workflowEnvironmentInterceptor) ExecuteNexusOperation(ctx Context, input ExecuteNexusOperationInput) NexusOperationFuture {
-	mainFuture, mainSettable := newDecodeFuture(ctx, nil /* this param is never used */)
-	executionFuture, executionSettable := NewFuture(ctx)
-	result := &nexusOperationFutureImpl{
-		decodeFutureImpl: mainFuture.(*decodeFutureImpl),
-		executionFuture:  executionFuture.(*futureImpl),
-	}
-
-	// Immediately return if the context has an error without spawning the Nexus operation.
-	if ctx.Err() != nil {
-		executionSettable.Set(nil, ctx.Err())
-		mainSettable.Set(nil, ctx.Err())
-		return result
-	}
-
-	ctxDone, cancellable := ctx.Done().(*channelImpl)
-	cancellationCallback := &receiveCallback{}
-
-	params, err := wc.prepareNexusOperationParams(ctx, input)
-	if err != nil {
-		executionSettable.Set(nil, err)
-		mainSettable.Set(nil, err)
-		return result
-	}
-
-	var operationToken string
-	seq := wc.env.ExecuteNexusOperation(params, func(r *commonpb.Payload, e error) {
-		var payloads *commonpb.Payloads
-		if r != nil {
-			payloads = &commonpb.Payloads{Payloads: []*commonpb.Payload{r}}
-		}
-		mainSettable.Set(payloads, e)
-		if cancellable {
-			// future is done, we don't need cancellation anymore
-			ctxDone.removeReceiveCallback(cancellationCallback)
-		}
-	}, func(token string, e error) {
-		operationToken = token
-		executionSettable.Set(NexusOperationExecution{
-			OperationToken: operationToken,
-		}, e)
-	})
-
-	if cancellable {
-		cancellationCallback.fn = func(v any, _ bool) bool {
-			assertNotInReadOnlyStateCancellation(ctx)
-			if ctx.Err() == ErrCanceled && !mainFuture.IsReady() {
-				if input.Options.CancellationType == NexusOperationCancellationTypeAbandon {
-					// Caller has indicated we should not send the cancel request, so just mark futures as done.
-					mainSettable.Set(nil, ErrCanceled)
-					if !executionFuture.IsReady() {
-						executionSettable.Set(nil, ErrCanceled)
-					}
-				} else {
-					// Go back to the top of the interception chain.
-					getWorkflowOutboundInterceptor(ctx).RequestCancelNexusOperation(ctx, RequestCancelNexusOperationInput{
-						Client:    input.Client,
-						Operation: input.Operation,
-						Token:     operationToken,
-						seq:       seq,
-					})
-				}
-			}
-			return false
-		}
-		_, ok, more := ctxDone.receiveAsyncImpl(cancellationCallback)
-		if ok || !more {
-			cancellationCallback.fn(nil, more)
-		}
-	}
-
-	return result
+	_ = "STUB: not implemented"
+	return *new(NexusOperationFuture)
 }
 
+/* this param is never used */
+
+// Immediately return if the context has an error without spawning the Nexus operation.
+
+// future is done, we don't need cancellation anymore
+
+// Caller has indicated we should not send the cancel request, so just mark futures as done.
+
+// Go back to the top of the interception chain.
+
 func (wc *workflowEnvironmentInterceptor) RequestCancelNexusOperation(ctx Context, input RequestCancelNexusOperationInput) {
-	wc.env.RequestCancelNexusOperation(input.seq)
+	_ = "STUB: not implemented"
+	return
 }
 
 func versioningBehaviorToProto(t VersioningBehavior) enumspb.VersioningBehavior {
-	switch t {
-	case VersioningBehaviorUnspecified:
-		return enumspb.VERSIONING_BEHAVIOR_UNSPECIFIED
-	case VersioningBehaviorPinned:
-		return enumspb.VERSIONING_BEHAVIOR_PINNED
-	case VersioningBehaviorAutoUpgrade:
-		return enumspb.VERSIONING_BEHAVIOR_AUTO_UPGRADE
-	default:
-		panic("unknown versioning behavior type")
-	}
+	_ = "STUB: not implemented"
+	return *new(enumspb.VersioningBehavior)
 }
 
 func continueAsNewVersioningBehaviorToProto(t ContinueAsNewVersioningBehavior) enumspb.ContinueAsNewVersioningBehavior {
-	switch t {
-	case ContinueAsNewVersioningBehaviorUnspecified:
-		return enumspb.CONTINUE_AS_NEW_VERSIONING_BEHAVIOR_UNSPECIFIED
-	case ContinueAsNewVersioningBehaviorAutoUpgrade:
-		return enumspb.CONTINUE_AS_NEW_VERSIONING_BEHAVIOR_AUTO_UPGRADE
-	case ContinueAsNewVersioningBehaviorUseRampingVersion:
-		return enumspb.CONTINUE_AS_NEW_VERSIONING_BEHAVIOR_USE_RAMPING_VERSION
-	default:
-		panic("unknown continue-as-new versioning behavior type")
-	}
+	_ = "STUB: not implemented"
+	return *new(enumspb.ContinueAsNewVersioningBehavior)
 }

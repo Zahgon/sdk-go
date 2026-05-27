@@ -40,7 +40,8 @@ type CancelFunc = internal.CancelFunc
 // Canceling this context releases resources associated with it, so code should
 // call cancel as soon as the operations running in this Context complete.
 func WithCancel(parent Context) (ctx Context, cancel CancelFunc) {
-	return internal.WithCancel(parent)
+	_ = "STUB: not implemented"
+	return *new(Context), *new(CancelFunc)
 }
 
 // WithValue returns a copy of parent in which the value associated with key is
@@ -49,7 +50,8 @@ func WithCancel(parent Context) (ctx Context, cancel CancelFunc) {
 // Use context Values only for request-scoped data that transits processes and
 // APIs, not for passing optional parameters to functions.
 func WithValue(parent Context, key interface{}, val interface{}) Context {
-	return internal.WithValue(parent, key, val)
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 // NewDisconnectedContext returns a new context that won't propagate parent's cancellation to the new child context.
@@ -63,5 +65,6 @@ func WithValue(parent Context, key interface{}, val interface{}) Context {
 //	  return err // workflow return CanceledError
 //	}
 func NewDisconnectedContext(parent Context) (ctx Context, cancel CancelFunc) {
-	return internal.NewDisconnectedContext(parent)
+	_ = "STUB: not implemented"
+	return *new(Context), *new(CancelFunc)
 }

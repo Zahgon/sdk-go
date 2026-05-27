@@ -260,44 +260,37 @@ func New(
 	taskQueue string,
 	options Options,
 ) Worker {
-	return internal.NewWorker(client, taskQueue, options)
+	_ = "STUB: not implemented"
+	return *new(Worker)
 }
 
 // NewWorkflowReplayer creates a WorkflowReplayer instance.
 func NewWorkflowReplayer() WorkflowReplayer {
-	w, err := NewWorkflowReplayerWithOptions(WorkflowReplayerOptions{})
-	if err != nil {
-		panic(err)
-	}
-	return w
+	_ = "STUB: not implemented"
+	return *new(WorkflowReplayer)
 }
 
 // NewWorkflowReplayerWithOptions creates a WorkflowReplayer instance with the
 // given options.
 func NewWorkflowReplayerWithOptions(options WorkflowReplayerOptions) (WorkflowReplayer, error) {
-	return internal.NewWorkflowReplayer(options)
+	_ = "STUB: not implemented"
+	return *new(WorkflowReplayer), nil
 }
 
 // EnableVerboseLogging enable or disable verbose logging of internal Temporal library components.
 // Most customers don't need this feature, unless advised by the Temporal team member.
 // Also there is no guarantee that this API is not going to change.
-func EnableVerboseLogging(enable bool) {
-	internal.EnableVerboseLogging(enable)
-}
+func EnableVerboseLogging(enable bool) { _ = "STUB: not implemented"; return }
 
 // SetStickyWorkflowCacheSize sets the cache size for sticky workflow cache. Sticky workflow execution is the affinity
 // between workflow tasks of a specific workflow execution to a specific worker. The benefit of sticky execution is that
 // the workflow does not have to reconstruct state by replaying history from the beginning. The cache is shared between
 // workers running within same process. This must be called before any worker is started. If not called, the default
 // size of 10K (which may change) will be used.
-func SetStickyWorkflowCacheSize(cacheSize int) {
-	internal.SetStickyWorkflowCacheSize(cacheSize)
-}
+func SetStickyWorkflowCacheSize(cacheSize int) { _ = "STUB: not implemented"; return }
 
 // PurgeStickyWorkflowCache resets the sticky workflow cache. This must be called only when all workers are stopped.
-func PurgeStickyWorkflowCache() {
-	internal.PurgeStickyWorkflowCache()
-}
+func PurgeStickyWorkflowCache() { _ = "STUB: not implemented"; return }
 
 // SetBinaryChecksum sets the identifier of the binary(aka BinaryChecksum).
 // The identifier is mainly used in recording reset points when respondWorkflowTaskCompleted. For each workflow, the very first
@@ -305,20 +298,17 @@ func PurgeStickyWorkflowCache() {
 // mark the binary as bad, the workflow will be reset to that point -- which means workflow will forget all progress generated
 // by the binary.
 // On another hand, once the binary is marked as bad, the bad binary cannot poll workflow queue and make any progress any more.
-func SetBinaryChecksum(checksum string) {
-	internal.SetBinaryChecksum(checksum)
-}
+func SetBinaryChecksum(checksum string) { _ = "STUB: not implemented"; return }
 
 // InterruptCh returns channel which will get data when system receives interrupt signal from OS. Pass it to worker.Run() func to stop worker with Ctrl+C.
-func InterruptCh() <-chan interface{} {
-	return internal.InterruptCh()
-}
+func InterruptCh() <-chan interface{} { _ = "STUB: not implemented"; return nil }
 
 // NewPollerBehaviorSimpleMaximum creates a PollerBehavior that allows the worker to start up to a maximum number of pollers.
 func NewPollerBehaviorSimpleMaximum(
 	options PollerBehaviorSimpleMaximumOptions,
 ) PollerBehavior {
-	return internal.NewPollerBehaviorSimpleMaximum(options)
+	_ = "STUB: not implemented"
+	return *new(PollerBehavior)
 }
 
 // NewPollerBehaviorAutoscaling creates a PollerBehavior that allows the worker to scale the number of pollers within a given range.
@@ -326,5 +316,6 @@ func NewPollerBehaviorSimpleMaximum(
 func NewPollerBehaviorAutoscaling(
 	options PollerBehaviorAutoscalingOptions,
 ) PollerBehavior {
-	return internal.NewPollerBehaviorAutoscaling(options)
+	_ = "STUB: not implemented"
+	return *new(PollerBehavior)
 }

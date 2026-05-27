@@ -12,40 +12,10 @@ type Value struct {
 }
 
 // Get provides a mock function with given fields: valuePtr
-func (_m *Value) Get(valuePtr interface{}) error {
-	ret := _m.Called(valuePtr)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Get")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(interface{}) error); ok {
-		r0 = rf(valuePtr)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
+func (_m *Value) Get(valuePtr interface{}) error { _ = "STUB: not implemented"; return nil }
 
 // HasValue provides a mock function with given fields:
-func (_m *Value) HasValue() bool {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for HasValue")
-	}
-
-	var r0 bool
-	if rf, ok := ret.Get(0).(func() bool); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	return r0
-}
+func (_m *Value) HasValue() bool { _ = "STUB: not implemented"; return false }
 
 // NewEncodedValue creates a new instance of Value. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
@@ -53,10 +23,6 @@ func NewEncodedValue(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *Value {
-	mock := &Value{}
-	mock.Mock.Test(t)
-
-	t.Cleanup(func() { mock.AssertExpectations(t) })
-
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }

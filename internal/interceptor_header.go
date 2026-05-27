@@ -2,7 +2,6 @@ package internal
 
 import (
 	"context"
-	"fmt"
 
 	commonpb "go.temporal.io/api/common/v1"
 )
@@ -15,16 +14,18 @@ type headerKey struct{}
 //
 // Exposed as: [go.temporal.io/sdk/interceptor.Header]
 func Header(ctx context.Context) map[string]*commonpb.Payload {
-	m, _ := ctx.Value(headerKey{}).(map[string]*commonpb.Payload)
-	return m
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func contextWithNewHeader(ctx context.Context) context.Context {
-	return context.WithValue(ctx, headerKey{}, map[string]*commonpb.Payload{})
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 func contextWithoutHeader(ctx context.Context) context.Context {
-	return context.WithValue(ctx, headerKey{}, nil)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 func contextWithHeaderPropagated(
@@ -32,34 +33,13 @@ func contextWithHeaderPropagated(
 	header *commonpb.Header,
 	ctxProps []ContextPropagator,
 ) (context.Context, error) {
-	if header == nil {
-		header = &commonpb.Header{}
-	}
-	if header.Fields == nil {
-		header.Fields = map[string]*commonpb.Payload{}
-	}
-	reader := NewHeaderReader(header)
-	for _, ctxProp := range ctxProps {
-		var err error
-		if ctx, err = ctxProp.Extract(ctx, reader); err != nil {
-			return nil, fmt.Errorf("failed propagating header: %w", err)
-		}
-	}
-	return context.WithValue(ctx, headerKey{}, header.Fields), nil
+	_ = "STUB: not implemented"
+	return *new(context.Context), nil
 }
 
 func headerPropagated(ctx context.Context, ctxProps []ContextPropagator) (*commonpb.Header, error) {
-	header := &commonpb.Header{Fields: Header(ctx)}
-	if header.Fields == nil {
-		return nil, fmt.Errorf("context missing header")
-	}
-	writer := NewHeaderWriter(header)
-	for _, ctxProp := range ctxProps {
-		if err := ctxProp.Inject(ctx, writer); err != nil {
-			return nil, fmt.Errorf("failed propagating header: %w", err)
-		}
-	}
-	return header, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // WorkflowHeader provides Temporal header information from the workflow context
@@ -68,16 +48,18 @@ func headerPropagated(ctx context.Context, ctxProps []ContextPropagator) (*commo
 //
 // Exposed as: [go.temporal.io/sdk/interceptor.WorkflowHeader]
 func WorkflowHeader(ctx Context) map[string]*commonpb.Payload {
-	m, _ := ctx.Value(headerKey{}).(map[string]*commonpb.Payload)
-	return m
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func workflowContextWithNewHeader(ctx Context) Context {
-	return WithValue(ctx, headerKey{}, map[string]*commonpb.Payload{})
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 func workflowContextWithoutHeader(ctx Context) Context {
-	return WithValue(ctx, headerKey{}, nil)
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 func workflowContextWithHeaderPropagated(
@@ -85,32 +67,11 @@ func workflowContextWithHeaderPropagated(
 	header *commonpb.Header,
 	ctxProps []ContextPropagator,
 ) (Context, error) {
-	if header == nil {
-		header = &commonpb.Header{}
-	}
-	if header.Fields == nil {
-		header.Fields = map[string]*commonpb.Payload{}
-	}
-	reader := NewHeaderReader(header)
-	for _, ctxProp := range ctxProps {
-		var err error
-		if ctx, err = ctxProp.ExtractToWorkflow(ctx, reader); err != nil {
-			return nil, fmt.Errorf("failed propagating header: %w", err)
-		}
-	}
-	return WithValue(ctx, headerKey{}, header.Fields), nil
+	_ = "STUB: not implemented"
+	return *new(Context), nil
 }
 
 func workflowHeaderPropagated(ctx Context, ctxProps []ContextPropagator) (*commonpb.Header, error) {
-	header := &commonpb.Header{Fields: WorkflowHeader(ctx)}
-	if header.Fields == nil {
-		return nil, fmt.Errorf("context missing workflow header")
-	}
-	writer := NewHeaderWriter(header)
-	for _, ctxProp := range ctxProps {
-		if err := ctxProp.InjectFromWorkflow(ctx, writer); err != nil {
-			return nil, fmt.Errorf("failed propagating header: %w", err)
-		}
-	}
-	return header, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

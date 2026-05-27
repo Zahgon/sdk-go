@@ -21,170 +21,38 @@ type WorkerDeploymentHandle struct {
 
 // DeleteVersion provides a mock function with given fields: ctx, options
 func (_m *WorkerDeploymentHandle) DeleteVersion(ctx context.Context, options client.WorkerDeploymentDeleteVersionOptions) (client.WorkerDeploymentDeleteVersionResponse, error) {
-	ret := _m.Called(ctx, options)
-
-	if len(ret) == 0 {
-		panic("no return value specified for DeleteVersion")
-	}
-
-	var r0 client.WorkerDeploymentDeleteVersionResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, client.WorkerDeploymentDeleteVersionOptions) (client.WorkerDeploymentDeleteVersionResponse, error)); ok {
-		return rf(ctx, options)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, client.WorkerDeploymentDeleteVersionOptions) client.WorkerDeploymentDeleteVersionResponse); ok {
-		r0 = rf(ctx, options)
-	} else {
-		r0 = ret.Get(0).(client.WorkerDeploymentDeleteVersionResponse)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, client.WorkerDeploymentDeleteVersionOptions) error); ok {
-		r1 = rf(ctx, options)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	_ = "STUB: not implemented"
+	return *new(client.WorkerDeploymentDeleteVersionResponse), nil
 }
 
 // Describe provides a mock function with given fields: ctx, options
 func (_m *WorkerDeploymentHandle) Describe(ctx context.Context, options client.WorkerDeploymentDescribeOptions) (client.WorkerDeploymentDescribeResponse, error) {
-	ret := _m.Called(ctx, options)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Describe")
-	}
-
-	var r0 client.WorkerDeploymentDescribeResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, client.WorkerDeploymentDescribeOptions) (client.WorkerDeploymentDescribeResponse, error)); ok {
-		return rf(ctx, options)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, client.WorkerDeploymentDescribeOptions) client.WorkerDeploymentDescribeResponse); ok {
-		r0 = rf(ctx, options)
-	} else {
-		r0 = ret.Get(0).(client.WorkerDeploymentDescribeResponse)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, client.WorkerDeploymentDescribeOptions) error); ok {
-		r1 = rf(ctx, options)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	_ = "STUB: not implemented"
+	return *new(client.WorkerDeploymentDescribeResponse), nil
 }
 
 // DescribeVersion provides a mock function with given fields: ctx, options
 func (_m *WorkerDeploymentHandle) DescribeVersion(ctx context.Context, options client.WorkerDeploymentDescribeVersionOptions) (client.WorkerDeploymentVersionDescription, error) {
-	ret := _m.Called(ctx, options)
-
-	if len(ret) == 0 {
-		panic("no return value specified for DescribeVersion")
-	}
-
-	var r0 client.WorkerDeploymentVersionDescription
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, client.WorkerDeploymentDescribeVersionOptions) (client.WorkerDeploymentVersionDescription, error)); ok {
-		return rf(ctx, options)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, client.WorkerDeploymentDescribeVersionOptions) client.WorkerDeploymentVersionDescription); ok {
-		r0 = rf(ctx, options)
-	} else {
-		r0 = ret.Get(0).(client.WorkerDeploymentVersionDescription)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, client.WorkerDeploymentDescribeVersionOptions) error); ok {
-		r1 = rf(ctx, options)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	_ = "STUB: not implemented"
+	return *new(client.WorkerDeploymentVersionDescription), nil
 }
 
 // SetCurrentVersion provides a mock function with given fields: ctx, options
 func (_m *WorkerDeploymentHandle) SetCurrentVersion(ctx context.Context, options client.WorkerDeploymentSetCurrentVersionOptions) (client.WorkerDeploymentSetCurrentVersionResponse, error) {
-	ret := _m.Called(ctx, options)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SetCurrentVersion")
-	}
-
-	var r0 client.WorkerDeploymentSetCurrentVersionResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, client.WorkerDeploymentSetCurrentVersionOptions) (client.WorkerDeploymentSetCurrentVersionResponse, error)); ok {
-		return rf(ctx, options)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, client.WorkerDeploymentSetCurrentVersionOptions) client.WorkerDeploymentSetCurrentVersionResponse); ok {
-		r0 = rf(ctx, options)
-	} else {
-		r0 = ret.Get(0).(client.WorkerDeploymentSetCurrentVersionResponse)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, client.WorkerDeploymentSetCurrentVersionOptions) error); ok {
-		r1 = rf(ctx, options)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	_ = "STUB: not implemented"
+	return *new(client.WorkerDeploymentSetCurrentVersionResponse), nil
 }
 
 // SetRampingVersion provides a mock function with given fields: ctx, options
 func (_m *WorkerDeploymentHandle) SetRampingVersion(ctx context.Context, options client.WorkerDeploymentSetRampingVersionOptions) (client.WorkerDeploymentSetRampingVersionResponse, error) {
-	ret := _m.Called(ctx, options)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SetRampingVersion")
-	}
-
-	var r0 client.WorkerDeploymentSetRampingVersionResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, client.WorkerDeploymentSetRampingVersionOptions) (client.WorkerDeploymentSetRampingVersionResponse, error)); ok {
-		return rf(ctx, options)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, client.WorkerDeploymentSetRampingVersionOptions) client.WorkerDeploymentSetRampingVersionResponse); ok {
-		r0 = rf(ctx, options)
-	} else {
-		r0 = ret.Get(0).(client.WorkerDeploymentSetRampingVersionResponse)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, client.WorkerDeploymentSetRampingVersionOptions) error); ok {
-		r1 = rf(ctx, options)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	_ = "STUB: not implemented"
+	return *new(client.WorkerDeploymentSetRampingVersionResponse), nil
 }
 
 // UpdateVersionMetadata provides a mock function with given fields: ctx, options
 func (_m *WorkerDeploymentHandle) UpdateVersionMetadata(ctx context.Context, options client.WorkerDeploymentUpdateVersionMetadataOptions) (client.WorkerDeploymentUpdateVersionMetadataResponse, error) {
-	ret := _m.Called(ctx, options)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateVersionMetadata")
-	}
-
-	var r0 client.WorkerDeploymentUpdateVersionMetadataResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, client.WorkerDeploymentUpdateVersionMetadataOptions) (client.WorkerDeploymentUpdateVersionMetadataResponse, error)); ok {
-		return rf(ctx, options)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, client.WorkerDeploymentUpdateVersionMetadataOptions) client.WorkerDeploymentUpdateVersionMetadataResponse); ok {
-		r0 = rf(ctx, options)
-	} else {
-		r0 = ret.Get(0).(client.WorkerDeploymentUpdateVersionMetadataResponse)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, client.WorkerDeploymentUpdateVersionMetadataOptions) error); ok {
-		r1 = rf(ctx, options)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	_ = "STUB: not implemented"
+	return *new(client.WorkerDeploymentUpdateVersionMetadataResponse), nil
 }
 
 // NewWorkerDeploymentHandle creates a new instance of WorkerDeploymentHandle. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -193,10 +61,6 @@ func NewWorkerDeploymentHandle(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *WorkerDeploymentHandle {
-	mock := &WorkerDeploymentHandle{}
-	mock.Mock.Test(t)
-
-	t.Cleanup(func() { mock.AssertExpectations(t) })
-
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }

@@ -1,8 +1,6 @@
 package tally
 
 import (
-	"strings"
-
 	"github.com/uber-go/tally/v4"
 )
 
@@ -20,41 +18,42 @@ type prometheusNamingScope struct{ scope tally.Scope }
 // NewPrometheusNamingScope makes a scope that appends certain strings to names
 // to conform to OpenMetrics naming standards. This should be used in addition
 // to DefaultPrometheusSanitizeOptions.
-func NewPrometheusNamingScope(scope tally.Scope) tally.Scope { return &prometheusNamingScope{scope} }
+func NewPrometheusNamingScope(scope tally.Scope) tally.Scope {
+	_ = "STUB: not implemented"
+	return *new(tally.Scope)
+}
 
 func (p *prometheusNamingScope) Counter(name string) tally.Counter {
-	if !strings.HasSuffix(name, "_total") {
-		name += "_total"
-	}
-	return p.scope.Counter(name)
+	_ = "STUB: not implemented"
+	return *new(tally.Counter)
 }
 
 func (p *prometheusNamingScope) Gauge(name string) tally.Gauge {
-	return p.scope.Gauge(name)
+	_ = "STUB: not implemented"
+	return *new(tally.Gauge)
 }
 
 func (p *prometheusNamingScope) Timer(name string) tally.Timer {
-	if !strings.HasSuffix(name, "_seconds") {
-		name += "_seconds"
-	}
-	return p.scope.Timer(name)
+	_ = "STUB: not implemented"
+	return *new(tally.Timer)
 }
 
 func (p *prometheusNamingScope) Histogram(name string, buckets tally.Buckets) tally.Histogram {
-	if !strings.HasSuffix(name, "_seconds") {
-		name += "_seconds"
-	}
-	return p.scope.Histogram(name, buckets)
+	_ = "STUB: not implemented"
+	return *new(tally.Histogram)
 }
 
 func (p *prometheusNamingScope) Tagged(tags map[string]string) tally.Scope {
-	return &prometheusNamingScope{p.scope.Tagged(tags)}
+	_ = "STUB: not implemented"
+	return *new(tally.Scope)
 }
 
 func (p *prometheusNamingScope) SubScope(name string) tally.Scope {
-	return &prometheusNamingScope{p.scope.SubScope(name)}
+	_ = "STUB: not implemented"
+	return *new(tally.Scope)
 }
 
 func (p *prometheusNamingScope) Capabilities() tally.Capabilities {
-	return p.scope.Capabilities()
+	_ = "STUB: not implemented"
+	return *new(tally.Capabilities)
 }

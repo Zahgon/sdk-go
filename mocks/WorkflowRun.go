@@ -19,74 +19,20 @@ type WorkflowRun struct {
 
 // Get provides a mock function with given fields: ctx, valuePtr
 func (_m *WorkflowRun) Get(ctx context.Context, valuePtr interface{}) error {
-	ret := _m.Called(ctx, valuePtr)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Get")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
-		r0 = rf(ctx, valuePtr)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetID provides a mock function with given fields:
-func (_m *WorkflowRun) GetID() string {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetID")
-	}
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func() string); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	return r0
-}
+func (_m *WorkflowRun) GetID() string { _ = "STUB: not implemented"; return "" }
 
 // GetRunID provides a mock function with given fields:
-func (_m *WorkflowRun) GetRunID() string {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetRunID")
-	}
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func() string); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	return r0
-}
+func (_m *WorkflowRun) GetRunID() string { _ = "STUB: not implemented"; return "" }
 
 // GetWithOptions provides a mock function with given fields: ctx, valuePtr, options
 func (_m *WorkflowRun) GetWithOptions(ctx context.Context, valuePtr interface{}, options client.WorkflowRunGetOptions) error {
-	ret := _m.Called(ctx, valuePtr, options)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetWithOptions")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}, client.WorkflowRunGetOptions) error); ok {
-		r0 = rf(ctx, valuePtr, options)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewWorkflowRun creates a new instance of WorkflowRun. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -95,10 +41,6 @@ func NewWorkflowRun(t interface {
 	mock.TestingT
 	Cleanup(func())
 }) *WorkflowRun {
-	mock := &WorkflowRun{}
-	mock.Mock.Test(t)
-
-	t.Cleanup(func() { mock.AssertExpectations(t) })
-
-	return mock
+	_ = "STUB: not implemented"
+	return nil
 }

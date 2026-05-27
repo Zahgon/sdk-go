@@ -17,53 +17,31 @@ type ReplayLogger struct {
 
 // NewReplayLogger crates new instance of ReplayLogger.
 func NewReplayLogger(logger log.Logger, isReplay *bool, enableLoggingInReplay *bool) log.Logger {
-	return &ReplayLogger{
-		logger:                logger,
-		isReplay:              isReplay,
-		enableLoggingInReplay: enableLoggingInReplay,
-	}
+	_ = "STUB: not implemented"
+	return *new(log.Logger)
 }
 
-func (l *ReplayLogger) check() bool {
-	return !*l.isReplay || *l.enableLoggingInReplay
-}
+func (l *ReplayLogger) check() bool { _ = "STUB: not implemented"; return false }
 
 // Debug writes message to the log if it is not a replay.
-func (l *ReplayLogger) Debug(msg string, keyvals ...interface{}) {
-	if l.check() {
-		l.logger.Debug(msg, keyvals...)
-	}
-}
+func (l *ReplayLogger) Debug(msg string, keyvals ...interface{}) { _ = "STUB: not implemented"; return }
 
 // Info writes message to the log if it is not a replay.
-func (l *ReplayLogger) Info(msg string, keyvals ...interface{}) {
-	if l.check() {
-		l.logger.Info(msg, keyvals...)
-	}
-}
+func (l *ReplayLogger) Info(msg string, keyvals ...interface{}) { _ = "STUB: not implemented"; return }
 
 // Warn writes message to the log if it is not a replay.
-func (l *ReplayLogger) Warn(msg string, keyvals ...interface{}) {
-	if l.check() {
-		l.logger.Warn(msg, keyvals...)
-	}
-}
+func (l *ReplayLogger) Warn(msg string, keyvals ...interface{}) { _ = "STUB: not implemented"; return }
 
 // Error writes message to the log if it is not a replay.
-func (l *ReplayLogger) Error(msg string, keyvals ...interface{}) {
-	if l.check() {
-		l.logger.Error(msg, keyvals...)
-	}
-}
+func (l *ReplayLogger) Error(msg string, keyvals ...interface{}) { _ = "STUB: not implemented"; return }
 
 // With returns new logger that prepend every log entry with keyvals.
 func (l *ReplayLogger) With(keyvals ...interface{}) log.Logger {
-	return NewReplayLogger(log.With(l.logger, keyvals...), l.isReplay, l.enableLoggingInReplay)
+	_ = "STUB: not implemented"
+	return *new(log.Logger)
 }
 
 func (l *ReplayLogger) WithCallerSkip(depth int) log.Logger {
-	if sl, ok := l.logger.(log.WithSkipCallers); ok {
-		return NewReplayLogger(sl.WithCallerSkip(depth), l.isReplay, l.enableLoggingInReplay)
-	}
-	return l
+	_ = "STUB: not implemented"
+	return *new(log.Logger)
 }

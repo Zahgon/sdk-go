@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"fmt"
 	"sync"
 
 	"go.temporal.io/api/workflowservice/v1"
@@ -28,100 +27,53 @@ type eagerActivityExecutorOptions struct {
 // activityWorker set. The activityWorker must be set on the responding executor
 // before it will be able to execute activities.
 func newEagerActivityExecutor(options eagerActivityExecutorOptions) *eagerActivityExecutor {
-	return &eagerActivityExecutor{eagerActivityExecutorOptions: options}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (e *eagerActivityExecutor) applyToRequest(
 	req *workflowservice.RespondWorkflowTaskCompletedRequest,
 ) []*SlotPermit {
+	_ = "STUB: not implemented"
 	// Don't allow more than this hardcoded amount per workflow task for now
-	const maxPerTask = 3
-	reservedPermits := make([]*SlotPermit, 0)
-
-	// Go over every command checking for activities that can be eagerly executed
-	eagerRequestsThisTask := 0
-	for _, command := range req.Commands {
-		if attrs := command.GetScheduleActivityTaskCommandAttributes(); attrs != nil {
-			// If not present, disabled, not requested, no activity worker, on a
-			// different task queue, or reached max for task, we must mark as
-			// explicitly disabled
-			eagerDisallowed := e == nil ||
-				e.disabled ||
-				!attrs.RequestEagerExecution ||
-				e.activityWorker == nil ||
-				e.taskQueue != attrs.TaskQueue.GetName() ||
-				eagerRequestsThisTask >= maxPerTask
-			if eagerDisallowed {
-				attrs.RequestEagerExecution = false
-			} else {
-				// If it has been requested, attempt to reserve one pending
-				maybePermit := e.reserveOnePendingSlot()
-				if maybePermit != nil {
-					reservedPermits = append(reservedPermits, maybePermit)
-					attrs.RequestEagerExecution = true
-					eagerRequestsThisTask++
-				} else {
-					attrs.RequestEagerExecution = false
-				}
-			}
-		}
-	}
-	return reservedPermits
+	return nil
 }
+
+// Go over every command checking for activities that can be eagerly executed
+
+// If not present, disabled, not requested, no activity worker, on a
+// different task queue, or reached max for task, we must mark as
+// explicitly disabled
+
+// If it has been requested, attempt to reserve one pending
 
 func (e *eagerActivityExecutor) reserveOnePendingSlot() *SlotPermit {
+	_ = "STUB: not implemented"
 	// Confirm that, if we have a max, issued count isn't already there
-	e.countLock.Lock()
-	defer e.countLock.Unlock()
-	// Confirm that, if we have a max, held count isn't already there
-	if e.maxConcurrent > 0 && e.heldSlotCount >= e.maxConcurrent {
-		// No more room
-		return nil
-	}
-	// Reserve a spot for our request via a non-blocking attempt
-	maybePermit := e.activityWorker.tryReserveSlot()
-	if maybePermit != nil {
-		// Ensure that on release we decrement the held count
-		maybePermit.extraReleaseCallback = func() {
-			e.countLock.Lock()
-			defer e.countLock.Unlock()
-			e.heldSlotCount--
-		}
-		e.heldSlotCount++
-	}
-	return maybePermit
+	return nil
 }
+
+// Confirm that, if we have a max, held count isn't already there
+
+// No more room
+
+// Reserve a spot for our request via a non-blocking attempt
+
+// Ensure that on release we decrement the held count
 
 func (e *eagerActivityExecutor) handleResponse(
 	resp *workflowservice.RespondWorkflowTaskCompletedResponse,
 	reservedPermits []*SlotPermit,
 ) {
+	_ = "STUB: not implemented"
 	// Ignore disabled or none present
-	amountSlotsReserved := len(reservedPermits)
-	if e == nil || e.activityWorker == nil || e.disabled ||
-		(len(resp.GetActivityTasks()) == 0 && amountSlotsReserved == 0) {
-		return
-	} else if len(resp.GetActivityTasks()) > amountSlotsReserved {
-		panic(fmt.Sprintf("Unexpectedly received %v eager activities though we only requested %v",
-			len(resp.GetActivityTasks()), amountSlotsReserved))
-	}
-
-	// Give back unfulfilled slots and record for later use
-	unfulfilledSlots := amountSlotsReserved - len(resp.GetActivityTasks())
-	// Release unneeded permits
-	for i := 0; i < unfulfilledSlots; i++ {
-		unneededPermit := reservedPermits[len(reservedPermits)-1]
-		reservedPermits = reservedPermits[:len(reservedPermits)-1]
-		e.activityWorker.releaseSlot(unneededPermit, SlotReleaseReasonUnused)
-	}
-
-	// Start each activity asynchronously
-	for i, activity := range resp.GetActivityTasks() {
-		// Asynchronously execute
-		e.activityWorker.pushEagerTask(
-			eagerTask{
-				task:   &activityTask{task: activity, permit: reservedPermits[i]},
-				permit: reservedPermits[i],
-			})
-	}
+	return
 }
+
+// Give back unfulfilled slots and record for later use
+
+// Release unneeded permits
+
+// Start each activity asynchronously
+
+// Asynchronously execute

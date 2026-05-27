@@ -68,14 +68,16 @@ type (
 
 // GetLastCompletionResult returns last completion result from workflow.
 func GetLastCompletionResult(env WorkflowEnvironment) *commonpb.Payloads {
-	return internal.GetLastCompletionResultFromWorkflowInfo(env.WorkflowInfo())
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewNexusClient builds a NexusClient targeted at the given endpoint and
 // service. Use the result with NewExecuteNexusOperationParams when feeding
 // WorkflowEnvironment.ExecuteNexusOperation directly.
 func NewNexusClient(endpoint, service string) NexusClient {
-	return internal.NewNexusClient(endpoint, service)
+	_ = "STUB: not implemented"
+	return *new(NexusClient)
 }
 
 // NewExecuteNexusOperationParams builds an ExecuteNexusOperationParams struct
@@ -88,5 +90,6 @@ func NewExecuteNexusOperationParams(
 	options NexusOperationOptions,
 	nexusHeader map[string]string,
 ) ExecuteNexusOperationParams {
-	return internal.NewExecuteNexusOperationParams(client, operation, input, options, nexusHeader)
+	_ = "STUB: not implemented"
+	return *new(ExecuteNexusOperationParams)
 }

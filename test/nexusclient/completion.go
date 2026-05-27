@@ -1,13 +1,8 @@
 package nexusclient
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"io"
-	"maps"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/nexus-rpc/sdk-go/nexus"
@@ -15,16 +10,8 @@ import (
 
 // NewCompletionHTTPRequest creates an HTTP request that delivers an operation completion to a given URL.
 func NewCompletionHTTPRequest(ctx context.Context, url string, completion OperationCompletion) (*http.Request, error) {
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, nil)
-	if err != nil {
-		return nil, err
-	}
-	if err := completion.applyToHTTPRequest(httpReq); err != nil {
-		return nil, err
-	}
-
-	httpReq.Header.Set(headerUserAgent, userAgent)
-	return httpReq, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // OperationCompletion is input for [NewCompletionHTTPRequest].
@@ -72,69 +59,16 @@ type OperationCompletionSuccessfulOptions struct {
 
 // NewOperationCompletionSuccessful constructs an [OperationCompletionSuccessful] from a given result.
 func NewOperationCompletionSuccessful(result any, options OperationCompletionSuccessfulOptions) (*OperationCompletionSuccessful, error) {
-	reader, ok := result.(*nexus.Reader)
-	if !ok {
-		content, ok := result.(*nexus.Content)
-		if !ok {
-			serializer := options.Serializer
-			if serializer == nil {
-				serializer = nexus.DefaultSerializer()
-			}
-			var err error
-			content, err = serializer.Serialize(result)
-			if err != nil {
-				return nil, err
-			}
-		}
-		header := maps.Clone(content.Header)
-		if header == nil {
-			header = make(nexus.Header, 1)
-		}
-		header["length"] = strconv.Itoa(len(content.Data))
-
-		reader = &nexus.Reader{
-			Header:     header,
-			ReadCloser: io.NopCloser(bytes.NewReader(content.Data)),
-		}
-	}
-
-	return &OperationCompletionSuccessful{
-		Header:         make(nexus.Header),
-		Reader:         reader,
-		OperationToken: options.OperationToken,
-		StartTime:      options.StartTime,
-		CloseTime:      options.CloseTime,
-		Links:          options.Links,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *OperationCompletionSuccessful) applyToHTTPRequest(request *http.Request) error {
-	if request.Header == nil {
-		request.Header = make(http.Header, len(c.Header)+len(c.Reader.Header)+1) // +1 for headerOperationState
-	}
-	if c.Reader.Header != nil {
-		addContentHeaderToHTTPHeader(c.Reader.Header, request.Header)
-	}
-	if c.Header != nil {
-		addNexusHeaderToHTTPHeader(c.Header, request.Header)
-	}
-	request.Header.Set(headerOperationState, string(nexus.OperationStateSucceeded))
-
-	if c.Header.Get(nexus.HeaderOperationToken) == "" && c.OperationToken != "" {
-		request.Header.Set(nexus.HeaderOperationToken, c.OperationToken)
-	}
-	if c.Header.Get(headerOperationStartTime) == "" && !c.StartTime.IsZero() {
-		request.Header.Set(headerOperationStartTime, c.StartTime.Format(http.TimeFormat))
-	}
-	if c.Header.Get(headerLink) == "" {
-		if err := addLinksToHTTPHeader(c.Links, request.Header); err != nil {
-			return err
-		}
-	}
-
-	request.Body = c.Reader.ReadCloser
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// +1 for headerOperationState
 
 // OperationCompletionUnsuccessful is input for [NewCompletionHTTPRequest], used to deliver unsuccessful operation
 // results.
@@ -179,51 +113,16 @@ type OperationCompletionUnsuccessfulOptions struct {
 
 // NewOperationCompletionUnsuccessful constructs an [OperationCompletionUnsuccessful] from a given error.
 func NewOperationCompletionUnsuccessful(opErr *nexus.OperationError, options OperationCompletionUnsuccessfulOptions) (*OperationCompletionUnsuccessful, error) {
-	if options.FailureConverter == nil {
-		options.FailureConverter = &failureErrorFailureConverter{}
-	}
-
-	return &OperationCompletionUnsuccessful{
-		Header:         make(nexus.Header),
-		State:          opErr.State,
-		Failure:        options.FailureConverter.ErrorToFailure(opErr.Cause),
-		OperationToken: options.OperationToken,
-		StartTime:      options.StartTime,
-		CloseTime:      options.CloseTime,
-		Links:          options.Links,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *OperationCompletionUnsuccessful) applyToHTTPRequest(request *http.Request) error {
-	if request.Header == nil {
-		request.Header = make(http.Header, len(c.Header)+2) // +2 for headerOperationState and content-type
-	}
-	if c.Header != nil {
-		addNexusHeaderToHTTPHeader(c.Header, request.Header)
-	}
-	request.Header.Set(headerOperationState, string(c.State))
-	request.Header.Set("Content-Type", "application/json")
-
-	if c.Header.Get(nexus.HeaderOperationToken) == "" && c.OperationToken != "" {
-		request.Header.Set(nexus.HeaderOperationToken, c.OperationToken)
-	}
-	if c.Header.Get(headerOperationStartTime) == "" && !c.StartTime.IsZero() {
-		request.Header.Set(headerOperationStartTime, c.StartTime.Format(http.TimeFormat))
-	}
-	if c.Header.Get(headerLink) == "" {
-		if err := addLinksToHTTPHeader(c.Links, request.Header); err != nil {
-			return err
-		}
-	}
-
-	b, err := json.Marshal(c.Failure)
-	if err != nil {
-		return err
-	}
-
-	request.Body = io.NopCloser(bytes.NewReader(b))
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// +2 for headerOperationState and content-type
 
 // CompletionRequest is input for CompletionHandler.CompleteOperation.
 type CompletionRequest struct {

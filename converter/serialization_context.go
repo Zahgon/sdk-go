@@ -19,10 +19,14 @@ type WorkflowSerializationContext struct {
 	WorkflowID string
 }
 
-func (WorkflowSerializationContext) isSerializationContext() {}
+func (WorkflowSerializationContext) isSerializationContext() {
+	_ = "STUB: not implemented"
 
-// ActivitySerializationContext is the serialization context for activity-level payloads.
-// This includes: activity input/result, heartbeat details, and activity failure details.
+	// ActivitySerializationContext is the serialization context for activity-level payloads.
+	// This includes: activity input/result, heartbeat details, and activity failure details.
+	return
+}
+
 type ActivitySerializationContext struct {
 	Namespace    string
 	WorkflowID   string
@@ -32,20 +36,24 @@ type ActivitySerializationContext struct {
 	IsLocal      bool
 }
 
-func (ActivitySerializationContext) isSerializationContext() {}
+func (ActivitySerializationContext) isSerializationContext() {
+	_ = "STUB: not implemented"
 
-// DataConverterWithSerializationContext is an optional interface that [DataConverter]
-// implementations can implement to receive serialization context.
-//
-// When implemented, the SDK calls WithSerializationContext before serializing/deserializing
-// payloads. The returned DataConverter should use the context to vary its behavior
-// (e.g. using workflow ID as associated data for encryption).
-//
-// Implementations must work correctly without context — the SDK and user code may use
-// the DataConverter directly without calling WithSerializationContext first.
-//
-// This method should be cheap and fast. The SDK does not cache returned instances
-// and may call this method frequently. Avoid recreating expensive objects on every call.
+	// DataConverterWithSerializationContext is an optional interface that [DataConverter]
+	// implementations can implement to receive serialization context.
+	//
+	// When implemented, the SDK calls WithSerializationContext before serializing/deserializing
+	// payloads. The returned DataConverter should use the context to vary its behavior
+	// (e.g. using workflow ID as associated data for encryption).
+	//
+	// Implementations must work correctly without context — the SDK and user code may use
+	// the DataConverter directly without calling WithSerializationContext first.
+	//
+	// This method should be cheap and fast. The SDK does not cache returned instances
+	// and may call this method frequently. Avoid recreating expensive objects on every call.
+	return
+}
+
 type DataConverterWithSerializationContext interface {
 	WithSerializationContext(SerializationContext) DataConverter
 }
@@ -87,14 +95,8 @@ type FailureConverterWithSerializationContext interface {
 // [DataConverterWithSerializationContext], it delegates to that implementation;
 // otherwise it returns the original DataConverter unchanged.
 func WithDataConverterSerializationContext(dc DataConverter, ctx SerializationContext) DataConverter {
-	if sc, ok := dc.(DataConverterWithSerializationContext); ok {
-		result := sc.WithSerializationContext(ctx)
-		if result == nil {
-			panic("DataConverterWithSerializationContext.WithSerializationContext must not return nil")
-		}
-		return result
-	}
-	return dc
+	_ = "STUB: not implemented"
+	return *new(DataConverter)
 }
 
 // WithFailureConverterSerializationContext returns a FailureConverter that is aware of the given
@@ -102,12 +104,6 @@ func WithDataConverterSerializationContext(dc DataConverter, ctx SerializationCo
 // [FailureConverterWithSerializationContext], it delegates to that implementation;
 // otherwise it returns the original FailureConverter unchanged.
 func WithFailureConverterSerializationContext(fc FailureConverter, ctx SerializationContext) FailureConverter {
-	if sc, ok := fc.(FailureConverterWithSerializationContext); ok {
-		result := sc.WithSerializationContext(ctx)
-		if result == nil {
-			panic("FailureConverterWithSerializationContext.WithSerializationContext must not return nil")
-		}
-		return result
-	}
-	return fc
+	_ = "STUB: not implemented"
+	return *new(FailureConverter)
 }

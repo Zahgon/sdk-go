@@ -1,8 +1,6 @@
 package internal
 
 import (
-	"errors"
-
 	enumspb "go.temporal.io/api/enums/v1"
 	taskqueuepb "go.temporal.io/api/taskqueue/v1"
 	"go.temporal.io/api/workflowservice/v1"
@@ -141,44 +139,8 @@ type (
 
 // Validates and converts the user's options into the proto request. Namespace must be attached afterward.
 func (uw *UpdateWorkerBuildIdCompatibilityOptions) validateAndConvertToProto() (*workflowservice.UpdateWorkerBuildIdCompatibilityRequest, error) {
-	if uw.TaskQueue == "" {
-		return nil, errors.New("missing TaskQueue field")
-	}
-	if uw.Operation.targetedBuildId() == "" {
-		return nil, errors.New("missing Operation BuildID field")
-	}
-	req := &workflowservice.UpdateWorkerBuildIdCompatibilityRequest{
-		TaskQueue: uw.TaskQueue,
-	}
-
-	switch v := uw.Operation.(type) {
-	case *BuildIDOpAddNewIDInNewDefaultSet:
-		req.Operation = &workflowservice.UpdateWorkerBuildIdCompatibilityRequest_AddNewBuildIdInNewDefaultSet{
-			AddNewBuildIdInNewDefaultSet: v.BuildID,
-		}
-
-	case *BuildIDOpAddNewCompatibleVersion:
-		if v.ExistingCompatibleBuildID == "" {
-			return nil, errors.New("missing ExistingCompatibleBuildID")
-		}
-		req.Operation = &workflowservice.UpdateWorkerBuildIdCompatibilityRequest_AddNewCompatibleBuildId{
-			AddNewCompatibleBuildId: &workflowservice.UpdateWorkerBuildIdCompatibilityRequest_AddNewCompatibleVersion{
-				NewBuildId:                v.BuildID,
-				ExistingCompatibleBuildId: v.ExistingCompatibleBuildID,
-				MakeSetDefault:            v.MakeSetDefault,
-			},
-		}
-	case *BuildIDOpPromoteSet:
-		req.Operation = &workflowservice.UpdateWorkerBuildIdCompatibilityRequest_PromoteSetByBuildId{
-			PromoteSetByBuildId: v.BuildID,
-		}
-	case *BuildIDOpPromoteIDWithinSet:
-		req.Operation = &workflowservice.UpdateWorkerBuildIdCompatibilityRequest_PromoteBuildIdWithinSet{
-			PromoteBuildIdWithinSet: v.BuildID,
-		}
-	}
-
-	return req, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Exposed as: [go.temporal.io/sdk/client.GetWorkerBuildIdCompatibilityOptions]
@@ -235,16 +197,7 @@ type WorkerBuildIDVersionSets struct {
 
 // Default returns the current overall default version. IE: The one that will be used to start new workflows.
 // Returns the empty string if there are no versions present.
-func (s *WorkerBuildIDVersionSets) Default() string {
-	if len(s.Sets) == 0 {
-		return ""
-	}
-	lastSet := s.Sets[len(s.Sets)-1]
-	if len(lastSet.BuildIDs) == 0 {
-		return ""
-	}
-	return lastSet.BuildIDs[len(lastSet.BuildIDs)-1]
-}
+func (s *WorkerBuildIDVersionSets) Default() string { _ = "STUB: not implemented"; return "" }
 
 // CompatibleVersionSet represents a set of worker build ids which are compatible with each other.
 type CompatibleVersionSet struct {
@@ -252,126 +205,61 @@ type CompatibleVersionSet struct {
 }
 
 func workerVersionSetsFromProtoResponse(response *workflowservice.GetWorkerBuildIdCompatibilityResponse) *WorkerBuildIDVersionSets {
-	if response == nil {
-		return nil
-	}
-	return &WorkerBuildIDVersionSets{
-		Sets: workerVersionSetsFromProto(response.GetMajorVersionSets()),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func workerVersionSetsFromProto(sets []*taskqueuepb.CompatibleVersionSet) []*CompatibleVersionSet {
-	if sets == nil {
-		return nil
-	}
-	result := make([]*CompatibleVersionSet, len(sets))
-	for i, s := range sets {
-		result[i] = &CompatibleVersionSet{
-			BuildIDs: s.GetBuildIds(),
-		}
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func workerTaskReachabilityFromProtoResponse(response *workflowservice.GetWorkerTaskReachabilityResponse) *WorkerTaskReachability {
-	if response == nil {
-		return nil
-	}
-	return &WorkerTaskReachability{
-		BuildIDReachability: buildIDReachabilityFromProto(response.GetBuildIdReachability()),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func buildIDReachabilityFromProto(sets []*taskqueuepb.BuildIdReachability) map[string]*BuildIDReachability {
-	if sets == nil {
-		return nil
-	}
-	result := make(map[string]*BuildIDReachability, len(sets))
-	for _, s := range sets {
-		retrievedTaskQueues, unretrievedTaskQueues := taskQueueReachabilityFromProto(s.GetTaskQueueReachability())
-		result[s.GetBuildId()] = &BuildIDReachability{
-			TaskQueueReachable:    retrievedTaskQueues,
-			UnretrievedTaskQueues: unretrievedTaskQueues,
-		}
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func taskQueueReachabilityFromProto(sets []*taskqueuepb.TaskQueueReachability) (map[string]*TaskQueueReachability, []string) {
-	if sets == nil {
-		return nil, nil
-	}
-	retrievedTaskQueues := make(map[string]*TaskQueueReachability, len(sets))
-	unretrievedTaskQueues := make([]string, 0, len(sets))
-	for _, s := range sets {
-		reachability := make([]TaskReachability, len(s.GetReachability()))
-		for i, r := range s.GetReachability() {
-			reachability[i] = taskReachabilityFromProto(r)
-		}
-		if len(reachability) == 1 && reachability[0] == TaskReachabilityUnspecified {
-			unretrievedTaskQueues = append(unretrievedTaskQueues, s.GetTaskQueue())
-		} else {
-			retrievedTaskQueues[s.GetTaskQueue()] = &TaskQueueReachability{
-				TaskQueueReachability: reachability,
-			}
-		}
-
-	}
-	return retrievedTaskQueues, unretrievedTaskQueues
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func taskReachabilityToProto(r TaskReachability) enumspb.TaskReachability {
-	switch r {
-	case TaskReachabilityUnspecified:
-		return enumspb.TASK_REACHABILITY_UNSPECIFIED
-	case TaskReachabilityNewWorkflows:
-		return enumspb.TASK_REACHABILITY_NEW_WORKFLOWS
-	case TaskReachabilityExistingWorkflows:
-		return enumspb.TASK_REACHABILITY_EXISTING_WORKFLOWS
-	case TaskReachabilityOpenWorkflows:
-		return enumspb.TASK_REACHABILITY_OPEN_WORKFLOWS
-	case TaskReachabilityClosedWorkflows:
-		return enumspb.TASK_REACHABILITY_CLOSED_WORKFLOWS
-	default:
-		panic("unknown task reachability")
-
-	}
+	_ = "STUB: not implemented"
+	return *new(enumspb.TaskReachability)
 }
 
 func taskReachabilityFromProto(r enumspb.TaskReachability) TaskReachability {
-	switch r {
-	case enumspb.TASK_REACHABILITY_UNSPECIFIED:
-		return TaskReachabilityUnspecified
-	case enumspb.TASK_REACHABILITY_NEW_WORKFLOWS:
-		return TaskReachabilityNewWorkflows
-	case enumspb.TASK_REACHABILITY_EXISTING_WORKFLOWS:
-		return TaskReachabilityExistingWorkflows
-	case enumspb.TASK_REACHABILITY_OPEN_WORKFLOWS:
-		return TaskReachabilityOpenWorkflows
-	case enumspb.TASK_REACHABILITY_CLOSED_WORKFLOWS:
-		return TaskReachabilityClosedWorkflows
-	default:
-		panic("unknown task reachability")
-	}
+	_ = "STUB: not implemented"
+	return *new(TaskReachability)
 }
 
-func (v *BuildIDOpAddNewIDInNewDefaultSet) targetedBuildId() string { return v.BuildID }
-func (v *BuildIDOpAddNewCompatibleVersion) targetedBuildId() string { return v.BuildID }
-func (v *BuildIDOpPromoteSet) targetedBuildId() string              { return v.BuildID }
-func (v *BuildIDOpPromoteIDWithinSet) targetedBuildId() string      { return v.BuildID }
+func (v *BuildIDOpAddNewIDInNewDefaultSet) targetedBuildId() string {
+	_ = "STUB: not implemented"
+	return ""
+}
+func (v *BuildIDOpAddNewCompatibleVersion) targetedBuildId() string {
+	_ = "STUB: not implemented"
+	return ""
+}
+func (v *BuildIDOpPromoteSet) targetedBuildId() string { _ = "STUB: not implemented"; return "" }
+func (v *BuildIDOpPromoteIDWithinSet) targetedBuildId() string {
+	_ = "STUB: not implemented"
+	return ""
 
-// Helper to determine if how the `InheritBuildId` flag for a command should be set based on
-// the user's intent and whether the target task queue matches this worker's task queue.
+	// Helper to determine if how the `InheritBuildId` flag for a command should be set based on
+	// the user's intent and whether the target task queue matches this worker's task queue.
+}
+
 func determineInheritBuildIdFlagForCommand(intent VersioningIntent, workerTq, TargetTq string) bool {
-	inheritBuildId := true
-	if intent == VersioningIntentDefault || intent == VersioningIntentUseAssignmentRules {
-		inheritBuildId = false
-	} else if intent == VersioningIntentUnspecified {
-		// If the target task queue doesn't match ours, use the default version. Empty target counts
-		// as matching.
-		if TargetTq != "" && workerTq != TargetTq {
-			inheritBuildId = false
-		}
-	}
-	return inheritBuildId
+	_ = "STUB: not implemented"
+	return false
 }
+
+// If the target task queue doesn't match ours, use the default version. Empty target counts
+// as matching.

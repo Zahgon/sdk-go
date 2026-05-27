@@ -43,40 +43,48 @@ type (
 
 // NewSearchAttributeKeyString creates a new string-based key.
 func NewSearchAttributeKeyString(name string) SearchAttributeKeyString {
-	return internal.NewSearchAttributeKeyString(name)
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeKeyString)
 }
 
 // NewSearchAttributeKeyKeyword creates a new keyword-based key.
 func NewSearchAttributeKeyKeyword(name string) SearchAttributeKeyKeyword {
-	return internal.NewSearchAttributeKeyKeyword(name)
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeKeyKeyword)
 }
 
 // NewSearchAttributeKeyBool creates a new bool-based key.
 func NewSearchAttributeKeyBool(name string) SearchAttributeKeyBool {
-	return internal.NewSearchAttributeKeyBool(name)
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeKeyBool)
 }
 
 // NewSearchAttributeKeyInt64 creates a new int64-based key.
 func NewSearchAttributeKeyInt64(name string) SearchAttributeKeyInt64 {
-	return internal.NewSearchAttributeKeyInt64(name)
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeKeyInt64)
 }
 
 // NewSearchAttributeKeyFloat64 creates a new float64-based key.
 func NewSearchAttributeKeyFloat64(name string) SearchAttributeKeyFloat64 {
-	return internal.NewSearchAttributeKeyFloat64(name)
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeKeyFloat64)
 }
 
 // NewSearchAttributeKeyTime creates a new time-based key.
 func NewSearchAttributeKeyTime(name string) SearchAttributeKeyTime {
-	return internal.NewSearchAttributeKeyTime(name)
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeKeyTime)
 }
 
 // NewSearchAttributeKeyKeywordList creates a new keyword-list-based key.
 func NewSearchAttributeKeyKeywordList(name string) SearchAttributeKeyKeywordList {
-	return internal.NewSearchAttributeKeyKeywordList(name)
+	_ = "STUB: not implemented"
+	return *new(SearchAttributeKeyKeywordList)
 }
 
 // NewSearchAttributes creates a new search attribute collection for the given updates.
 func NewSearchAttributes(attributes ...SearchAttributeUpdate) SearchAttributes {
-	return internal.NewSearchAttributes(attributes...)
+	_ = "STUB: not implemented"
+	return *new(SearchAttributes)
 }

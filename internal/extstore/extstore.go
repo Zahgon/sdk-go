@@ -33,7 +33,7 @@ type StorageDriverWorkflowInfo struct {
 	RunID string
 }
 
-func (StorageDriverWorkflowInfo) isStorageDriverTargetInfo() {}
+func (StorageDriverWorkflowInfo) isStorageDriverTargetInfo() { _ = "STUB: not implemented"; return }
 
 var _ StorageDriverTargetInfo = StorageDriverWorkflowInfo{}
 
@@ -53,7 +53,7 @@ type StorageDriverActivityInfo struct {
 	RunID string
 }
 
-func (StorageDriverActivityInfo) isStorageDriverTargetInfo() {}
+func (StorageDriverActivityInfo) isStorageDriverTargetInfo() { _ = "STUB: not implemented"; return }
 
 var _ StorageDriverTargetInfo = StorageDriverActivityInfo{}
 
@@ -178,4 +178,3 @@ type ExternalStorage struct {
 type PayloadVisitor interface {
 	Visit(ctx *proxy.VisitPayloadsContext, payloads []*commonpb.Payload) ([]*commonpb.Payload, error)
 }
-

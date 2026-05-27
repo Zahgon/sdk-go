@@ -30,5 +30,6 @@ type SimplePluginRunContextAfterOptions = internal.SimplePluginRunContextAfterOp
 //
 // NOTE: Experimental
 func NewSimplePlugin(options SimplePluginOptions) (*SimplePlugin, error) {
-	return internal.NewSimplePlugin(options)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

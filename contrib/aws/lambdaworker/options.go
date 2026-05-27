@@ -46,57 +46,49 @@ type Options struct {
 
 // RegisterWorkflow registers a workflow on the worker. See
 // [worker.WorkflowRegistry.RegisterWorkflow] for details.
-func (c *Options) RegisterWorkflow(w interface{}) {
-	c.registrations = append(c.registrations, func(r worker.Registry) { r.RegisterWorkflow(w) })
-}
+func (c *Options) RegisterWorkflow(w interface{}) { _ = "STUB: not implemented"; return }
 
 // RegisterWorkflowWithOptions registers a workflow with options on the worker. See
 // [worker.WorkflowRegistry.RegisterWorkflowWithOptions] for details.
 func (c *Options) RegisterWorkflowWithOptions(w interface{}, options workflow.RegisterOptions) {
-	c.registrations = append(c.registrations, func(r worker.Registry) { r.RegisterWorkflowWithOptions(w, options) })
+	_ = "STUB: not implemented"
+	return
 }
 
 // RegisterDynamicWorkflow registers a dynamic workflow on the worker. See
 // [worker.WorkflowRegistry.RegisterDynamicWorkflow] for details.
 func (c *Options) RegisterDynamicWorkflow(w interface{}, options workflow.DynamicRegisterOptions) {
-	c.registrations = append(c.registrations, func(r worker.Registry) { r.RegisterDynamicWorkflow(w, options) })
+	_ = "STUB: not implemented"
+	return
 }
 
 // RegisterActivity registers an activity on the worker. See
 // [worker.ActivityRegistry.RegisterActivity] for details.
-func (c *Options) RegisterActivity(a interface{}) {
-	c.registrations = append(c.registrations, func(r worker.Registry) { r.RegisterActivity(a) })
-}
+func (c *Options) RegisterActivity(a interface{}) { _ = "STUB: not implemented"; return }
 
 // RegisterActivityWithOptions registers an activity with options on the worker. See
 // [worker.ActivityRegistry.RegisterActivityWithOptions] for details.
 func (c *Options) RegisterActivityWithOptions(a interface{}, options activity.RegisterOptions) {
-	c.registrations = append(c.registrations, func(r worker.Registry) { r.RegisterActivityWithOptions(a, options) })
+	_ = "STUB: not implemented"
+	return
 }
 
 // RegisterDynamicActivity registers a dynamic activity on the worker. See
 // [worker.ActivityRegistry.RegisterDynamicActivity] for details.
 func (c *Options) RegisterDynamicActivity(a interface{}, options activity.DynamicRegisterOptions) {
-	c.registrations = append(c.registrations, func(r worker.Registry) { r.RegisterDynamicActivity(a, options) })
+	_ = "STUB: not implemented"
+	return
 }
 
 // RegisterNexusService registers a Nexus service on the worker. See
 // [worker.NexusServiceRegistry.RegisterNexusService] for details.
-func (c *Options) RegisterNexusService(s *nexus.Service) {
-	c.registrations = append(c.registrations, func(r worker.Registry) { r.RegisterNexusService(s) })
-}
+func (c *Options) RegisterNexusService(s *nexus.Service) { _ = "STUB: not implemented"; return }
 
 // OnShutdown registers a function to be called at the end of each Lambda invocation, after the
 // worker has stopped. Shutdown functions run in registration order and receive a background context
 // with no deadline — Lambda hard-kills the process at the invocation deadline regardless. Use this
 // to flush telemetry providers or release other per-process resources.
-func (c *Options) OnShutdown(fn func(context.Context) error) {
-	c.shutdownFuncs = append(c.shutdownFuncs, fn)
-}
+func (c *Options) OnShutdown(fn func(context.Context) error) { _ = "STUB: not implemented"; return }
 
 // replayRegistrations replays all buffered registrations onto the given worker.
-func (c *Options) replayRegistrations(w worker.Worker) {
-	for _, fn := range c.registrations {
-		fn(w)
-	}
-}
+func (c *Options) replayRegistrations(w worker.Worker) { _ = "STUB: not implemented"; return }

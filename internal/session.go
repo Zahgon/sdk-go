@@ -2,15 +2,9 @@ package internal
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"sync"
 	"time"
-
-	"github.com/google/uuid"
-
-	"go.temporal.io/sdk/internal/common/backoff"
 )
 
 type (
@@ -172,12 +166,8 @@ var (
 //
 // Exposed as: [go.temporal.io/sdk/workflow.CreateSession]
 func CreateSession(ctx Context, sessionOptions *SessionOptions) (Context, error) {
-	options := getActivityOptions(ctx)
-	baseTaskqueue := options.TaskQueueName
-	if baseTaskqueue == "" {
-		baseTaskqueue = options.OriginalTaskQueueName
-	}
-	return createSession(ctx, getCreationTaskqueue(baseTaskqueue), sessionOptions, true)
+	_ = "STUB: not implemented"
+	return *new(Context), nil
 }
 
 // RecreateSession recreate a session based on the sessionInfo passed in. Activities executed within
@@ -191,11 +181,8 @@ func CreateSession(ctx Context, sessionOptions *SessionOptions) (Context, error)
 //
 // Exposed as: [go.temporal.io/sdk/workflow.RecreateSession]
 func RecreateSession(ctx Context, recreateToken []byte, sessionOptions *SessionOptions) (Context, error) {
-	recreateParams, err := deserializeRecreateToken(recreateToken)
-	if err != nil {
-		return nil, fmt.Errorf("failed to deserilalize recreate token: %v", err)
-	}
-	return createSession(ctx, recreateParams.Taskqueue, sessionOptions, true)
+	_ = "STUB: not implemented"
+	return *new(Context), nil
 }
 
 // CompleteSession completes a session. It releases worker resources, so other sessions can be created.
@@ -207,35 +194,17 @@ func RecreateSession(ctx Context, recreateToken []byte, sessionOptions *SessionO
 // it's not in a session.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.CompleteSession]
-func CompleteSession(ctx Context) {
-	sessionInfo := getSessionInfo(ctx)
-	if sessionInfo == nil || sessionInfo.SessionState != SessionStateOpen {
-		return
-	}
+func CompleteSession(ctx Context) { _ = "STUB: not implemented"; return }
 
-	// first cancel both the creation activity and all user activities
-	// this will cancel the ctx passed into this function
-	sessionInfo.sessionCancelFunc()
+// first cancel both the creation activity and all user activities
+// this will cancel the ctx passed into this function
 
-	// then execute then completion activity using the completionCtx, which is not canceled.
-	completionCtx := WithActivityOptions(sessionInfo.completionCtx, ActivityOptions{
-		ScheduleToStartTimeout: time.Second * 3,
-		StartToCloseTimeout:    time.Second * 3,
-	})
+// then execute then completion activity using the completionCtx, which is not canceled.
 
-	// even though the creation activity has been canceled, the session worker doesn't know. The worker will wait until
-	// next heartbeat to figure out that the workflow is completed and then release the resource. We need to make sure the
-	// completion activity is executed before the workflow exits.
-	// the taskqueue will be overridden to use the one stored in sessionInfo.
-	err := ExecuteActivity(completionCtx, sessionCompletionActivityName, sessionInfo.SessionID).Get(completionCtx, nil)
-	if err != nil {
-		GetLogger(completionCtx).Warn("Complete session activity failed", tagError, err)
-	}
-
-	sessionInfo.SessionState = SessionStateClosed
-	getWorkflowEnvironment(ctx).RemoveSession(sessionInfo.SessionID)
-	GetLogger(ctx).Debug("Completed session", "sessionID", sessionInfo.SessionID)
-}
+// even though the creation activity has been canceled, the session worker doesn't know. The worker will wait until
+// next heartbeat to figure out that the workflow is completed and then release the resource. We need to make sure the
+// completion activity is executed before the workflow exits.
+// the taskqueue will be overridden to use the one stored in sessionInfo.
 
 // GetSessionInfo returns the sessionInfo stored in the context. If there are multiple sessions in the context,
 // (for example, the same context is used to create, complete, create another session. Then user found that the
@@ -244,360 +213,143 @@ func CompleteSession(ctx Context) {
 // This API will return nil if there's no sessionInfo in the context.
 //
 // Exposed as: [go.temporal.io/sdk/workflow.GetSessionInfo]
-func GetSessionInfo(ctx Context) *SessionInfo {
-	info := getSessionInfo(ctx)
-	if info == nil {
-		GetLogger(ctx).Warn("Context contains no session information")
-	}
-	return info
-}
+func GetSessionInfo(ctx Context) *SessionInfo { _ = "STUB: not implemented"; return nil }
 
 // GetRecreateToken returns the token needed to recreate a session. The returned value should be passed to
 // RecreateSession() API.
-func (s *SessionInfo) GetRecreateToken() []byte {
-	params := recreateSessionParams{
-		Taskqueue: s.taskqueue,
-	}
-	return mustSerializeRecreateToken(&params)
-}
+func (s *SessionInfo) GetRecreateToken() []byte { _ = "STUB: not implemented"; return nil }
 
-func getSessionInfo(ctx Context) *SessionInfo {
-	info := ctx.Value(sessionInfoContextKey)
-	if info == nil {
-		return nil
-	}
-	return info.(*SessionInfo)
-}
+func getSessionInfo(ctx Context) *SessionInfo { _ = "STUB: not implemented"; return nil }
 
 func setSessionInfo(ctx Context, sessionInfo *SessionInfo) Context {
-	return WithValue(ctx, sessionInfoContextKey, sessionInfo)
+	_ = "STUB: not implemented"
+	return *new(Context)
 }
 
 func createSession(ctx Context, creationTaskqueue string, options *SessionOptions, retryable bool) (Context, error) {
-	logger := GetLogger(ctx)
-	logger.Debug("Start creating session")
-	if prevSessionInfo := getSessionInfo(ctx); prevSessionInfo != nil && prevSessionInfo.SessionState == SessionStateOpen {
-		return nil, errFoundExistingOpenSession
-	}
-	sessionID, err := generateSessionID(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	taskqueueChan := GetSignalChannel(ctx, sessionID) // use sessionID as channel name
-	// Retry is only needed when creating new session and the error returned is
-	// NewApplicationError(errTooManySessionsMsg). Therefore, we make sure to
-	// disable retrying for start-to-close and heartbeat timeouts which can occur
-	// when attempting to retry a create-session on a different worker.
-	retryPolicy := &RetryPolicy{
-		InitialInterval:        time.Second,
-		BackoffCoefficient:     1.1,
-		MaximumInterval:        time.Second * 10,
-		MaximumAttempts:        0,
-		NonRetryableErrorTypes: []string{"TemporalTimeout:StartToClose", "TemporalTimeout:Heartbeat"},
-	}
-
-	heartbeatTimeout := defaultSessionHeartbeatTimeout
-	if options.HeartbeatTimeout != 0 {
-		heartbeatTimeout = options.HeartbeatTimeout
-	}
-	ao := ActivityOptions{
-		TaskQueue:              creationTaskqueue,
-		ScheduleToStartTimeout: options.CreationTimeout,
-		StartToCloseTimeout:    options.ExecutionTimeout,
-		HeartbeatTimeout:       heartbeatTimeout,
-	}
-	if retryable {
-		ao.RetryPolicy = retryPolicy
-	}
-
-	sessionInfo := &SessionInfo{
-		SessionID:    sessionID,
-		SessionState: SessionStateOpen,
-	}
-	completionCtx := setSessionInfo(ctx, sessionInfo)
-	sessionInfo.completionCtx = completionCtx
-
-	// create sessionCtx as a child ctx as the completionCtx for two reasons:
-	//   1. completionCtx still needs the session information
-	//   2. When completing session, we need to cancel both creation activity and all user activities, but
-	//      we can't cancel the completionCtx.
-	sessionCtx, sessionCancelFunc := WithCancel(completionCtx)
-	creationCtx := WithActivityOptions(sessionCtx, ao)
-	creationFuture := ExecuteActivity(creationCtx, sessionCreationActivityName, sessionID)
-
-	var creationErr error
-	var creationResponse sessionCreationResponse
-	s := NewSelector(creationCtx)
-	s.AddReceive(taskqueueChan, func(c ReceiveChannel, more bool) {
-		c.Receive(creationCtx, &creationResponse)
-	})
-	s.AddFuture(creationFuture, func(f Future) {
-		// activity stoped before signal is received, must be creation timeout.
-		creationErr = f.Get(creationCtx, nil)
-		GetLogger(creationCtx).Debug("Failed to create session", "sessionID", sessionID, tagError, creationErr)
-	})
-	s.Select(creationCtx)
-
-	if creationErr != nil {
-		sessionCancelFunc()
-		return nil, creationErr
-	}
-
-	sessionInfo.taskqueue = creationResponse.Taskqueue
-	sessionInfo.resourceID = creationResponse.ResourceID
-	sessionInfo.HostName = creationResponse.HostName
-	sessionInfo.sessionCancelFunc = sessionCancelFunc
-
-	Go(creationCtx, func(creationCtx Context) {
-		err := creationFuture.Get(creationCtx, nil)
-		if err == nil {
-			return
-		}
-		var canceledErr *CanceledError
-		if !errors.As(err, &canceledErr) {
-			getWorkflowEnvironment(creationCtx).RemoveSession(sessionID)
-			GetLogger(creationCtx).Debug("Session failed", "sessionID", sessionID, tagError, err)
-			sessionInfo.SessionState = SessionStateFailed
-			sessionCancelFunc()
-		}
-	})
-
-	logger.Debug("Created session", "sessionID", sessionID)
-	getWorkflowEnvironment(ctx).AddSession(sessionInfo)
-	return sessionCtx, nil
+	_ = "STUB: not implemented"
+	return *new(Context), nil
 }
 
-func generateSessionID(ctx Context) (string, error) {
-	var sessionID string
-	err := SideEffect(ctx, func(ctx Context) interface{} {
-		return uuid.NewString()
-	}).Get(&sessionID)
-	return sessionID, err
-}
+// use sessionID as channel name
+// Retry is only needed when creating new session and the error returned is
+// NewApplicationError(errTooManySessionsMsg). Therefore, we make sure to
+// disable retrying for start-to-close and heartbeat timeouts which can occur
+// when attempting to retry a create-session on a different worker.
 
-func getCreationTaskqueue(base string) string {
-	return base + "__internal_session_creation"
-}
+// create sessionCtx as a child ctx as the completionCtx for two reasons:
+//   1. completionCtx still needs the session information
+//   2. When completing session, we need to cancel both creation activity and all user activities, but
+//      we can't cancel the completionCtx.
 
-func getResourceSpecificTaskqueue(resourceID string) string {
-	return resourceID + "@" + getHostName()
-}
+// activity stoped before signal is received, must be creation timeout.
+
+func generateSessionID(ctx Context) (string, error) { _ = "STUB: not implemented"; return "", nil }
+
+func getCreationTaskqueue(base string) string { _ = "STUB: not implemented"; return "" }
+
+func getResourceSpecificTaskqueue(resourceID string) string { _ = "STUB: not implemented"; return "" }
 
 func sessionCreationActivity(ctx context.Context, sessionID string) error {
-	sessionEnv, ok := ctx.Value(sessionEnvironmentContextKey).(sessionEnvironment)
-	if !ok {
-		panic("no session environment in context")
-	}
-
-	doneCh, err := sessionEnv.CreateSession(ctx, sessionID)
-	if err != nil {
-		return err
-	}
-
-	defer sessionEnv.AddSessionToken()
-
-	if err := sessionEnv.SignalCreationResponse(ctx, sessionID); err != nil {
-		return err
-	}
-
-	activityEnv := getActivityEnv(ctx)
-	heartbeatInterval := activityEnv.heartbeatTimeout / 3
-	if heartbeatInterval > maxSessionHeartbeatInterval {
-		heartbeatInterval = maxSessionHeartbeatInterval
-	}
-	ticker := time.NewTicker(heartbeatInterval)
-	defer ticker.Stop()
-
-	heartbeatRetryPolicy := backoff.NewExponentialRetryPolicy(time.Second)
-	heartbeatRetryPolicy.SetMaximumInterval(time.Second * 2)
-	heartbeatRetryPolicy.SetExpirationInterval(heartbeatInterval)
-
-	for {
-		select {
-		case <-ctx.Done():
-			sessionEnv.CompleteSession(sessionID)
-			// Because of how session creation configures retryPolicy, we need to wrap context cancels that don't
-			// originate from the server as non-retryable errors. See retrypolicy in createSession() above.
-			if !(ctx.Err() == context.Canceled && IsCanceledError(context.Cause(ctx))) {
-				return NewApplicationErrorWithOptions(
-					"session failed due to worker shutdown", "SessionWorkerShutdown",
-					ApplicationErrorOptions{NonRetryable: true, Cause: ctx.Err()})
-
-			}
-			return ctx.Err()
-		case <-ticker.C:
-			heartbeatOp := func() error {
-				// here we skip the internal heartbeat batching, as otherwise the activity has only once chance
-				// for heartbeating and if that failed, the entire session will get fail due to heartbeat timeout.
-				// since the heartbeat interval is controlled by the session framework, we don't need to worry about
-				// calling heartbeat too frequently and causing trouble for the sever. (note the min heartbeat timeout
-				// is 1 sec.)
-				return activityEnv.serviceInvoker.Heartbeat(ctx, nil, true)
-			}
-			isRetryable := func(_ error) bool {
-				// there will be two types of error here:
-				// 1. transient errors like timeout, in which case we should not fail the session
-				// 2. non-retryable errors like activity canceled, activity not found or domain
-				// not active. In those cases, the internal implementation will cancel the context,
-				// so in the next iteration, ctx.Done() will be selected. Here we rely on the heartbeat
-				// internal implementation to tell which error is non-retryable.
-				select {
-				case <-ctx.Done():
-					return false
-				default:
-					return true
-				}
-			}
-			// TODO refactor using grpc-retry, add support for custom handling for error codes.
-			err := backoff.Retry(ctx, heartbeatOp, heartbeatRetryPolicy, isRetryable)
-			if err != nil {
-				GetActivityLogger(ctx).Info("session heartbeat failed", tagError, err, "sessionID", sessionID)
-			}
-		case <-doneCh:
-			return nil
-		}
-	}
-}
-
-func sessionCompletionActivity(ctx context.Context, sessionID string) error {
-	sessionEnv, ok := ctx.Value(sessionEnvironmentContextKey).(sessionEnvironment)
-	if !ok {
-		panic("no session environment in context")
-	}
-	sessionEnv.CompleteSession(sessionID)
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func isSessionCreationActivity(activity interface{}) bool {
-	activityName, ok := activity.(string)
-	return ok && activityName == sessionCreationActivityName
+// Because of how session creation configures retryPolicy, we need to wrap context cancels that don't
+// originate from the server as non-retryable errors. See retrypolicy in createSession() above.
+
+// here we skip the internal heartbeat batching, as otherwise the activity has only once chance
+// for heartbeating and if that failed, the entire session will get fail due to heartbeat timeout.
+// since the heartbeat interval is controlled by the session framework, we don't need to worry about
+// calling heartbeat too frequently and causing trouble for the sever. (note the min heartbeat timeout
+// is 1 sec.)
+
+// there will be two types of error here:
+// 1. transient errors like timeout, in which case we should not fail the session
+// 2. non-retryable errors like activity canceled, activity not found or domain
+// not active. In those cases, the internal implementation will cancel the context,
+// so in the next iteration, ctx.Done() will be selected. Here we rely on the heartbeat
+// internal implementation to tell which error is non-retryable.
+
+// TODO refactor using grpc-retry, add support for custom handling for error codes.
+
+func sessionCompletionActivity(ctx context.Context, sessionID string) error {
+	_ = "STUB: not implemented"
+	return nil
 }
 
+func isSessionCreationActivity(activity interface{}) bool { _ = "STUB: not implemented"; return false }
+
 func mustSerializeRecreateToken(params *recreateSessionParams) []byte {
-	token, err := json.Marshal(params)
-	if err != nil {
-		panic(err)
-	}
-	return token
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func deserializeRecreateToken(token []byte) (*recreateSessionParams, error) {
-	var recreateParams recreateSessionParams
-	err := json.Unmarshal(token, &recreateParams)
-	return &recreateParams, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func newSessionTokenBucket(concurrentSessionExecutionSize int) *sessionTokenBucket {
-	return &sessionTokenBucket{
-		Cond:           sync.NewCond(&sync.Mutex{}),
-		availableToken: concurrentSessionExecutionSize,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (t *sessionTokenBucket) waitForAvailableToken() {
-	t.L.Lock()
-	defer t.L.Unlock()
-	for t.availableToken == 0 {
-		t.Wait()
-	}
-}
+func (t *sessionTokenBucket) waitForAvailableToken() { _ = "STUB: not implemented"; return }
 
-func (t *sessionTokenBucket) addToken() {
-	t.L.Lock()
-	t.availableToken++
-	t.L.Unlock()
-	t.Signal()
-}
+func (t *sessionTokenBucket) addToken() { _ = "STUB: not implemented"; return }
 
-func (t *sessionTokenBucket) getToken() bool {
-	t.L.Lock()
-	defer t.L.Unlock()
-	if t.availableToken == 0 {
-		return false
-	}
-	t.availableToken--
-	return true
-}
+func (t *sessionTokenBucket) getToken() bool { _ = "STUB: not implemented"; return false }
 
 func newSessionEnvironment(resourceID string, concurrentSessionExecutionSize int) sessionEnvironment {
-	return &sessionEnvironmentImpl{
-		Mutex:                     &sync.Mutex{},
-		doneChanMap:               make(map[string]chan struct{}),
-		resourceID:                resourceID,
-		resourceSpecificTaskqueue: getResourceSpecificTaskqueue(resourceID),
-		sessionTokenBucket:        newSessionTokenBucket(concurrentSessionExecutionSize),
-	}
+	_ = "STUB: not implemented"
+	return *new(sessionEnvironment)
 }
 
 func (env *sessionEnvironmentImpl) CreateSession(_ context.Context, sessionID string) (<-chan struct{}, error) {
-	if !env.sessionTokenBucket.getToken() {
-		// This error must be retryable so sessions can keep trying to be created
-		return nil, NewApplicationError(errTooManySessionsMsg, "", false, nil)
-	}
-
-	env.Lock()
-	defer env.Unlock()
-	doneCh := make(chan struct{})
-	env.doneChanMap[sessionID] = doneCh
-	return doneCh, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (env *sessionEnvironmentImpl) AddSessionToken() {
-	env.sessionTokenBucket.addToken()
-}
+// This error must be retryable so sessions can keep trying to be created
+
+func (env *sessionEnvironmentImpl) AddSessionToken() { _ = "STUB: not implemented"; return }
 
 func (env *sessionEnvironmentImpl) SignalCreationResponse(ctx context.Context, sessionID string) error {
-	activityEnv := getActivityEnv(ctx)
-	client := activityEnv.serviceInvoker.GetClient(ClientOptions{Namespace: activityEnv.namespace})
-	return client.SignalWorkflow(ctx, activityEnv.workflowExecution.ID, activityEnv.workflowExecution.RunID,
-		sessionID, env.getCreationResponse())
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (env *sessionEnvironmentImpl) getCreationResponse() *sessionCreationResponse {
-	return &sessionCreationResponse{
-		Taskqueue:  env.resourceSpecificTaskqueue,
-		ResourceID: env.resourceID,
-		HostName:   getHostName(),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (env *sessionEnvironmentImpl) CompleteSession(sessionID string) {
-	env.Lock()
-	defer env.Unlock()
-
-	if doneChan, ok := env.doneChanMap[sessionID]; ok {
-		delete(env.doneChanMap, sessionID)
-		close(doneChan)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (env *sessionEnvironmentImpl) GetResourceSpecificTaskqueue() string {
-	return env.resourceSpecificTaskqueue
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (env *sessionEnvironmentImpl) GetTokenBucket() *sessionTokenBucket {
-	return env.sessionTokenBucket
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // The following two implemention is for testsuite only. The only difference is that
 // the creation activity is not long running, otherwise it will block timers from auto firing.
 func sessionCreationActivityForTest(ctx context.Context, sessionID string) error {
-	sessionEnv := ctx.Value(sessionEnvironmentContextKey).(sessionEnvironment)
-
-	if _, err := sessionEnv.CreateSession(ctx, sessionID); err != nil {
-		return err
-	}
-
-	return sessionEnv.SignalCreationResponse(ctx, sessionID)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func sessionCompletionActivityForTest(ctx context.Context, sessionID string) error {
-	sessionEnv := ctx.Value(sessionEnvironmentContextKey).(sessionEnvironment)
-
-	sessionEnv.CompleteSession(sessionID)
-
-	// Add session token in the completion activity.
-	sessionEnv.AddSessionToken()
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Add session token in the completion activity.

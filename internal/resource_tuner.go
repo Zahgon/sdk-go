@@ -2,7 +2,6 @@ package internal
 
 import (
 	"context"
-	"errors"
 	"sync"
 	"time"
 
@@ -73,43 +72,8 @@ type ResourceBasedTunerOptions struct {
 //
 // Exposed as: [go.temporal.io/sdk/worker.NewResourceBasedTuner]
 func NewResourceBasedTuner(opts ResourceBasedTunerOptions) (WorkerTuner, error) {
-	if opts.InfoSupplier == nil {
-		return nil, errors.New("InfoSupplier is required for resource-based tuning")
-	}
-
-	controllerOpts := DefaultResourceControllerOptions()
-	controllerOpts.MemTargetPercent = opts.TargetMem
-	controllerOpts.CpuTargetPercent = opts.TargetCpu
-	controllerOpts.InfoSupplier = opts.InfoSupplier
-	controller := NewResourceController(controllerOpts)
-
-	wfSS := &ResourceBasedSlotSupplier{controller: controller,
-		options: DefaultWorkflowResourceBasedSlotSupplierOptions()}
-	if opts.WorkflowRampThrottle != 0 {
-		wfSS.options.RampThrottle = opts.WorkflowRampThrottle
-	}
-	actSS := &ResourceBasedSlotSupplier{controller: controller,
-		options: DefaultActivityResourceBasedSlotSupplierOptions()}
-	if opts.ActivityRampThrottle != 0 {
-		actSS.options.RampThrottle = opts.ActivityRampThrottle
-	}
-	laSS := &ResourceBasedSlotSupplier{controller: controller,
-		options: DefaultActivityResourceBasedSlotSupplierOptions()}
-	if opts.ActivityRampThrottle != 0 {
-		laSS.options.RampThrottle = opts.ActivityRampThrottle
-	}
-	nexusSS := &ResourceBasedSlotSupplier{controller: controller,
-		options: DefaultWorkflowResourceBasedSlotSupplierOptions()}
-	sessSS := &ResourceBasedSlotSupplier{controller: controller,
-		options: DefaultActivityResourceBasedSlotSupplierOptions()}
-
-	return NewCompositeTuner(CompositeTunerOptions{
-		WorkflowSlotSupplier:        wfSS,
-		ActivitySlotSupplier:        actSS,
-		LocalActivitySlotSupplier:   laSS,
-		NexusSlotSupplier:           nexusSS,
-		SessionActivitySlotSupplier: sessSS,
-	})
+	_ = "STUB: not implemented"
+	return *new(WorkerTuner), nil
 }
 
 // ResourceBasedSlotSupplierOptions configures a particular ResourceBasedSlotSupplier.
@@ -130,22 +94,16 @@ type ResourceBasedSlotSupplierOptions struct {
 //
 // Exposed as: [go.temporal.io/sdk/worker.DefaultWorkflowResourceBasedSlotSupplierOptions]
 func DefaultWorkflowResourceBasedSlotSupplierOptions() ResourceBasedSlotSupplierOptions {
-	return ResourceBasedSlotSupplierOptions{
-		MinSlots:     5,
-		MaxSlots:     1000,
-		RampThrottle: 0 * time.Second,
-	}
+	_ = "STUB: not implemented"
+	return *new(ResourceBasedSlotSupplierOptions)
 }
 
 // DefaultActivityResourceBasedSlotSupplierOptions returns default options for activity slot suppliers.
 //
 // Exposed as: [go.temporal.io/sdk/worker.DefaultActivityResourceBasedSlotSupplierOptions]
 func DefaultActivityResourceBasedSlotSupplierOptions() ResourceBasedSlotSupplierOptions {
-	return ResourceBasedSlotSupplierOptions{
-		MinSlots:     1,
-		MaxSlots:     10_000,
-		RampThrottle: 50 * time.Millisecond,
-	}
+	_ = "STUB: not implemented"
+	return *new(ResourceBasedSlotSupplierOptions)
 }
 
 // ResourceBasedSlotSupplier is a SlotSupplier that issues slots based on system resource usage.
@@ -168,71 +126,35 @@ func NewResourceBasedSlotSupplier(
 	controller *ResourceController,
 	options ResourceBasedSlotSupplierOptions,
 ) (*ResourceBasedSlotSupplier, error) {
-	if options.MinSlots < 0 || options.MaxSlots < 0 || options.MinSlots > options.MaxSlots {
-		return nil, errors.New("MinSlots and MaxSlots must be non-negative and MinSlots must be less than or equal to MaxSlots")
-	}
-	if options.RampThrottle < 0 {
-		return nil, errors.New("RampThrottle must be non-negative")
-	}
-	return &ResourceBasedSlotSupplier{controller: controller, options: options}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (r *ResourceBasedSlotSupplier) ReserveSlot(ctx context.Context, info SlotReservationInfo) (*SlotPermit, error) {
-	for {
-		if info.NumIssuedSlots() < r.options.MinSlots {
-			return &SlotPermit{}, nil
-		}
-		if r.options.RampThrottle > 0 {
-			r.lastIssuedMu.Lock()
-			mustWaitFor := r.options.RampThrottle - time.Since(r.lastSlotIssuedAt)
-			if mustWaitFor > 0 {
-				select {
-				case <-time.After(mustWaitFor):
-				case <-ctx.Done():
-					r.lastIssuedMu.Unlock()
-					return nil, ctx.Err()
-				}
-			}
-			r.lastIssuedMu.Unlock()
-		}
-
-		maybePermit := r.TryReserveSlot(info)
-		if maybePermit != nil {
-			return maybePermit, nil
-		}
-		time.Sleep(10 * time.Millisecond)
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (r *ResourceBasedSlotSupplier) TryReserveSlot(info SlotReservationInfo) *SlotPermit {
-	r.lastIssuedMu.Lock()
-	defer r.lastIssuedMu.Unlock()
-
-	numIssued := info.NumIssuedSlots()
-	if numIssued < r.options.MinSlots || (numIssued < r.options.MaxSlots &&
-		time.Since(r.lastSlotIssuedAt) > r.options.RampThrottle) {
-		decision, err := r.controller.pidDecision(info.Logger(), info.MetricsHandler())
-		if err != nil {
-			info.Logger().Error("Error calculating resource usage", "error", err)
-			return nil
-		}
-		if decision {
-			r.lastSlotIssuedAt = time.Now()
-			return &SlotPermit{}
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (r *ResourceBasedSlotSupplier) MarkSlotUsed(SlotMarkUsedInfo) {}
-func (r *ResourceBasedSlotSupplier) ReleaseSlot(SlotReleaseInfo)   {}
+func (r *ResourceBasedSlotSupplier) MarkSlotUsed(SlotMarkUsedInfo) {
+	_ = "STUB: not implemented"
+	return
+}
+func (r *ResourceBasedSlotSupplier) ReleaseSlot(SlotReleaseInfo) { _ = "STUB: not implemented"; return }
 func (r *ResourceBasedSlotSupplier) MaxSlots() int {
+	_ = "STUB: not implemented"
+
+	// GetSysInfoProvider returns the SysInfoProvider used by this slot supplier's controller.
 	return 0
 }
 
-// GetSysInfoProvider returns the SysInfoProvider used by this slot supplier's controller.
 func (r *ResourceBasedSlotSupplier) SysInfoProvider() SysInfoProvider {
-	return r.controller.infoSupplier
+	_ = "STUB: not implemented"
+	return *new(SysInfoProvider)
 }
 
 // ResourceControllerOptions contains configurable parameters for a ResourceController.
@@ -265,18 +187,8 @@ type ResourceControllerOptions struct {
 //
 // Exposed as: [go.temporal.io/sdk/worker.DefaultResourceControllerOptions]
 func DefaultResourceControllerOptions() ResourceControllerOptions {
-	return ResourceControllerOptions{
-		MemTargetPercent:   0.8,
-		CpuTargetPercent:   0.9,
-		MemOutputThreshold: 0.25,
-		CpuOutputThreshold: 0.05,
-		MemPGain:           5,
-		MemIGain:           0,
-		MemDGain:           1,
-		CpuPGain:           5,
-		CpuIGain:           0,
-		CpuDGain:           1,
-	}
+	_ = "STUB: not implemented"
+	return *new(ResourceControllerOptions)
 }
 
 // pidController implements a simple PID controller for resource-based tuning.
@@ -290,11 +202,8 @@ type pidController struct {
 }
 
 func (c *pidController) update(reference, actual float64, dt time.Duration) {
-	err := reference - actual
-	c.integral += err * dt.Seconds()
-	derivative := (err - c.prevError) / dt.Seconds()
-	c.controlSignal = c.pGain*err + c.iGain*c.integral + c.dGain*derivative
-	c.prevError = err
+	_ = "STUB: not implemented"
+	return
 }
 
 // ResourceController is used by ResourceBasedSlotSupplier to make decisions about whether slots
@@ -318,60 +227,21 @@ type ResourceController struct {
 //
 // Exposed as: [go.temporal.io/sdk/worker.NewResourceController]
 func NewResourceController(options ResourceControllerOptions) *ResourceController {
-	if options.InfoSupplier == nil {
-		panic("InfoSupplier is required - use contrib/sysinfo.SysInfoProvider() or provide your own")
-	}
-	return &ResourceController{
-		options:      options,
-		infoSupplier: options.InfoSupplier,
-		memPid: &pidController{
-			pGain: options.MemPGain,
-			iGain: options.MemIGain,
-			dGain: options.MemDGain,
-		},
-		cpuPid: &pidController{
-			pGain: options.CpuPGain,
-			iGain: options.CpuIGain,
-			dGain: options.CpuDGain,
-		},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (rc *ResourceController) pidDecision(logger log.Logger, metricsHandler metrics.Handler) (bool, error) {
-	rc.mu.Lock()
-	defer rc.mu.Unlock()
-
-	memUsage, err := rc.infoSupplier.MemoryUsage(&SysInfoContext{Logger: logger})
-	if err != nil {
-		return false, err
-	}
-	cpuUsage, err := rc.infoSupplier.CpuUsage(&SysInfoContext{Logger: logger})
-	if err != nil {
-		return false, err
-	}
-	rc.publishResourceMetrics(metricsHandler, memUsage, cpuUsage)
-	if memUsage >= rc.options.MemTargetPercent {
-		// Never allow going over the memory target
-		return false, nil
-	}
-	elapsedTime := time.Since(rc.lastRefresh)
-	// This shouldn't be possible with real implementations, but if the elapsed time is 0 the
-	// PID controller can produce NaNs.
-	if elapsedTime <= 0 {
-		elapsedTime = 1 * time.Millisecond
-	}
-	rc.memPid.update(rc.options.MemTargetPercent, memUsage, elapsedTime)
-	rc.cpuPid.update(rc.options.CpuTargetPercent, cpuUsage, elapsedTime)
-	rc.lastRefresh = time.Now()
-
-	return rc.memPid.controlSignal > rc.options.MemOutputThreshold &&
-		rc.cpuPid.controlSignal > rc.options.CpuOutputThreshold, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
+// Never allow going over the memory target
+
+// This shouldn't be possible with real implementations, but if the elapsed time is 0 the
+// PID controller can produce NaNs.
+
 func (rc *ResourceController) publishResourceMetrics(metricsHandler metrics.Handler, memUsage, cpuUsage float64) {
-	if metricsHandler == nil {
-		return
-	}
-	metricsHandler.Gauge(resourceSlotsMemUsage).Update(memUsage * 100)
-	metricsHandler.Gauge(resourceSlotsCPUUsage).Update(cpuUsage * 100)
+	_ = "STUB: not implemented"
+	return
 }

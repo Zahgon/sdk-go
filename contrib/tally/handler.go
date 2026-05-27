@@ -22,7 +22,8 @@ type metricsHandler struct{ scope tally.Scope }
 //	scope, _ := tally.NewRootScope(opts, time.Second)
 //	scope = contribtally.NewPrometheusNamingScope(scope)
 func NewMetricsHandler(scope tally.Scope) client.MetricsHandler {
-	return metricsHandler{scope}
+	_ = "STUB: not implemented"
+	return *new(client.MetricsHandler)
 }
 
 // ScopeFromHandler returns the underlying scope of the handler. Callers may
@@ -41,33 +42,29 @@ func NewMetricsHandler(scope tally.Scope) client.MetricsHandler {
 //	}
 //	scope.Histogram("my_histogram", nil).RecordDuration(5 * time.Second)
 func ScopeFromHandler(handler client.MetricsHandler) tally.Scope {
+	_ = "STUB: not implemented"
 	// Continually unwrap until we find an instance of our own handler
-	for {
-		tallyHandler, ok := handler.(metricsHandler)
-		if ok {
-			return tallyHandler.scope
-		}
-		// If unwrappable, do so, otherwise return noop
-		unwrappable, _ := handler.(interface{ Unwrap() client.MetricsHandler })
-		if unwrappable == nil {
-			return tally.NoopScope
-		}
-		handler = unwrappable.Unwrap()
-	}
+	return *new(tally.Scope)
 }
 
+// If unwrappable, do so, otherwise return noop
+
 func (m metricsHandler) WithTags(tags map[string]string) client.MetricsHandler {
-	return metricsHandler{m.scope.Tagged(tags)}
+	_ = "STUB: not implemented"
+	return *new(client.MetricsHandler)
 }
 
 func (m metricsHandler) Counter(name string) client.MetricsCounter {
-	return m.scope.Counter(name)
+	_ = "STUB: not implemented"
+	return *new(client.MetricsCounter)
 }
 
 func (m metricsHandler) Gauge(name string) client.MetricsGauge {
-	return m.scope.Gauge(name)
+	_ = "STUB: not implemented"
+	return *new(client.MetricsGauge)
 }
 
 func (m metricsHandler) Timer(name string) client.MetricsTimer {
-	return m.scope.Timer(name)
+	_ = "STUB: not implemented"
+	return *new(client.MetricsTimer)
 }

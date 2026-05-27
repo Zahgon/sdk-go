@@ -40,18 +40,15 @@ var ErrActivityPaused = internal.ErrActivityPaused
 var ErrActivityReset = internal.ErrActivityReset
 
 // GetInfo returns information about the currently executing activity.
-func GetInfo(ctx context.Context) Info {
-	return internal.GetActivityInfo(ctx)
-}
+func GetInfo(ctx context.Context) Info { _ = "STUB: not implemented"; return *new(Info) }
 
 // GetLogger returns a logger that can be used in the activity.
-func GetLogger(ctx context.Context) log.Logger {
-	return internal.GetActivityLogger(ctx)
-}
+func GetLogger(ctx context.Context) log.Logger { _ = "STUB: not implemented"; return *new(log.Logger) }
 
 // GetMetricsHandler returns a metrics handler that can be used in the activity.
 func GetMetricsHandler(ctx context.Context) metrics.Handler {
-	return internal.GetActivityMetricsHandler(ctx)
+	_ = "STUB: not implemented"
+	return *new(metrics.Handler)
 }
 
 // RecordHeartbeat sends a heartbeat for the currently executing activity.
@@ -75,13 +72,12 @@ func GetMetricsHandler(ctx context.Context) metrics.Handler {
 // Note: If using asynchronous activity completion,
 // after returning [ErrResultPending] users should heartbeat with [go.temporal.io/sdk/client.Client.RecordActivityHeartbeat]
 func RecordHeartbeat(ctx context.Context, details ...interface{}) {
-	internal.RecordActivityHeartbeat(ctx, details...)
+	_ = "STUB: not implemented"
+	return
 }
 
 // HasHeartbeatDetails checks if there are heartbeat details from the last attempt.
-func HasHeartbeatDetails(ctx context.Context) bool {
-	return internal.HasHeartbeatDetails(ctx)
-}
+func HasHeartbeatDetails(ctx context.Context) bool { _ = "STUB: not implemented"; return false }
 
 // GetHeartbeatDetails extracts heartbeat details from the last failed attempt. This is used in combination with the retry policy.
 // An activity could be scheduled with an optional retry policy on ActivityOptions. If the activity failed, then server
@@ -93,7 +89,8 @@ func HasHeartbeatDetails(ctx context.Context) bool {
 // Note: Values should not be reused for extraction here because merging on top
 // of existing values may result in unexpected behavior similar to json.Unmarshal.
 func GetHeartbeatDetails(ctx context.Context, d ...interface{}) error {
-	return internal.GetHeartbeatDetails(ctx, d...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetWorkerStopChannel returns a read-only channel. The closure of this channel indicates the activity worker is stopping.
@@ -101,17 +98,17 @@ func GetHeartbeatDetails(ctx context.Context, d ...interface{}) error {
 // hits, the worker will cancel the activity context and then exit. The timeout can be defined by worker option: WorkerStopTimeout.
 // Use this channel to handle a graceful activity exit when the activity worker stops.
 func GetWorkerStopChannel(ctx context.Context) <-chan struct{} {
-	return internal.GetWorkerStopChannel(ctx)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // IsActivity checks if the context is an activity context from a normal or local activity.
-func IsActivity(ctx context.Context) bool {
-	return internal.IsActivity(ctx)
-}
+func IsActivity(ctx context.Context) bool { _ = "STUB: not implemented"; return false }
 
 // GetClient returns a client that can be used to interact with the Temporal
 // service from an activity. Return type internal.Client is the same underlying
 // type as client.Client.
 func GetClient(ctx context.Context) internal.Client {
-	return internal.GetClient(ctx)
+	_ = "STUB: not implemented"
+	return *new(internal.Client)
 }
